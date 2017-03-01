@@ -52,7 +52,7 @@ class SWS(object):
     def get_term_after(self, aterm):
         deprecation("Use uw_sws.term.get_term_after")
         from uw_sws.term import get_term_after
-        return term.get_term_after(aterm)
+        return get_term_after(aterm)
 
     def get_sections_by_instructor_and_term(self, person, term):
         deprecation("Use uw_sws.section.get_sections_by_instructor_and_term")
