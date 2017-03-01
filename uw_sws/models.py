@@ -227,9 +227,6 @@ class Term(models.Model):
     registration_period3_start = models.DateTimeField(blank=True)
     registration_period3_end = models.DateTimeField(blank=True)
 
-    class Meta(models.Model.Meta):
-        unique_together = ("year", "quarter")
-
     def __eq__(self, other):
         return self.year == other.year and self.quarter == other.quarter
 
@@ -456,12 +453,6 @@ class Section(models.Model):
     student_credits = models.DecimalField(max_digits=3, decimal_places=1)
     student_grade = models.CharField(max_length=6, null=True, blank=True)
     grade_date = models.DateField(null=True, blank=True, default=None)
-
-    class Meta(models.Model.Meta):
-        unique_together = ('term',
-                           'curriculum_abbr',
-                           'course_number',
-                           'section_id')
 
     def is_campus_seattle(self):
         return self.course_campus is not None and\
@@ -714,11 +705,6 @@ class SectionMeeting(models.Model):
     meets_saturday = models.NullBooleanField()
     meets_sunday = models.NullBooleanField()
     # instructor = models.ForeignKey(Instructor, on_delete=models.PROTECT)
-
-    class Meta(models.Model.Meta):
-        unique_together = ('term',
-                           'section',
-                           'meeting_index')
 
     def json_data(self):
         data = {

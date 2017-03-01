@@ -19,7 +19,7 @@ class SWS_DAO(DAO):
         return 'sws'
 
     def service_mock_paths(self):
-        return [abspath(os.path.join(dirname(__file__), "..", "resources"))]
+        return [abspath(os.path.join(dirname(__file__), "resources"))]
 
     def _edit_mock_response(self, method, url, headers, body, response):
         if "GET" == method:
