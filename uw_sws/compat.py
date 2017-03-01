@@ -73,7 +73,8 @@ class SWS(object):
                              include_instructor_not_on_time_schedule=True):
         deprecation("Use uw_sws.section.get_section_by_label")
         from uw_sws.section import get_section_by_label
-        return get_section_by_label(label, include_instructor_not_on_time_schedule)
+        return get_section_by_label(label,
+                                    include_instructor_not_on_time_schedule)
 
     def get_section_by_url(self, url,
                            include_instructor_not_on_time_schedule=True):
@@ -90,13 +91,15 @@ class SWS(object):
                             include_instructor_not_on_time_schedule=True):
         deprecation("Use uw_sws.section.get_linked_sections")
         from uw_sws.section import get_linked_sections
-        return get_linked_sections(asection, include_instructor_not_on_time_schedule)
+        return get_linked_sections(asection,
+                                   include_instructor_not_on_time_schedule)
 
     def get_joint_sections(self, asection,
                            include_instructor_not_on_time_schedule=True):
         deprecation("Use uw_sws.section.get_joint_sections")
         from uw_sws.section import get_joint_sections
-        return get_joint_sections(asection, include_instructor_not_on_time_schedule)
+        return get_joint_sections(asection,
+                                  include_instructor_not_on_time_schedule)
 
     def get_all_registrations_for_section(self, section):
         deprecation(
@@ -110,13 +113,17 @@ class SWS(object):
         from uw_sws.registration import get_active_registrations_by_section
         return get_active_registrations_by_section(section)
 
-    def schedule_for_regid_and_term(self, regid, term,
-                                    include_instructor_not_on_time_schedule=True):
+    def short_name(self, regid, term,
+                   include_instructor_not_on_time_schedule=True):
+
+        x = include_instructor_not_on_time_schedule
+        return self.schedule_for_regid_and_term(regid, term, x)
+
+    def schedule_for_regid_and_term(*args, **kwargs):
         deprecation(
             "Use uw_sws.registration.get_schedule_by_regid_and_term")
         from uw_sws.registration import get_schedule_by_regid_and_term
-        return get_schedule_by_regid_and_term(regid, term,
-                                              include_instructor_not_on_time_schedule)
+        return get_schedule_by_regid_and_term(*args, **kwargs)
 
     def grades_for_regid_and_term(self, regid, term):
         deprecation(

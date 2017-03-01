@@ -3,7 +3,7 @@ from restclients_core.thread import Thread
 
 
 class SWSThread(Thread):
-    url = None # the course url to send a request
+    url = None  # the course url to send a request
     reg_url = None
     headers = None
     response = None
@@ -19,5 +19,3 @@ class SWSThread(Thread):
             self.response = SWS_DAO().getURL(self.url, args)
         except Exception as ex:
             self.exception = ex
-
-
