@@ -119,7 +119,7 @@ class SWS(object):
         x = include_instructor_not_on_time_schedule
         return self.schedule_for_regid_and_term(regid, term, x)
 
-    def schedule_for_regid_and_term(*args, **kwargs):
+    def schedule_for_regid_and_term(self, *args, **kwargs):
         deprecation(
             "Use uw_sws.registration.get_schedule_by_regid_and_term")
         from uw_sws.registration import get_schedule_by_regid_and_term
