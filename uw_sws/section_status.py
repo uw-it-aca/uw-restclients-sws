@@ -5,6 +5,7 @@ from uw_sws.models import SectionStatus
 
 course_res_url_prefix = "/student/v5/course"
 
+
 def get_section_status_by_label(label):
     if not section_label_pattern.match(label):
         raise InvalidSectionID(label)
@@ -15,6 +16,7 @@ def get_section_status_by_label(label):
     return _json_to_sectionstatus(get_resource(url))
 
     pass
+
 
 def _json_to_sectionstatus(section_data):
     """
@@ -27,13 +29,18 @@ def _json_to_sectionstatus(section_data):
     else:
         section_status.add_code_required = False
     section_status.current_enrollment = int(section_data["CurrentEnrollment"])
-    section_status.current_registration_period = int(section_data["CurrentRegistrationPeriod"])
+    current_period = int(section_data["CurrentRegistrationPeriod"])
+    section_status.current_registration_period = current_period
     if section_data["FacultyCodeRequired"] == 'true':
         section_status.faculty_code_required = True
     else:
         section_status.faculty_code_required = False
-    section_status.limit_estimated_enrollment = int(section_data["LimitEstimateEnrollment"])
-    section_status.limit_estimate_enrollment_indicator = section_data["LimitEstimateEnrollmentIndicator"]
+
+    limit_estimate = int(section_data["LimitEstimateEnrollment"])
+    section_status.limit_estimated_enrollment = limit_estimated_enrollment
+
+    indicator = section_data["LimitEstimateEnrollmentIndicator"]
+    section_status.limit_estimate_enrollment_indicator = indicator
     section_status.room_capacity = int(section_data["RoomCapacity"])
     section_status.sln = int(section_data["SLN"])
     section_status.space_available = int(section_data["SpaceAvailable"])

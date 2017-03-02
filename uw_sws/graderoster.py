@@ -73,7 +73,8 @@ def graderoster_from_xhtml(data, section, instructor):
                       namespaces=nsmap)[0]
 
     default_section_id = None
-    el = root.xpath("./xhtml:div/xhtml:a[@rel='section']/*[@class='section_id']",
+    xpath = "./xhtml:div/xhtml:a[@rel='section']/*[@class='section_id']"
+    el = root.xpath(xpath,
                     namespaces=nsmap)[0]
     default_section_id = el.text.upper()
 
@@ -97,14 +98,16 @@ def graderoster_from_xhtml(data, section, instructor):
     for el in root.xpath("./xhtml:div//*[@class='grade_submission_delegate']",
                          namespaces=nsmap):
         reg_id = el.xpath(".//*[@class='reg_id']")[0].text.strip()
-        delegate_level = el.xpath(".//*[@class='delegate_level']")[0].text.strip()
+        node = el.xpath(".//*[@class='delegate_level']")[0]
+        delegate_level = node.text.strip()
         if reg_id not in people:
             people[reg_id] = pws.get_person_by_regid(reg_id)
         delegate = GradeSubmissionDelegate(person=people[reg_id],
                                            delegate_level=delegate_level)
         graderoster.grade_submission_delegates.append(delegate)
 
-    for item in root.xpath("./*[@class='graderoster_items']/*[@class='graderoster_item']"):
+    xpath = "./*[@class='graderoster_items']/*[@class='graderoster_item']"
+    for item in root.xpath(xpath):
         gr_item = GradeRosterItem(section_id=default_section_id)
         gr_item.grade_choices = []
 
@@ -173,8 +176,8 @@ def graderoster_from_xhtml(data, section, instructor):
             elif classname == "message" and el.text is not None:
                 gr_item.status_message = el.text.strip()
 
-        for el in item.xpath(".//xhtml:a[@rel='grade_submitter_person']/*[@class='reg_id']",
-                             namespaces=nsmap):
+        xpath = ".//xhtml:a[@rel='grade_submitter_person']/*[@class='reg_id']"
+        for el in item.xpath(xpath, namespaces=nsmap):
             reg_id = el.text.strip()
             if reg_id not in people:
                 people[reg_id] = pws.get_person_by_regid(reg_id)

@@ -22,7 +22,7 @@ setup(
     author="UW-IT AXDD",
     author_email="aca-it@uw.edu",
     include_package_data=True,
-    install_requires=['simplejson',
+    install_requires=['lxml',
                       'UW-RestClients-Core==0.1.2'
                      ],
     license='Apache License, Version 2.0',

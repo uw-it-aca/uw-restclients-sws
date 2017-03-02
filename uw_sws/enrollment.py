@@ -82,10 +82,10 @@ def _json_to_major(json_data):
 
 
 def _json_to_minor(json_data):
-   minor = Minor()
-   minor.abbr = json_data['Abbreviation']
-   minor.campus = json_data['CampusName']
-   minor.name = json_data['Name']
-   minor.full_name = json_data['FullName']
-   minor.short_name = json_data['ShortName']
-   return minor
+    minor = Minor()
+    minor.abbr = json_data['Abbreviation']
+    minor.campus = json_data['CampusName']
+    minor.name = json_data['Name']
+    minor.full_name = json_data['FullName']
+    minor.short_name = json_data['ShortName']
+    return minor

@@ -173,13 +173,17 @@ def get_credits_by_reg_url(url):
 
 
 def get_schedule_by_regid_and_term(regid, term,
-                                   include_instructor_not_on_time_schedule=True,
+                                   non_time_schedule_instructors=True,
                                    per_section_prefetch_callback=None,
-                                   transcriptable_course=""):
+                                   transcriptable_course="", **kwargs):
     """
     Returns a restclients.models.sws.ClassSchedule object
     for the regid and term passed in.
     """
+
+    if "include_instructor_not_on_time_schedule" in kwargs:
+        include = kwargs["include_instructor_not_on_time_schedule"]
+        non_time_schedule_instructors = include
     params = {
         'reg_id': regid,
         'quarter': term.quarter,
@@ -211,7 +215,9 @@ def _json_to_schedule(term_data, term, regid,
 
             # Skip a step here, and go right to the course section resource
             course_url = re.sub('registration', 'course', reg_url)
-            course_url = re.sub('^(.*?,.*?,.*?,.*?,.*?),.*', '\\1.json', course_url)
+            course_url = re.sub('^(.*?,.*?,.*?,.*?,.*?),.*',
+                                '\\1.json',
+                                course_url)
             course_url = re.sub(',([^,]*).json', '/\\1.json', course_url)
 
             thread = SWSThread()
@@ -231,14 +237,16 @@ def _json_to_schedule(term_data, term, regid,
                 response = thread.response
                 if response and response.status == 200:
                     data = json.loads(response.data)
-                    section_prefetch.extend(get_prefetch_for_section_data(data))
+                    sd_prefetch = get_prefetch_for_section_data(data)
+                    section_prefetch.extend(sd_prefetch)
                     if per_section_prefetch_callback:
                         client_callbacks = per_section_prefetch_callback(data)
                         section_prefetch.extend(client_callbacks)
 
                 url = thread.reg_url
                 section_prefetch.append([url,
-                                         generic_prefetch(get_resource, [url])])
+                                         generic_prefetch(get_resource,
+                                                          [url])])
 
             prefetch_threads = []
             for entry in section_prefetch:
@@ -289,7 +297,9 @@ def _json_to_schedule(term_data, term, regid,
                     section.meetings[0].instructors = [actual_instructor]
                 else:
                     section.meetings[0].instructors = []
-                section.independent_study_instructor_regid = registration["Instructor"]
+
+                instructor_regid = registration["Instructor"]
+                section.independent_study_instructor_regid = instructor_regid
             sections.append(section)
 
         term.credits = term_credit_hours
@@ -317,8 +327,10 @@ def _add_credits_grade_to_section(url, section):
         section.student_grade = section_reg_data['Grade']
         section.is_auditor = section_reg_data['Auditor']
         if len(section_reg_data['GradeDate']) > 0:
-            section.grade_date = parse_sws_date(section_reg_data['GradeDate']).date()
+            raw_date = section_reg_data["GradeDate"]
+            section.grade_date = parse_sws_date(raw_date).date()
         try:
-            section.student_credits = Decimal(section_reg_data['Credits'].strip())
+            raw_credits = section_reg_data['Credits'].strip()
+            section.student_credits = Decimal(raw_credits)
         except InvalidOperation:
             pass

@@ -213,6 +213,7 @@ def get_prefetch_for_section_data(section_data):
 
     return prefetch
 
+
 def _json_to_section(section_data,
                      term=None,
                      include_instructor_not_on_time_schedule=True):
