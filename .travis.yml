@@ -17,4 +17,16 @@ script:
 - coverage run uw_sws/test.py -v
 after_script:
 - coveralls
-
+before_deploy:
+- find uw_sws/ -name \*.pyc -exec rm {} \;
+- echo $TRAVIS_TAG > uw_sws/VERSION
+deploy:
+  provider: pypi
+  server: https://pypi.python.org/pypi
+  user: uw-it-aca
+  skip_cleanup: true
+  password:
+    secure: F/HjdvFA3EvFVv1mO+nUVn4LDmbQdTq5LijZ8t9jLa/eGz/SjtCN4YYSDcwg88j59Yz+X3JJqGKN4eGMNmsWBQtwMy9eF/BTeFYvgq/IHew5ILey19qLlSgBC0jJ6efFZsxqz8NHId230oyy4FLxCJKdk+MFpE/gPkdjVhtFsMWELue8SHxPKLvkal/KyKRQMCOvMtW5u5k6+unrwzFkY1p0GmTKZyyRYwynX0h93hLRJ3XqH+n8aT1VbgxpCCGX66C8QXoHJIdgpt3p4Q4Gy93pK1DQt42jbU3Gvk4wTfMLHdZnJTohVJmDsMFVFX2YiB95IV6Uj3lfcwONILb5dht2kymmshR5sYUZyfUlSp0kIKuxTBuFU3CffBOswwrl4ljUijxdY5QtNYNI9Hzi8FOw+KmeQ53f/WKXzgyb9roOyBBT8u3kViG7+1Ipq80URhDoXXt8sYRc7NwDuH4HsdCvh2iL1zRZwpGBDpAtBcjskucCTJS94/khWnR/lY9rnyrGDOkVeQuaSV/8T6D/nhsOYeFp7Ksmkdp0HaQiLRdJbxHu4vKL2nR5lnNau08Rnlt7b60jtiKkJFxyRtYjNBgi4zgi/lTZRe1Bllhi0DI+pK3Az49V/BfwKDJfg/uueda9FK3eQ3h3cRjeBE9OO8QOWvB578xHYgHU7jHWh8Y=
+  on:
+    tags: true
+    python: '3.5'
