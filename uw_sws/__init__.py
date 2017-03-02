@@ -1,5 +1,8 @@
 from datetime import datetime
-from urllib import quote
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 from uw_sws.dao import SWS_DAO
 from restclients_core.exceptions import DataFailureException
 import json
