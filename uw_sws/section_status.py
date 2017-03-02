@@ -37,7 +37,7 @@ def _json_to_sectionstatus(section_data):
         section_status.faculty_code_required = False
 
     limit_estimate = int(section_data["LimitEstimateEnrollment"])
-    section_status.limit_estimated_enrollment = limit_estimated_enrollment
+    section_status.limit_estimated_enrollment = limit_estimate
 
     indicator = section_data["LimitEstimateEnrollmentIndicator"]
     section_status.limit_estimate_enrollment_indicator = indicator

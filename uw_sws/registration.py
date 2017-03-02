@@ -197,7 +197,7 @@ def get_schedule_by_regid_and_term(regid, term,
     url = "%s?%s" % (registration_res_url_prefix, urlencode(params))
 
     return _json_to_schedule(get_resource(url), term, regid,
-                             include_instructor_not_on_time_schedule,
+                             non_time_schedule_instructors,
                              per_section_prefetch_callback)
 
 
