@@ -4,7 +4,10 @@ Interfacing with the Student Web Service, for Section and Course resources.
 import logging
 import re
 from datetime import datetime
-from urllib import urlencode
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from restclients_core.thread import generic_prefetch
 from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
 from restclients_core.exceptions import DataFailureException

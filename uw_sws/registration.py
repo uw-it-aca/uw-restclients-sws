@@ -4,7 +4,10 @@ Interfacing with the Student Web Service, Registration_Search query.
 import logging
 import json
 import re
-from urllib import urlencode
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from uw_sws.models import Registration, ClassSchedule
@@ -50,19 +53,19 @@ def _registrations_for_section_with_active_flag(section, is_active,
             section.independent_study_instructor_regid is not None):
         instructor_reg_id = section.independent_study_instructor_regid
 
-    params = {
-        "year": section.term.year,
-        "quarter": section.term.quarter,
-        "curriculum_abbreviation": section.curriculum_abbr,
-        "course_number": section.course_number,
-        "section_id": section.section_id,
-        "instructor_reg_id": instructor_reg_id,
-        "is_active": "true" if is_active else "",
-        "verbose": "true"
-    }
+    params = [
+        ("curriculum_abbreviation", section.curriculum_abbr),
+        ("instructor_reg_id", instructor_reg_id),
+        ("course_number", section.course_number),
+        ("verbose", "true"),
+        ("year", section.term.year),
+        ("quarter", section.term.quarter),
+        ("is_active", "true" if is_active else ""),
+        ("section_id", section.section_id),
+    ]
 
     if transcriptable_course != "":
-        params["transcriptable_course"] = transcriptable_course
+        params.append(("transcriptable_course", transcriptable_course,))
 
     url = "%s?%s" % (registration_res_url_prefix, urlencode(params))
 
@@ -184,15 +187,18 @@ def get_schedule_by_regid_and_term(regid, term,
     if "include_instructor_not_on_time_schedule" in kwargs:
         include = kwargs["include_instructor_not_on_time_schedule"]
         non_time_schedule_instructors = include
-    params = {
-        'reg_id': regid,
-        'quarter': term.quarter,
-        'is_active': 'true',
-        'year': term.year
-    }
+    params = [
+        ('reg_id', regid),
+    ]
 
     if transcriptable_course != "":
-        params["transcriptable_course"] = transcriptable_course
+        params.append(("transcriptable_course", transcriptable_course,))
+
+    params.extend([
+        ('quarter', term.quarter),
+        ('is_active', 'true'),
+        ('year', term.year),
+    ])
 
     url = "%s?%s" % (registration_res_url_prefix, urlencode(params))
 

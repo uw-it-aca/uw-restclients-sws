@@ -1,4 +1,9 @@
 from datetime import date, datetime, timedelta
+from restclients_core.util.decorators import use_mock
+from uw_sws.dao import SWS_DAO
+
+
+fdao_sws_override = use_mock(SWS_DAO())
 
 
 def abbr_week_month_day_str(adatetime):

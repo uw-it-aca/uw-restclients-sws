@@ -13,7 +13,7 @@ before_script:
 - pip install commonconf
 - pip install python-coveralls
 script:
-- pep8 uw_sws
+- pep8 --exclude=uw_sws/tests uw_sws
 - coverage run uw_sws/test.py -v
 after_script:
 - coveralls

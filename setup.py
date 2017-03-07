@@ -23,8 +23,9 @@ setup(
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=['lxml',
-                      'UW-RestClients-Core==0.1.3',
-                      'UW-RestClients-PWS==0.1.1',
+                      'UW-RestClients-Core>0.8,<1.0',
+                      'UW-RestClients-PWS<1.0',
+                      'mock',
                      ],
     license='Apache License, Version 2.0',
     description=('A library for connecting to the SWS at the University '
