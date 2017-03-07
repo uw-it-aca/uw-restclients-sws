@@ -1,0 +1,4 @@
+[run]
+branch = True
+source = uw_sws
+include = uw_sws/*
