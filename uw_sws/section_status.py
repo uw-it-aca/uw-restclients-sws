@@ -20,7 +20,7 @@ def get_section_status_by_label(label):
 
 def _json_to_sectionstatus(section_data):
     """
-    Returns a restclients.models.sws.SectionStatus object
+    Returns a uw_sws.models.SectionStatus object
     created from the passed json.
     """
     section_status = SectionStatus()

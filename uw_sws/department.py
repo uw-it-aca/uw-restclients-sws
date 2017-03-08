@@ -2,7 +2,10 @@
 Interfacing with the Student Web Service, Department Search.
 """
 import logging
-from urllib import urlencode
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from uw_sws.models import Department
 from uw_sws import get_resource
 

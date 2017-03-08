@@ -1,15 +1,15 @@
-from django.test import TestCase
-from django.conf import settings
-from restclients.sws.term import get_current_term
-from restclients.sws.enrollment import get_grades_by_regid_and_term, get_enrollment_by_regid_and_term
-from restclients.exceptions import DataFailureException
+from unittest import TestCase
+from uw_sws.util import fdao_sws_override
+from uw_pws.util import fdao_pws_override
+from uw_sws.term import get_current_term
+from uw_sws.enrollment import get_grades_by_regid_and_term, get_enrollment_by_regid_and_term
+from restclients_core.exceptions import DataFailureException
 
+
+@fdao_pws_override
+@fdao_sws_override
 class SWSTestEnrollments(TestCase):
     def test_javerage_grades(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-                RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             term = get_current_term()
             grades = get_grades_by_regid_and_term('9136CCB8F66711D5BE060004AC494FFE', term)
 
@@ -26,10 +26,6 @@ class SWSTestEnrollments(TestCase):
             self.assertEquals(grades.grades[2].section.course_number, '121')
 
     def test_javerage_major(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-                RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             term = get_current_term()
             enrollement = get_enrollment_by_regid_and_term('9136CCB8F66711D5BE060004AC494FFE', term)
             self.assertEquals(enrollement.class_level, "SENIOR")

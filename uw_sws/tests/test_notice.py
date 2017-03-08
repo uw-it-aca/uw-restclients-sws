@@ -1,14 +1,14 @@
-from django.test import TestCase
-from django.conf import settings
-from restclients.sws.notice import get_notices_by_regid
+from unittest import TestCase
+from uw_sws.util import fdao_sws_override
+from uw_pws.util import fdao_pws_override
+from uw_sws.notice import get_notices_by_regid
 from datetime import date, datetime, timedelta
 
+
+@fdao_pws_override
+@fdao_sws_override
 class SWSNotice(TestCase):
     def test_notice_resource(self):
-        with self.settings(
-            RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-            RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             notices = get_notices_by_regid("9136CCB8F66711D5BE060004AC494FFE")
             self.assertEquals(len(notices), 17)
 

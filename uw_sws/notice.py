@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def get_notices_by_regid(regid):
     """
-    Returns a list of restclients.models.sws.Notice objects
+    Returns a list of uw_sws.models.Notice objects
     for the passed regid.
     """
     url = notice_res_url_prefix + regid + ".json"

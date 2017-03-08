@@ -1,13 +1,14 @@
 from datetime import datetime
-from django.test import TestCase
-from django.conf import settings
-from restclients.models.sws import Term, Curriculum, Person
-from restclients.exceptions import DataFailureException
-from restclients.exceptions import InvalidSectionID, InvalidSectionURL
-from restclients.exceptions import InvalidCanvasIndependentStudyCourse,\
-    InvalidCanvasSection
-from restclients.sws import use_v5_resources
-from restclients.sws.section import get_section_by_label,\
+from unittest import TestCase
+from uw_sws.util import fdao_sws_override
+from uw_pws.util import fdao_pws_override
+from uw_sws.models import Term, Curriculum, Person
+from restclients_core.exceptions import DataFailureException
+from uw_sws.exceptions import (InvalidSectionID, InvalidSectionURL,
+                               InvalidCanvasIndependentStudyCourse,
+                               InvalidCanvasSection)
+from uw_sws import use_v5_resources
+from uw_sws.section import get_section_by_label,\
     get_joint_sections, get_linked_sections,\
     get_sections_by_instructor_and_term,\
     get_sections_by_curriculum_and_term,\
@@ -17,15 +18,11 @@ from restclients.sws.section import get_section_by_label,\
     is_a_term, is_b_term, is_full_summer_term
 
 
-SWSF = 'restclients.dao_implementation.sws.File'
-PWSF = 'restclients.dao_implementation.pws.File'
 
-
+@fdao_pws_override
+@fdao_sws_override
 class SWSTestSectionData(TestCase):
     def test_section(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
             section = get_section_by_label('2012,autumn,B BIO,180/A')
             self.assertTrue(section.is_campus_bothell())
             section = get_section_by_label('2013,summer,MATH,125/G')
@@ -34,10 +31,6 @@ class SWSTestSectionData(TestCase):
             self.assertTrue(section.is_campus_tacoma())
 
     def test_final_exams(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             section = get_section_by_label('2013,summer,B BIO,180/A')
             self.assertEquals(section.final_exam, None,
                               "No final exam for B BIO 180")
@@ -77,10 +70,6 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(end.minute, 20)
 
     def test_section_by_label(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             #Valid data, shouldn't throw any exceptions
             get_section_by_label('2013,summer,TRAIN,100/A')
 
@@ -159,10 +148,6 @@ class SWSTestSectionData(TestCase):
                               '2010,autumn,CM,101/A')
 
     def test_instructors_in_section(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             section = get_section_by_label('2013,winter,ASIAN,203/A')
 
             self.assertEquals(len(section.get_instructors()), 1,
@@ -189,10 +174,6 @@ class SWSTestSectionData(TestCase):
                               "Correct number of TSPrinted instructors")
 
     def test_delegates_in_section(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             section = get_section_by_label('2013,winter,ASIAN,203/A')
 
             self.assertEquals(len(section.grade_submission_delegates), 3,
@@ -207,10 +188,6 @@ class SWSTestSectionData(TestCase):
                               True, "Person is delegate")
 
     def test_joint_sections(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             section = get_section_by_label('2013,winter,ASIAN,203/A')
             joint_sections = get_joint_sections(section)
 
@@ -224,10 +201,6 @@ class SWSTestSectionData(TestCase):
     # Failing because linked section json files haven't been made
     # (Train 100 AA/AB)
     def test_linked_sections(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             #Valid data, shouldn't throw any exceptions
             section = get_section_by_label('2013,summer,TRAIN,100/A')
             get_linked_sections(section)
@@ -318,10 +291,6 @@ class SWSTestSectionData(TestCase):
 
 
     def test_sections_by_instructor_and_term(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             term = Term(quarter="summer", year=2013)
             instructor = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
 
@@ -329,10 +298,6 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(len(sections), 1)
 
     def test_sections_by_delegate_and_term(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             term = Term(quarter="summer", year=2013)
             delegate = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
 
@@ -340,10 +305,6 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(len(sections), 2)
 
     def test_sections_by_curriculum_and_term(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             term = Term(quarter="winter", year=2013)
             curriculum = Curriculum(label="ENDO")
             sections = get_sections_by_curriculum_and_term(curriculum, term)
@@ -357,10 +318,6 @@ class SWSTestSectionData(TestCase):
                               term)
 
     def test_sections_by_building_and_term(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             term = Term(quarter="winter", year=2013)
             building = "KNE"
             sections = get_sections_by_building_and_term(building, term)
@@ -374,10 +331,6 @@ class SWSTestSectionData(TestCase):
                               term)
 
     def test_changed_sections_by_term(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             changed_date = datetime(2013, 12, 12).date()
             term = Term(quarter="winter", year=2013)
             sections = get_changed_sections_by_term(changed_date, term)
@@ -385,10 +338,6 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(len(sections), 2)
 
     def test_changed_sections_by_term_and_kwargs(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             changed_date = datetime(2013, 12, 12).date()
             term = Term(quarter="winter", year=2013)
             sections = get_changed_sections_by_term(changed_date, term,
@@ -397,10 +346,6 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(len(sections), 3)
 
     def test_instructor_published(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             # Published Instructors
             pi_section = get_section_by_label('2013,summer,B BIO,180/A')
             self.assertEquals(
@@ -412,11 +357,6 @@ class SWSTestSectionData(TestCase):
                 upi_section.meetings[0].instructors[0].TSPrint, False)
 
     def test_secondary_grading(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
-
             section1 = get_section_by_label('2012,summer,PHYS,121/A')
             self.assertEquals(section1.allows_secondary_grading, True,
                               "Allows secondary grading")
@@ -430,10 +370,6 @@ class SWSTestSectionData(TestCase):
                               "Does not allow secondary grading")
 
     def test_grading_period_open(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             section = get_section_by_label('2012,summer,PHYS,121/A')
 
             self.assertEquals(section.is_grading_period_open(), False,
@@ -446,10 +382,6 @@ class SWSTestSectionData(TestCase):
                               "Grading window is open")
 
     def test_canvas_sis_ids(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             # Primary section containing linked secondary sections
             section = get_section_by_label('2012,summer,PHYS,121/A')
             self.assertEquals(section.canvas_course_sis_id(),
@@ -488,10 +420,6 @@ class SWSTestSectionData(TestCase):
                 'Canvas section SIS ID')
 
     def test_summer_terms(self):
-        with self.settings(
-            RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-            RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             section = get_section_by_label('2013,summer,B BIO,180/A')
             self.assertFalse(section.is_summer_a_term())
             self.assertFalse(section.is_summer_b_term())
@@ -519,10 +447,6 @@ class SWSTestSectionData(TestCase):
         self.assertFalse(is_full_summer_term("B-term"))
 
     def test_start_end_dates(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             section = get_section_by_label('2013,autumn,MATH,120/ZZ')
             start = section.start_date
             end = section.end_date

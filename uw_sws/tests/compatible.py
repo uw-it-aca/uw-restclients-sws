@@ -1,11 +1,15 @@
-from django.test import TestCase
-from django.conf import settings
+from unittest import TestCase
+from uw_sws.util import fdao_sws_override
+from uw_pws.util import fdao_pws_override
 from datetime import datetime, timedelta
-from restclients.sws import SWS, encode_section_label, get_resource
-from restclients.models.sws import Term, Curriculum, Person, College, Department
-from restclients.exceptions import DataFailureException
-from restclients.exceptions import InvalidSectionURL
+from uw_sws import SWS, encode_section_label, get_resource
+from uw_sws.models import Term, Curriculum, Person, College, Department
+from restclients_core.exceptions import DataFailureException
+from restclients_core.exceptions import InvalidSectionURL
 
+
+@fdao_sws_override
+@fdao_pws_override
 class UtilFunctionTest(TestCase):
     def test_encode_section_label(self):
         self.assertEquals(encode_section_label('2013,winter,C LIT,396/A'),
@@ -17,10 +21,6 @@ class UtilFunctionTest(TestCase):
 
 class SWSTest(TestCase):
     def test_mock_data_fake_grading_window(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-                RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             sws = SWS()
 
             # backwards compatible for term

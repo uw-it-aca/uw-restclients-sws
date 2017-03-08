@@ -10,7 +10,7 @@ sws_url_suffix = "/financial.json"
 
 def get_account_balances_by_regid(regid):
     """
-    Returns a restclients.models.sws.Finance object
+    Returns a uw_sws.models.Finance object
     """
     url = sws_url_prefix + regid + sws_url_suffix
     return _process_json_data(get_resource(url))
