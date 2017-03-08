@@ -12,9 +12,10 @@ from uw_sws.registration import get_schedule_by_regid_and_term
 class SWSTestScheduleData(TestCase):
     def test_bad_response(self):
             term = get_term_by_year_and_quarter(2012, 'summer')
+
             self.assertRaises(DataFailureException,
                               get_schedule_by_regid_and_term,
-                              "9136CCB8F66711D5BE060004AC494FFE",
+                              "9936CCB8F66711D5BE060004AC494FFE",
                               term)
 
     def test_sws_schedule_data(self):

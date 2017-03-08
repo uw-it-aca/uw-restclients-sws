@@ -58,7 +58,7 @@ class PersonTest(TestCase):
             self.assertEquals(data.last_name, "Chakrabarti")
             self.assertEquals(data.student_name, "Chakrabarti,Japendra")
             self.assertEquals(data.student_number, "1233334")
-            self.assertEquals(data.student_system_key, "000083856")
+            self.assertEquals(data.student_system_key, "000018235")
             self.assertEquals(data.visa_type, "F1")
             self.assertEquals(data.local_phone, "2065554567")
             self.assertEquals(data.local_address.city, "Seattle")
