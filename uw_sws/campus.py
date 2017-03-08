@@ -2,7 +2,7 @@
 Interfacing with the Student Web Service, Campus Search.
 """
 import logging
-from restclients.sws import get_resource
+from uw_sws import get_resource
 from uw_sws.models import Campus
 
 

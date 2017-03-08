@@ -13,7 +13,7 @@ sws_url_suffix = ".json"
 
 def get_person_by_regid(regid):
     """
-    Returns a restclients.models.sws.SwsPerson object
+    Returns a uw_sws.models.SwsPerson object
     """
     url = sws_url_prefix + regid + sws_url_suffix
     return _process_json_data(get_resource(url))
@@ -21,7 +21,7 @@ def get_person_by_regid(regid):
 
 def _process_json_data(jdata):
     """
-    Returns a restclients.models.sws.SwsPerson object
+    Returns a uw_sws.models.SwsPerson object
     """
     person = SwsPerson()
     person.directory_release = jdata["DirectoryRelease"]

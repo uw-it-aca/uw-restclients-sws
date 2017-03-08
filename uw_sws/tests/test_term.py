@@ -1,24 +1,19 @@
-from django.test import TestCase
-from django.conf import settings
+from unittest import TestCase
+from uw_sws.util import fdao_sws_override
+from uw_pws.util import fdao_pws_override
 from datetime import datetime, timedelta
-from restclients.exceptions import DataFailureException
-from restclients.sws.term import get_term_by_year_and_quarter,\
+from restclients_core.exceptions import DataFailureException
+from uw_sws.term import get_term_by_year_and_quarter,\
     get_term_before, get_term_after, get_current_term, get_next_term,\
     get_previous_term, get_term_by_date, get_specific_term,\
     get_next_autumn_term, get_next_non_summer_term
 
 
-SWSF = 'restclients.dao_implementation.sws.File'
-PWSF = 'restclients.dao_implementation.pws.File'
-
-
+@fdao_sws_override
+@fdao_pws_override
 class SWSTestTerm(TestCase):
 
     def test_mock_data_fake_grading_window(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             # This rounds down to 0 days, so check by seconds :(
             hour1_delta = timedelta(hours=-1)
             hour48_delta = timedelta(hours=-48)
@@ -79,10 +74,6 @@ class SWSTestTerm(TestCase):
                               "But not too far in the past")
 
     def test_current_quarter(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             term = get_current_term()
 
             expected_quarter = "spring"
@@ -140,10 +131,6 @@ class SWSTestTerm(TestCase):
 
     #Expected values will have to change when the json files are updated
     def test_previous_quarter(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             term = get_previous_term()
 
             expected_quarter = "winter"
@@ -211,10 +198,6 @@ class SWSTestTerm(TestCase):
 
     #Expected values will have to change when the json files are updated
     def test_next_quarter(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             term = get_next_term()
             self.assertTrue(term.is_summer_quarter())
             expected_quarter = "summer"
@@ -313,10 +296,6 @@ class SWSTestTerm(TestCase):
             self.assertEquals(term.term_label(), "2013,summer", "Term label")
 
     def test_term_before(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             starting = get_next_term()
             self.assertEquals(starting.year, 2013)
             self.assertEquals(starting.quarter, 'summer')
@@ -334,10 +313,6 @@ class SWSTestTerm(TestCase):
             self.assertEquals(next3.quarter, 'autumn')
 
     def test_terms_after(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             starting = get_next_term()
             self.assertEquals(starting.year, 2013)
             self.assertEquals(starting.quarter, 'summer')
@@ -357,10 +332,6 @@ class SWSTestTerm(TestCase):
 
     def test_specific_quarters(self):
         #testing bad data - get_by_year_and_quarter
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             self.assertRaises(DataFailureException,
                               get_term_by_year_and_quarter,
                               -2012, 'summer')
@@ -406,10 +377,6 @@ class SWSTestTerm(TestCase):
             self.assertEquals(term.registration_services_start, None)
 
     def test_week_of_term(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             now = datetime.now()
             term = get_current_term()
 
@@ -491,10 +458,6 @@ class SWSTestTerm(TestCase):
                               "-15 days")
 
     def test_canvas_sis_id(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF,
-                RESTCLIENTS_PWS_DAO_CLASS=PWSF):
-
             term = get_term_by_year_and_quarter(2013, 'spring')
             self.assertEquals(term.canvas_sis_id(), '2013-spring',
                               'Canvas SIS ID')
@@ -504,9 +467,6 @@ class SWSTestTerm(TestCase):
                               'Canvas SIS ID')
 
     def test_by_date(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS=SWSF):
-
             date = datetime.strptime("2013-01-10", "%Y-%m-%d").date()
             term = get_term_by_date(date)
 

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def get_term_by_year_and_quarter(year, quarter):
     """
-    Returns a restclients.models.sws.Term object,
+    Returns a uw_sws.models.Term object,
     for the passed year and quarter.
     """
     url = "%s/%s,%s.json" % (term_res_url_prefix, str(year), quarter.lower())
@@ -23,7 +23,7 @@ def get_term_by_year_and_quarter(year, quarter):
 
 def get_current_term():
     """
-    Returns a restclients.models.sws.Term object,
+    Returns a uw_sws.models.Term object,
     for the current term.
     """
     url = "%s/current.json" % term_res_url_prefix
@@ -40,7 +40,7 @@ def get_current_term():
 
 def get_next_term():
     """
-    Returns a restclients.models.sws.Term object,
+    Returns a uw_sws.models.Term object,
     for the next term.
     """
     url = "%s/next.json" % term_res_url_prefix
@@ -49,7 +49,7 @@ def get_next_term():
 
 def get_previous_term():
     """
-    Returns a restclients.models.sws.Term object,
+    Returns a uw_sws.models.Term object,
     for the previous term.
     """
     url = "%s/previous.json" % term_res_url_prefix
@@ -58,7 +58,7 @@ def get_previous_term():
 
 def get_term_before(aterm):
     """
-    Returns a restclients.models.sws.Term object,
+    Returns a uw_sws.models.Term object,
     for the term before the term given.
     """
     prev_year = aterm.year
@@ -72,7 +72,7 @@ def get_term_before(aterm):
 
 def get_term_after(aterm):
     """
-    Returns a restclients.models.sws.Term object,
+    Returns a uw_sws.models.Term object,
     for the term after the term given.
     """
     next_year = aterm.year

@@ -2,7 +2,10 @@
 Interfacing with the Student Web Service, Curriculum Search Resource.
 """
 import logging
-from urllib import urlencode
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from uw_sws.models import Curriculum
 from uw_sws import get_resource
 
@@ -16,13 +19,16 @@ def get_curricula_by_department(department, future_terms=0):
     Returns a list of restclients.Curriculum models, for the passed
     Department model.
     """
+    if not isinstance(future_terms, int):
+        raise ValueError(future_terms)
+
     if future_terms < 0 or future_terms > 2:
         raise ValueError(future_terms)
 
     url = "%s?%s" % (
         curriculum_search_url_prefix,
-        urlencode({"department_abbreviation": department.label,
-                   "future_terms": future_terms}))
+        urlencode([("department_abbreviation", department.label,),
+                   ("future_terms", future_terms,)]))
     return _json_to_curricula(get_resource(url))
 
 
@@ -33,8 +39,10 @@ def get_curricula_by_term(term):
     """
     url = "%s?%s" % (
         curriculum_search_url_prefix,
-        urlencode({"year": term.year,
-                   "quarter": term.quarter.lower()}))
+        urlencode([
+                   ("quarter", term.quarter.lower(),),
+                   ("year", term.year,),
+                   ]))
     return _json_to_curricula(get_resource(url))
 
 

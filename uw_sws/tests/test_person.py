@@ -1,15 +1,15 @@
-from django.test import TestCase
-from django.conf import settings
-from restclients.sws.person import get_person_by_regid
+from unittest import TestCase
+from uw_sws.util import fdao_sws_override
+from uw_pws.util import fdao_pws_override
+from uw_sws.person import get_person_by_regid
 import datetime
 
+
+@fdao_pws_override
+@fdao_sws_override
 class PersonTest(TestCase):
 
     def test_person_resource(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-                RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             data = get_person_by_regid("9136CCB8F66711D5BE060004AC494FFE")
             self.assertEquals(data.uwnetid, "javerage")
             self.assertEquals(data.uwregid, "9136CCB8F66711D5BE060004AC494FFE")
@@ -47,10 +47,6 @@ class PersonTest(TestCase):
 
 
     def test_person_jinter(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-                RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             data = get_person_by_regid("9136CCB8F66711D5BE060004AC494F31")
             self.assertEquals(data.uwnetid, "jinter")
             self.assertEquals(data.uwregid, "9136CCB8F66711D5BE060004AC494F31")
@@ -84,10 +80,6 @@ class PersonTest(TestCase):
 
 
     def test_person_none(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-                RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             data = get_person_by_regid("00000000000000000000000000000001")
             self.assertEquals(data.uwnetid, "none")
             self.assertEquals(data.uwregid, "00000000000000000000000000000001")

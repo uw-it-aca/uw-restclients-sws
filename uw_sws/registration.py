@@ -43,7 +43,7 @@ class SWSPersonByRegIDThread(Thread):
 def _registrations_for_section_with_active_flag(section, is_active,
                                                 transcriptable_course=""):
     """
-    Returns a list of all restclients.models.sws.Registration objects
+    Returns a list of all uw_sws.models.Registration objects
     for a section. There can be duplicates for a person.
     If is_active is True, the objects will have is_active set to True.
     Otherwise, is_active is undefined, and out of scope for this method.
@@ -74,7 +74,7 @@ def _registrations_for_section_with_active_flag(section, is_active,
 
 def _json_to_registrations(data, section):
     """
-    Returns a list of all restclients.models.sws.Registration objects
+    Returns a list of all uw_sws.models.Registration objects
     """
     registrations = []
     person_threads = {}
@@ -127,7 +127,7 @@ def get_active_registrations_by_section(section, transcriptable_course=""):
 
 def get_all_registrations_by_section(section, transcriptable_course=""):
     """
-    Returns a list of restclients.models.sws.Registration objects,
+    Returns a list of uw_sws.models.Registration objects,
     representing all (active and inactive) registrations for the passed
     section. For independent study sections,
     section.independent_study_instructor_regid limits registrations to
@@ -140,7 +140,7 @@ def get_all_registrations_by_section(section, transcriptable_course=""):
 # This function won't work when the dup_code is not empty
 def get_credits_by_section_and_regid(section, regid):
     """
-    Returns a restclients.models.sws.Registration object
+    Returns a uw_sws.models.Registration object
     for the section and regid passed in.
     """
     deprecation("Use get_credits_by_reg_url")
@@ -180,7 +180,7 @@ def get_schedule_by_regid_and_term(regid, term,
                                    per_section_prefetch_callback=None,
                                    transcriptable_course="", **kwargs):
     """
-    Returns a restclients.models.sws.ClassSchedule object
+    Returns a uw_sws.models.ClassSchedule object
     for the regid and term passed in.
     """
 

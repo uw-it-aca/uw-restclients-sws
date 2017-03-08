@@ -1,20 +1,27 @@
 import random
 import re
-from django.test import TestCase
-from django.conf import settings
-from restclients.sws.graderoster import get_graderoster, update_graderoster
-from restclients.sws.section import get_section_by_label
-from restclients.models.sws import Section
-from restclients.exceptions import DataFailureException
+from unittest import TestCase, skipUnless
+from uw_sws.util import fdao_sws_override
+from uw_pws.util import fdao_pws_override
+from uw_sws.graderoster import get_graderoster, update_graderoster
+from uw_sws.section import get_section_by_label
+from uw_sws.models import Section
+from restclients_core.exceptions import DataFailureException
 
 
+run_tests = False
+try:
+    import django
+    run_tests = True
+except ImportError:
+    pass
+
+@fdao_pws_override
+@fdao_sws_override
+@skipUnless(run_tests, "Requires django to run")
 class SWSTestGradeRoster(TestCase):
 
     def test_get_graderoster(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-                RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             section = get_section_by_label('2013,summer,CSS,161/A')
             instructor = section.meetings[0].instructors[0]
             requestor = instructor
@@ -39,10 +46,6 @@ class SWSTestGradeRoster(TestCase):
                 self.assertEquals(item.student_label(), labels[idx], "Correct student label")
 
     def test_put_graderoster(self):
-        with self.settings(
-                RESTCLIENTS_SWS_DAO_CLASS='restclients.dao_implementation.sws.File',
-                RESTCLIENTS_PWS_DAO_CLASS='restclients.dao_implementation.pws.File'):
-
             section = get_section_by_label('2013,summer,CSS,161/A')
             instructor = section.meetings[0].instructors[0]
             requestor = instructor

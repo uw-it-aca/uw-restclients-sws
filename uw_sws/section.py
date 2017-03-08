@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 def get_sections_by_instructor_and_term(person, term):
     """
-    Returns a list of restclients.models.sws.SectionReference objects
+    Returns a list of uw_sws.models.SectionReference objects
     for the passed instructor and term.
     """
     return _get_sections_by_person_and_term(
@@ -44,7 +44,7 @@ def get_sections_by_instructor_and_term(person, term):
 
 def get_sections_by_delegate_and_term(person, term):
     """
-    Returns a list of restclients.models.sws.SectionReference objects
+    Returns a list of uw_sws.models.SectionReference objects
     for the passed grade submission delegate and term.
     """
     return _get_sections_by_person_and_term(
@@ -53,34 +53,42 @@ def get_sections_by_delegate_and_term(person, term):
 
 def get_sections_by_curriculum_and_term(curriculum, term):
     """
-    Returns a list of restclients.models.sws.SectionReference objects
+    Returns a list of uw_sws.models.SectionReference objects
     for the passed curriculum and term.
     """
     url = "%s?%s" % (section_res_url_prefix,
-                     urlencode({"year": term.year,
-                                "quarter": term.quarter.lower(),
-                                "curriculum_abbreviation": curriculum.label}))
+                     urlencode([("curriculum_abbreviation", curriculum.label,),
+                                ("quarter", term.quarter.lower(),),
+                                ("year", term.year,),
+                                ]))
     return _json_to_sectionref(get_resource(url), term)
 
 
 def get_sections_by_building_and_term(building, term):
     """
-    Returns a list of restclients.models.sws.SectionReference objects
+    Returns a list of uw_sws.models.SectionReference objects
     for the passed building and term.
     """
     url = "%s?%s" % (section_res_url_prefix,
-                     urlencode({"year": term.year,
-                                "quarter": term.quarter.lower(),
-                                "facility_code": building}))
+                     urlencode([
+                                ("quarter", term.quarter.lower(),),
+                                ("facility_code", building,),
+                                ("year", term.year,),
+                                ]))
     return _json_to_sectionref(get_resource(url), term)
 
 
 def get_changed_sections_by_term(changed_since_date, term, **kwargs):
-    kwargs.update({"year": term.year,
-                   "quarter": term.quarter.lower(),
-                   "changed_since_date": changed_since_date,
-                   "page_size": 1000})
-    url = "%s?%s" % (section_res_url_prefix, urlencode(kwargs))
+    params = []
+    for key in sorted(kwargs):
+        params.append((key, kwargs[key],))
+    params.extend([
+                   ("changed_since_date", changed_since_date,),
+                   ("quarter", term.quarter.lower(),),
+                   ("page_size", 1000,),
+                   ("year", term.year,),
+                   ])
+    url = "%s?%s" % (section_res_url_prefix, urlencode(params))
 
     sections = []
     while url is not None:
@@ -114,17 +122,18 @@ def _json_to_sectionref(data, aterm):
 def _get_sections_by_person_and_term(person, term, course_role,
                                      include_secondaries="on"):
     """
-    Returns a list of restclients.models.sws.SectionReference object
+    Returns a list of uw_sws.models.SectionReference object
     for the passed course_role and term (including secondaries).
     """
     url = "%s?%s" % (
         section_res_url_prefix,
-        urlencode({"year": term.year,
-                   "quarter": term.quarter.lower(),
-                   "reg_id": person.uwregid,
-                   "search_by": course_role,
-                   "include_secondaries": include_secondaries
-                   }))
+        urlencode([
+                   ("reg_id", person.uwregid,),
+                   ("search_by", course_role,),
+                   ("quarter", term.quarter.lower(),),
+                   ("include_secondaries", include_secondaries),
+                   ("year", term.year,),
+                   ]))
 
     return _json_to_sectionref(get_resource(url), term)
 
@@ -132,7 +141,7 @@ def _get_sections_by_person_and_term(person, term, course_role,
 def get_section_by_url(url,
                        include_instructor_not_on_time_schedule=True):
     """
-    Returns a restclients.models.sws.Section object
+    Returns a uw_sws.models.Section object
     for the passed section url.
     """
     if not course_url_pattern.match(url):
@@ -147,7 +156,7 @@ def get_section_by_url(url,
 def get_section_by_label(label,
                          include_instructor_not_on_time_schedule=True):
     """
-    Returns a restclients.models.sws.Section object for
+    Returns a uw_sws.models.Section object for
     the passed section label.
     """
     if not section_label_pattern.match(label):
@@ -164,7 +173,7 @@ def get_section_by_label(label,
 def get_linked_sections(section,
                         include_instructor_not_on_time_schedule=True):
     """
-    Returns a list of restclients.models.sws.Section objects,
+    Returns a list of uw_sws.models.Section objects,
     representing linked sections for the passed section.
     """
     linked_sections = []
@@ -180,7 +189,7 @@ def get_linked_sections(section,
 def get_joint_sections(section,
                        include_instructor_not_on_time_schedule=True):
     """
-    Returns a list of restclients.models.sws.Section objects,
+    Returns a list of uw_sws.models.Section objects,
     representing joint sections for the passed section.
     """
     joint_sections = []

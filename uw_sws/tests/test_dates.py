@@ -1,5 +1,5 @@
-from django.test import TestCase
-from restclients.sws import parse_sws_date
+from unittest import TestCase
+from uw_sws import parse_sws_date
 from datetime import datetime
 
 
