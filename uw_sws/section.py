@@ -422,3 +422,10 @@ def is_b_term(str):
 def is_full_summer_term(str):
     return str is not None and len(str) > 0 and\
         str.lower() == Section.SUMMER_FULL_TERM
+
+
+def is_valid_section_label(label):
+    try:
+        return section_label_pattern.match(label) is not None
+    except TypeError:
+        return False
