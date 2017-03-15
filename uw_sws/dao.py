@@ -21,6 +21,14 @@ class SWS_DAO(DAO):
     def service_mock_paths(self):
         return [abspath(os.path.join(dirname(__file__), "resources"))]
 
+    def _custom_headers(self, method, url, headers, body):
+        headers = {}
+        if hasattr(settings, 'RESTCLIENTS_SWS_OAUTH_BEARER'):
+            bearer_key = settings.RESTCLIENTS_SWS_OAUTH_BEARER
+
+            headers["Authorization"] = "Bearer %s" % bearer_key
+        return headers
+
     def _edit_mock_response(self, method, url, headers, body, response):
         if "GET" == method:
             self._update_get(url, response)
