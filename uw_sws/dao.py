@@ -23,10 +23,11 @@ class SWS_DAO(DAO):
 
     def _custom_headers(self, method, url, headers, body):
         headers = {}
-        if hasattr(settings, 'RESTCLIENTS_SWS_OAUTH_BEARER'):
-            bearer_key = settings.RESTCLIENTS_SWS_OAUTH_BEARER
 
+        bearer_key = self.get_service_setting('OAUTH_BEARER')
+        if bearer_key is not None:
             headers["Authorization"] = "Bearer %s" % bearer_key
+
         return headers
 
     def _edit_mock_response(self, method, url, headers, body, response):
