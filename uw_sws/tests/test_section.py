@@ -381,6 +381,12 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(section.is_grading_period_open(), True,
                               "Grading window is open")
 
+    def test_grading_system(self):
+            section = get_section_by_label('2012,summer,PHYS,121/A')
+
+            self.assertEquals(section.grading_system, 'standard',
+                              "Grading system is not standard")
+
     def test_canvas_sis_ids(self):
             # Primary section containing linked secondary sections
             section = get_section_by_label('2012,summer,PHYS,121/A')
