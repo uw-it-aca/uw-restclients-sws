@@ -453,6 +453,7 @@ class Section(models.Model):
     student_credits = models.DecimalField(max_digits=3, decimal_places=1)
     student_grade = models.CharField(max_length=6, null=True, blank=True)
     grade_date = models.DateField(null=True, blank=True, default=None)
+    grading_system = models.CharField(max_length=32, null=True, blank=True)
 
     def is_campus_seattle(self):
         return self.course_campus is not None and\
@@ -607,7 +608,8 @@ class Section(models.Model):
             'credits': str(self.student_credits),
             'is_auditor':  self.is_auditor,
             'grade': self.student_grade,
-            'grade_date': self.get_grade_date_str()
+            'grade_date': self.get_grade_date_str(),
+            'grading_system': self.grading_system
         }
 
         if self.final_exam is not None:
