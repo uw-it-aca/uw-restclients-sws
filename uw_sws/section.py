@@ -323,6 +323,7 @@ def _json_to_section(section_data,
         url = joint_section_data["Href"]
         section.joint_section_urls.append(url)
 
+    section.grading_system = section_data['GradingSystem']
     section.grade_submission_delegates = []
     for del_data in section_data["GradeSubmissionDelegates"]:
         delegate = GradeSubmissionDelegate(
