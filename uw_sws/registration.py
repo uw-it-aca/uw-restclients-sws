@@ -89,7 +89,8 @@ def _json_to_registrations(data, section):
             registration.start_date = parse_sws_date(reg_data["StartDate"])
         if len(reg_data["EndDate"]):
             registration.end_date = parse_sws_date(reg_data["EndDate"])
-        registration.request_date = parse_sws_date(reg_data["RequestDate"])
+        if len(reg_data["RequestDate"]):
+            registration.request_date = parse_sws_date(reg_data["RequestDate"])
         registration.request_status = reg_data["RequestStatus"]
         registration.duplicate_code = reg_data["DuplicateCode"]
         registration.credits = reg_data["Credits"]
