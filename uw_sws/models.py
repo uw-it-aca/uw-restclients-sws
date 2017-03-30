@@ -1,9 +1,11 @@
-from datetime import datetime
 from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
 from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
                          convert_to_end_of_day)
 from restclients_core import models
+from jinja2 import Environment, FileSystemLoader
+from datetime import datetime
+import os
 
 
 # PWS Person
@@ -816,14 +818,14 @@ class GradeRoster(models.Model):
             self.instructor.uwregid)
 
     def xhtml(self):
-        # Trying to scope the django dependency as narrowly as possible
-        from django.template import Context, loader
-        template = loader.get_template("sws/graderoster.xhtml")
-        context = Context({
+        template_path = os.path.join(os.path.dirname(__file__), "templates/")
+        context = {
             "graderoster": self,
             "section_id": self.section.section_label()
-        })
-        return template.render(context)
+        }
+        return Environment(
+            loader=FileSystemLoader(template_path)
+        ).get_template("graderoster.xhtml").render(context)
 
 
 class GradeRosterItem(models.Model):
