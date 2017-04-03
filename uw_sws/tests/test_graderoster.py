@@ -1,6 +1,6 @@
 import random
 import re
-from unittest import TestCase, skipUnless
+from unittest import TestCase
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.graderoster import get_graderoster, update_graderoster
@@ -9,16 +9,8 @@ from uw_sws.models import Section
 from restclients_core.exceptions import DataFailureException
 
 
-run_tests = False
-try:
-    import django
-    run_tests = True
-except ImportError:
-    pass
-
 @fdao_pws_override
 @fdao_sws_override
-@skipUnless(run_tests, "Requires django to run")
 class SWSTestGradeRoster(TestCase):
 
     def test_get_graderoster(self):

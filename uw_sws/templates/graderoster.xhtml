@@ -1,0 +1,106 @@
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Grade Roster {{graderoster.section.term.year}} {{graderoster.section.term.quarter}} {{graderoster.section.curriculum_abbr}} {{graderoster.section.course_number}} {{graderoster.section.section_id}}</title>
+    </head>
+    <body>
+        <div class="graderoster">
+            <div>
+                Section:
+                <a class="section" rel="section" href="/student/v5/course/{{section_id}}"><span class="year">{{graderoster.section.term.year}}</span> <span class="quarter">{{graderoster.section.term.quarter}}</span> <span class="curriculum_abbreviation">{{graderoster.section.curriculum_abbr}}</span> <span class="course_number">{{graderoster.section.course_number}}</span> <span class="section_id">{{graderoster.section.section_id}}</span></a></div>
+            <div>
+                Instructor:
+                <a class="person" rel="instructor" href="/student/v5/person/{{graderoster.instructor.uwregid}}"><span class="name">{{graderoster.instructor.surname}},{{graderoster.instructor.first_name}}</span> - <span class="reg_id">{{graderoster.instructor.uwregid}}</span></a></div>
+            <div>
+                SLN:
+                <span class="sln">{{graderoster.section.sln}}</span></div>
+            <div>
+                Summer Term Code:
+                <span class="summer_term_code">{{graderoster.section.summer_term if graderoster.section.summer_term is not none else ''}}</span></div>
+            <div>
+                Section Credits:
+                <span class="section_credits">{{graderoster.section_credits if graderoster.section_credits is not none else ''}}</span></div>
+            <div>
+                <label for="">Writing Credit Display:</label>
+                <input type="checkbox" class="writing_credit_display" id="" name=""{%if graderoster.allows_writing_credit %} checked="checked"{% endif %} disabled="disabled"/>
+            </div>
+            <div>
+                Authorized Grade Submitters:
+                <ul class="authorized_grade_submitters">{% for person in graderoster.authorized_grade_submitters %}
+                    <li><a class="person" rel="authorized_grade_submitter" href="/student/v5/person/{{person.uwregid}}"><span class="name">{{person.surname}},{{person.first_name}}</span> - <span class="reg_id">{{person.uwregid}}</span></a></li>{% endfor %}
+                </ul>
+                <ul class="grade_submission_delegates">{% for gsd in graderoster.grade_submission_delegates %}
+                    <li class="grade_submission_delegate"><a class="person" rel="grade_submission_delegate" href="/student/v5/person/{{gsd.person.uwregid}}"><span class="name">{{gsd.person.surname}},{{gsd.person.first_name}}</span> - <span class="reg_id">{{gsd.person.uwregid}}</span></a> <span class="delegate_level">{{gsd.delegate_level}}</span></li>{% endfor %}
+                </ul>
+            </div>
+            <ul class="graderoster_items">{% for item in graderoster.items %}
+                <li class="graderoster_item">
+                    <h1>{{item.student_surname if item.student_surname is not none else ''}},{{item.student_first_name if item.student_first_name is not none else ''}}</h1>
+                    <div>
+                        <a class="person" rel="student" href="/student/v5/person/{{item.student_uwregid}}"><span class="name">{{item.student_surname if item.student_surname is not none else ''}},{{item.student_first_name if item.student_first_name is not none else ''}}</span> - <span class="reg_id">{{item.student_uwregid}}</span></a>
+                    </div>
+                    <div>
+                        Duplicate code:
+                        <span class="duplicate_code">{{item.duplicate_code if item.duplicate_code is not none else ' '}}</span></div>
+                    {% if item.section_id != graderoster.section.section_id %}
+                    <div>
+                        Linked Section:
+                        <a class="section" rel="secondary" href="/student/v5/course/{{graderoster.section.term.year}},{{graderoster.section.term.quarter}},{{graderoster.section.curriculum_abbr}},{{graderoster.section.course_number}}/{{item.section_id}}"><span class="year">{{graderoster.section.term.year}}</span> <span class="quarter">{{graderoster.section.term.quarter}}</span> <span class="curriculum_abbreviation">{{graderoster.section.curriculum_abbr}}</span> <span class="course_number">{{graderoster.section.course_number}}</span> <span class="section_id">{{item.section_id}}</span></a></div>
+                    {% endif %}
+                    <div>
+                        Student Former Name:
+                        <span class="student_former_name">{{item.student_former_name if item.student_former_name is not none else ''}}</span></div>
+                    <div>
+                        Student Number:
+                        <span class="student_number">{{item.student_number}}</span></div>
+                    <div>
+                        Student Type:
+                        <span class="student_type">{{item.student_type if item.student_type is not none else ''}}</span></div>
+                    <div>
+                        Student Credits:
+                        <span class="student_credits">{{item.student_credits if item.student_credits is not none else ''}}</span></div>
+                    <div>
+                        Date Withdrawn:
+                        <span class="date_withdrawn date">{{item.date_withdrawn if item.date_withdrawn is not none else ''}}</span></div>
+                    <div>
+                        <label for="incomplete_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}">Incomplete:
+                        </label>
+                        <input type="checkbox" class="incomplete" id="incomplete_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}" name="incomplete_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}"{%if item.has_incomplete %} checked="checked"{% endif %}{%if item.date_graded %} disabled="disabled"{% endif %}/>
+                    </div>
+                    <div>
+                        <label for="writing_course_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}">Writing course:
+                        </label>
+                        <input type="checkbox" class="writing_course" id="writing_course_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}" name="writing_course_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}"{%if item.has_writing_credit %} checked="checked"{% endif %}{%if item.date_graded %} disabled="disabled"{% endif %}/>
+                    </div>
+                    <div>
+                        <label for="auditor_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}">Auditor:
+                        </label>
+                        <input type="checkbox" class="auditor" id="auditor_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}" name="auditor_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}"{%if item.is_auditor %} checked="checked"{% endif %} disabled="disabled"/>
+                    </div>
+                    <div>
+                        <label for="no_grade_now_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}">No grade now:
+                        </label>
+                        <input type="checkbox" class="no_grade_now" id="no_grade_now_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}" name="no_grade_now_{{item.student_uwregid}}_{{item.duplicate_code if item.duplicate_code is not none else ' '}}"{%if item.no_grade_now %} checked="checked"{% endif %}{%if item.date_graded %} disabled="disabled"{% endif %}/>
+                    </div>
+                    <div>
+                        Grade:
+                        <select class="grades"{%if not item.allows_grade_change %} disabled="disabled"{% endif %}>{% for grade in item.grade_choices %}<option class="grade" value="{{grade}}"{%if grade == item.grade %} selected="selected"{% endif %}>{{grade}}</option>{% endfor %}</select></div>
+                    <div>
+                        Grade document ID: <span class="grade_document_id">{{item.grade_document_id if item.grade_document_id is not none else ''}}</span></div>
+                    <div>
+                        Date Graded: <span class="date_graded date">{{item.date_graded if item.date_graded is not none else ''}}</span></div>
+                    <div>
+                        Grade submitter person:</div>
+                    <div>
+                        Grade submitter source:
+                        <span class="grade_submitter_source">{{item.grade_submitter_source if item.grade_submitter_source is not none else ''}}</span></div>
+                    {% if item.status_code != None %}
+                    <div class="update_status">
+                        <span class="code">{{item.status_code}}</span>
+                        <span class="message">{{item.status_message if item.status_message is not none else ''}}</span>
+                    </div>
+                    {% endif %}
+                </li>{% endfor %}
+            </ul>
+        </div>
+    </body>
+</html>
