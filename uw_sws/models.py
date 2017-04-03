@@ -677,7 +677,7 @@ class Registration(models.Model):
     is_independent_start = models.NullBooleanField()
     start_date = models.DateField(blank=True)
     end_date = models.DateField(blank=True)
-    request_date = models.DateField()
+    request_date = models.DateField(blank=True)
     request_status = models.CharField(max_length=50)
     duplicate_code = models.CharField(max_length=3)
     credits = models.CharField(max_length=5, null=True)

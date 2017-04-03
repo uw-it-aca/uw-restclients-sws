@@ -36,7 +36,7 @@ class SWSTestRegistrations(TestCase):
 
         registrations = get_all_registrations_by_section(section)
 
-        self.assertEquals(len(registrations), 1)
+        self.assertEquals(len(registrations), 2)
         javerage_reg = registrations[0]
         self.assertEquals(javerage_reg.person.uwnetid, 'javerage')
         self.assertEquals(javerage_reg.is_active, False)
@@ -136,3 +136,12 @@ class SWSTestRegistrations(TestCase):
                 self.assertEquals(section.get_grade_date_str(), None)
                 self.assertTrue(section.is_primary_section)
                 self.assertEquals(section.is_auditor, False)
+
+    def test_empty_request_date(self):
+        section = get_section_by_label('2013,winter,DROP_T,100/A')
+        registrations = get_all_registrations_by_section(section)
+
+        self.assertEquals(len(registrations), 2)
+        javerage_reg = registrations[1]
+        self.assertEquals(javerage_reg.person.uwnetid, 'javerage')
+        self.assertEquals(javerage_reg.request_date, None)
