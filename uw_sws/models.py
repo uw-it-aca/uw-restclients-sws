@@ -967,10 +967,10 @@ class Enrollment(models.Model):
     def is_non_matric(self):
         return self.class_level.lower() == NON_MATRIC
 
-    def has_off_term_course(self):
+    def has_independent_start_course(self):
         try:
-            return (self.enrolled_off_term_sections and
-                    len(self.enrolled_off_term_sections) > 0)
+            return (self.independent_start_sections and
+                    len(self.independent_start_sections) > 0)
         except AttributeError:
             return False
 
@@ -1012,14 +1012,13 @@ class Minor(models.Model):
 FEEBASED = "fee based course"
 
 
-class EnrolledOffTermSection(models.Model):
+class IndependentStartSectionReference(models.Model):
     section_ref = models.ForeignKey(SectionReference,
                                     on_delete=models.PROTECT)
     end_date = models.DateField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     feebase_type = models.CharField(max_length=64)
     is_reg_src_pce = models.NullBooleanField()
-    is_independent_start = models.NullBooleanField()
 
     def is_fee_based(self):
         return self.feebase_type.lower() == FEEBASED
@@ -1028,7 +1027,6 @@ class EnrolledOffTermSection(models.Model):
         return {'start_date': str(self.start_date),
                 'end_date': str(self.end_date),
                 'feebase_type': self.feebase_type,
-                'is_independent_start': self.is_independent_start,
                 'is_reg_src_pce': self.is_reg_src_pce,
                 'section_ref': self.section_ref.json_data()
                 }

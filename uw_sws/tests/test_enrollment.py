@@ -2,7 +2,8 @@ from unittest import TestCase
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.term import get_current_term, get_term_by_year_and_quarter
-from uw_sws.enrollment import get_grades_by_regid_and_term, get_enrollment_by_regid_and_term
+from uw_sws.enrollment import get_grades_by_regid_and_term,\
+    get_enrollment_by_regid_and_term
 from restclients_core.exceptions import DataFailureException
 
 
@@ -40,7 +41,7 @@ class SWSTestEnrollments(TestCase):
         self.assertEquals(enrollement.minors[0].campus, "Seattle")
         self.assertEquals(enrollement.minors[0].name, "AMERICAN SIGN LANGUAGE")
         self.assertFalse(enrollement.is_non_matric())
-        self.assertFalse(enrollement.has_off_term_course())
+        self.assertFalse(enrollement.has_independent_start_course())
         self.assertFalse(enrollement.is_enroll_src_pce)
 
     def test_offterm_enrolled_courses(self):
@@ -50,11 +51,10 @@ class SWSTestEnrollments(TestCase):
         self.assertEquals(enrollement.class_level, u'NON_MATRIC')
         self.assertTrue(enrollement.is_enroll_src_pce)
         self.assertTrue(enrollement.is_non_matric())
-        self.assertTrue(enrollement.has_off_term_course())
-        self.assertEqual(len(enrollement.enrolled_off_term_sections), 2)
-        section1 = enrollement.enrolled_off_term_sections[0]
+        self.assertTrue(enrollement.has_independent_start_course())
+        self.assertEqual(len(enrollement.independent_start_sections), 2)
+        section1 = enrollement.independent_start_sections[0]
         self.assertTrue(section1.is_fee_based())
-        self.assertTrue(section1.is_independent_start)
         self.assertEqual(str(section1.end_date), '2013-04-29 00:00:00')
         self.assertEqual(str(section1.start_date), '2013-01-28 00:00:00')
         self.assertTrue(section1.is_reg_src_pce)
@@ -68,9 +68,8 @@ class SWSTestEnrollments(TestCase):
              'url': u'/student/v5/course/2013,winter,COM,201/A.json',
              'year': 2013})
 
-        section2 = enrollement.enrolled_off_term_sections[1]
+        section2 = enrollement.independent_start_sections[1]
         self.assertTrue(section2.is_fee_based())
-        self.assertTrue(section2.is_independent_start)
         self.assertEqual(str(section2.end_date), '2013-06-22 00:00:00')
         self.assertEqual(str(section2.start_date), '2013-01-29 00:00:00')
         self.assertTrue(section2.is_reg_src_pce)
