@@ -638,6 +638,15 @@ class SectionReference(models.Model):
             self.term.quarter, self.curriculum_abbr,
             self.course_number, self.section_id)
 
+    def json_data(self):
+        return {'year': self.term.year,
+                'quarter': self.term.quarter,
+                'curriculum_abbr': self.curriculum_abbr,
+                'course_number': self.course_number,
+                'section_id': self.section_id,
+                'url': self.url,
+                'section_label': self.section_label()}
+
 
 class SectionStatus(models.Model):
     add_code_required = models.NullBooleanField()
@@ -944,12 +953,26 @@ class Finance(models.Model):
             self.tuition_accbalance, self.pce_accbalance)
 
 
+NON_MATRIC = "non_matric"
+
+
 class Enrollment(models.Model):
     is_honors = models.NullBooleanField()
     class_level = models.CharField(max_length=100)
     regid = models.CharField(max_length=32,
                              db_index=True,
                              unique=True)
+    is_enroll_src_pce = models.NullBooleanField()
+
+    def is_non_matric(self):
+        return self.class_level.lower() == NON_MATRIC
+
+    def has_off_term_course(self):
+        try:
+            return (self.enrolled_off_term_sections and
+                    len(self.enrolled_off_term_sections) > 0)
+        except AttributeError:
+            return False
 
 
 class Major(models.Model):
@@ -983,4 +1006,29 @@ class Minor(models.Model):
                 'name': self.name,
                 'full_name': self.full_name,
                 'short_name': self.short_name
+                }
+
+
+FEEBASED = "fee based course"
+
+
+class EnrolledOffTermSection(models.Model):
+    section_ref = models.ForeignKey(SectionReference,
+                                    on_delete=models.PROTECT)
+    end_date = models.DateField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    feebase_type = models.CharField(max_length=64)
+    is_reg_src_pce = models.NullBooleanField()
+    is_independent_start = models.NullBooleanField()
+
+    def is_fee_based(self):
+        return self.feebase_type.lower() == FEEBASED
+
+    def json_data(self):
+        return {'start_date': str(self.start_date),
+                'end_date': str(self.end_date),
+                'feebase_type': self.feebase_type,
+                'is_independent_start': self.is_independent_start,
+                'is_reg_src_pce': self.is_reg_src_pce,
+                'section_ref': self.section_ref.json_data()
                 }
