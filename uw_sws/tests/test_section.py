@@ -464,3 +464,11 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(end.year, 2013)
             self.assertEquals(end.month, 9)
             self.assertEquals(end.day, 18)
+
+    def test_pce_course_section(self):
+        section = get_section_by_label('2013,autumn,MATH,120/ZZ')
+        self.assertFalse(section.is_inst_pce())
+        self.assertFalse(section.is_independent_start)
+        section = get_section_by_label('2013,winter,COM,201/A')
+        self.assertTrue(section.is_inst_pce())
+        self.assertTrue(section.is_independent_start)

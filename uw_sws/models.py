@@ -361,6 +361,7 @@ class FinalExam(models.Model):
 
 
 class Section(models.Model):
+    INSTITUTE_NAME_PCE = "UW PROFESSIONAL AND CONTINUING EDUCATION"
     SUMMER_A_TERM = "a-term"
     SUMMER_B_TERM = "b-term"
     SUMMER_FULL_TERM = "full-term"
@@ -468,6 +469,9 @@ class Section(models.Model):
     def is_campus_tacoma(self):
         return self.course_campus is not None and\
             self.course_campus.lower() == 'tacoma'
+
+    def is_inst_pce(self):
+        return self.institute_name == Section.INSTITUTE_NAME_PCE
 
     def section_label(self):
         return "%s,%s,%s,%s/%s" % (
