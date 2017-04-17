@@ -472,3 +472,12 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2013,winter,COM,201/A')
         self.assertTrue(section.is_inst_pce())
         self.assertTrue(section.is_independent_start)
+
+    def test_early_fall_start(self):
+        section = get_section_by_label('2013,spring,EFS_FAILT,101/AQ')
+        self.assertTrue(section.is_early_fall_start())
+        self.assertEqual(str(section.end_date), '2013-09-18')
+
+        section = get_section_by_label('2013,winter,COM,201/A')
+        self.assertFalse(section.is_early_fall_start())
+        self.assertFalse(section.end_date)
