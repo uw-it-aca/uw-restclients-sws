@@ -1027,10 +1027,12 @@ class IndependentStartSectionReference(models.Model):
     def is_fee_based(self):
         return self.feebase_type.lower() == FEEBASED
 
-    def json_data(self):
-        return {'start_date': str(self.start_date),
+    def json_data(self, include_section_ref=False):
+        data = {'start_date': str(self.start_date),
                 'end_date': str(self.end_date),
                 'feebase_type': self.feebase_type,
-                'is_reg_src_pce': self.is_reg_src_pce,
-                'section_ref': self.section_ref.json_data()
+                'is_reg_src_pce': self.is_reg_src_pce
                 }
+        if include_section_ref:
+            data['section_ref'] = self.section_ref.json_data()
+        return data
