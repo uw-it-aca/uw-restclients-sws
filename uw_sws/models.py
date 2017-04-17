@@ -362,6 +362,7 @@ class FinalExam(models.Model):
 
 class Section(models.Model):
     INSTITUTE_NAME_PCE = "UW PROFESSIONAL AND CONTINUING EDUCATION"
+    EARLY_FALL_START = "EARLY FALL START"
     SUMMER_A_TERM = "a-term"
     SUMMER_B_TERM = "b-term"
     SUMMER_FULL_TERM = "full-term"
@@ -472,6 +473,9 @@ class Section(models.Model):
 
     def is_inst_pce(self):
         return self.institute_name == Section.INSTITUTE_NAME_PCE
+
+    def is_early_fall_start(self):
+        return self.institute_name == Section.EARLY_FALL_START
 
     def section_label(self):
         return "%s,%s,%s,%s/%s" % (
@@ -1027,10 +1031,12 @@ class IndependentStartSectionReference(models.Model):
     def is_fee_based(self):
         return self.feebase_type.lower() == FEEBASED
 
-    def json_data(self):
-        return {'start_date': str(self.start_date),
+    def json_data(self, include_section_ref=False):
+        data = {'start_date': str(self.start_date),
                 'end_date': str(self.end_date),
                 'feebase_type': self.feebase_type,
-                'is_reg_src_pce': self.is_reg_src_pce,
-                'section_ref': self.section_ref.json_data()
+                'is_reg_src_pce': self.is_reg_src_pce
                 }
+        if include_section_ref:
+            data['section_ref'] = self.section_ref.json_data()
+        return data

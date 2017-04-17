@@ -58,6 +58,12 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(str(section1.end_date), '2013-04-29 00:00:00')
         self.assertEqual(str(section1.start_date), '2013-01-28 00:00:00')
         self.assertTrue(section1.is_reg_src_pce)
+        self.assertEqual(section1.json_data(),
+                         {'start_date': '2013-01-28 00:00:00',
+                          'end_date': '2013-04-29 00:00:00',
+                          'feebase_type': u'Fee based course',
+                          'is_reg_src_pce': True,
+                          })
         self.assertEqual(
             section1.section_ref.json_data(),
             {'course_number': u'201',
