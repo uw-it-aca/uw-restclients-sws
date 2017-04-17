@@ -13,7 +13,7 @@ from uw_sws.section import get_section_by_label,\
     get_sections_by_instructor_and_term,\
     get_sections_by_curriculum_and_term,\
     get_sections_by_building_and_term,\
-    get_changed_sections_by_term,\
+    get_changed_sections_by_term, validate_section_label,\
     get_sections_by_delegate_and_term,\
     is_a_term, is_b_term, is_full_summer_term
 
@@ -69,47 +69,56 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(end.hour, 16)
             self.assertEquals(end.minute, 20)
 
-    def test_section_by_label(self):
+    def test_validate_section_label(self):
             #Valid data, shouldn't throw any exceptions
-            get_section_by_label('2013,summer,TRAIN,100/A')
+            validate_section_label('2013,summer,TRAIN,100/A')
 
             #Invalid data, should throw exceptions
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
+                              None)
+
+            self.assertRaises(InvalidSectionID,
+                              validate_section_label,
                               '')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               ' ')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012,summer')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012,summer,TRAIN')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012, summer, TRAIN, 100')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               'summer, TRAIN, 100/A')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012,fall,TRAIN,100/A')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '-2012,summer,TRAIN,100/A')
 
+            self.assertRaises(InvalidSectionID,
+                              validate_section_label,
+                              '0000,summer,TRAIN,100/A')
+
+    def test_get_section_by_label(self):
             self.assertRaises(DataFailureException,
                               get_section_by_label,
                               '9999,summer,TRAIN,100/A')
