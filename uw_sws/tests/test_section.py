@@ -486,6 +486,9 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2013,spring,EFS_FAILT,101/AQ')
         self.assertTrue(section.is_early_fall_start())
         self.assertEqual(str(section.end_date), '2013-09-18')
+        json_data = section.json_data()
+        self.assertEqual(json_data["start_date"], '2013-08-24')
+        self.assertEqual(json_data["end_date"], '2013-09-18')
 
         section = get_section_by_label('2013,winter,COM,201/A')
         self.assertFalse(section.is_early_fall_start())

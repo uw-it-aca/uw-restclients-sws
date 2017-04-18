@@ -607,8 +607,8 @@ class Section(models.Model):
             'class_website_url': self.class_website_url,
             'sln': self.sln,
             'summer_term': self.summer_term,
-            'start_date': '',
-            'end_date': '',
+            'start_date': str(self.start_date),
+            'end_date': str(self.end_date),
             'current_enrollment': self.current_enrollment,
             'limit_estimate_enrollment': self.limit_estimate_enrollment,
             'limit_estimate_enrollment_indicator':
