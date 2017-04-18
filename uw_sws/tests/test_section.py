@@ -15,7 +15,7 @@ from uw_sws.section import get_section_by_label,\
     get_sections_by_building_and_term,\
     get_changed_sections_by_term, validate_section_label,\
     get_sections_by_delegate_and_term,\
-    is_a_term, is_b_term, is_full_summer_term
+    is_a_term, is_b_term, is_full_summer_term, is_valid_sln
 
 
 
@@ -68,6 +68,14 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(end.day, 2)
             self.assertEquals(end.hour, 16)
             self.assertEquals(end.minute, 20)
+
+    def test_is_valid_sln(self):
+        self.assertFalse(is_valid_sln(None))
+        self.assertFalse(is_valid_sln('0000'))
+        self.assertFalse(is_valid_sln('1000'))
+        self.assertFalse(is_valid_sln('00000'))
+        self.assertFalse(is_valid_sln('100000'))
+        self.assertTrue(is_valid_sln('10000'))
 
     def test_validate_section_label(self):
             #Valid data, shouldn't throw any exceptions
