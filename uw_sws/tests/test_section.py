@@ -71,6 +71,7 @@ class SWSTestSectionData(TestCase):
 
     def test_is_valid_sln(self):
         self.assertFalse(is_valid_sln(None))
+        self.assertFalse(is_valid_sln(''))
         self.assertFalse(is_valid_sln('0000'))
         self.assertFalse(is_valid_sln('1000'))
         self.assertFalse(is_valid_sln('00000'))
