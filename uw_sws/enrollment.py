@@ -6,6 +6,7 @@ from uw_pws import PWS
 from uw_sws.models import (Term, StudentGrades, StudentCourseGrade, Enrollment,
                            Major, Minor)
 from uw_sws import get_resource
+from restclients_core.exceptions import DataFailureException
 from uw_sws.section import get_section_by_url
 
 
@@ -55,7 +56,7 @@ def get_enrollment_by_regid_and_term(regid, term):
 def _json_to_enrollment(json_data, url):
     enrollment = Enrollment()
 
-    if "StatusCode" in json_data and json_data["StatusCode"] == 404:
+    if "StatusCode" in json_data and json_data["StatusCode"] == "404":
         raise DataFailureException(url, 404, json_data["StatusDescription"])
 
     enrollment.regid = json_data['RegID']
