@@ -35,12 +35,12 @@ logger = logging.getLogger(__name__)
 
 
 def validate_section_label(label):
-    if label is None or not section_label_pattern.match(label):
+    if label is None or section_label_pattern.match(label) is None:
         raise InvalidSectionID("Invalid section label: %s" % label)
 
 
 def is_valid_sln(sln_str):
-    return sln_str is not None and sln_pattern.match(sln_str)
+    return not (sln_str is None or sln_pattern.match(sln_str) is None)
 
 
 def get_sections_by_instructor_and_term(person, term):
