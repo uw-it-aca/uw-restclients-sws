@@ -1,7 +1,8 @@
 from unittest import TestCase
+import datetime
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
-from uw_sws.term import get_current_term
+from uw_sws.term import get_current_term, get_term_by_date
 from uw_sws.enrollment import get_grades_by_regid_and_term, get_enrollment_by_regid_and_term
 from restclients_core.exceptions import DataFailureException
 
@@ -35,3 +36,15 @@ class SWSTestEnrollments(TestCase):
             self.assertEquals(enrollement.majors[0].degree_name, "BACHELOR OF SCIENCE (APPLIED & COMPUTATIONAL MATH SCIENCES)")
             self.assertEquals(enrollement.minors[0].campus, "Seattle")
             self.assertEquals(enrollement.minors[0].name, "AMERICAN SIGN LANGUAGE")
+
+    def test_jinter_enrollment_404(self):
+            term = get_term_by_date(datetime.date(2014, 7, 13))
+            exception_raised = False
+            try:
+                enrollement = get_enrollment_by_regid_and_term('9136CCB8F66711D5BE060004AC494F31', term)
+            except DataFailureException as ex:
+                exception_raised = True
+                self.assertEquals(ex.url, "/student/v5/enrollment/2014,summer,9136CCB8F66711D5BE060004AC494F31.json")
+                self.assertEquals(ex.msg, "No enrollment found.")
+
+            self.assertTrue(exception_raised)
