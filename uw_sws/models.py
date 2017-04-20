@@ -361,6 +361,8 @@ class FinalExam(models.Model):
 
 
 class Section(models.Model):
+    INSTITUTE_NAME_PCE = "UW PROFESSIONAL AND CONTINUING EDUCATION"
+    EARLY_FALL_START = "EARLY FALL START"
     SUMMER_A_TERM = "a-term"
     SUMMER_B_TERM = "b-term"
     SUMMER_FULL_TERM = "full-term"
@@ -468,6 +470,12 @@ class Section(models.Model):
     def is_campus_tacoma(self):
         return self.course_campus is not None and\
             self.course_campus.lower() == 'tacoma'
+
+    def is_inst_pce(self):
+        return self.institute_name == Section.INSTITUTE_NAME_PCE
+
+    def is_early_fall_start(self):
+        return self.institute_name == Section.EARLY_FALL_START
 
     def section_label(self):
         return "%s,%s,%s,%s/%s" % (
@@ -599,8 +607,8 @@ class Section(models.Model):
             'class_website_url': self.class_website_url,
             'sln': self.sln,
             'summer_term': self.summer_term,
-            'start_date': '',
-            'end_date': '',
+            'start_date': str(self.start_date),
+            'end_date': str(self.end_date),
             'current_enrollment': self.current_enrollment,
             'limit_estimate_enrollment': self.limit_estimate_enrollment,
             'limit_estimate_enrollment_indicator':
@@ -637,6 +645,15 @@ class SectionReference(models.Model):
             self.term.year,
             self.term.quarter, self.curriculum_abbr,
             self.course_number, self.section_id)
+
+    def json_data(self):
+        return {'year': self.term.year,
+                'quarter': self.term.quarter,
+                'curriculum_abbr': self.curriculum_abbr,
+                'course_number': self.course_number,
+                'section_id': self.section_id,
+                'url': self.url,
+                'section_label': self.section_label()}
 
 
 class SectionStatus(models.Model):
@@ -944,12 +961,26 @@ class Finance(models.Model):
             self.tuition_accbalance, self.pce_accbalance)
 
 
+NON_MATRIC = "non_matric"
+
+
 class Enrollment(models.Model):
     is_honors = models.NullBooleanField()
     class_level = models.CharField(max_length=100)
     regid = models.CharField(max_length=32,
                              db_index=True,
                              unique=True)
+    is_enroll_src_pce = models.NullBooleanField()
+
+    def is_non_matric(self):
+        return self.class_level.lower() == NON_MATRIC
+
+    def has_independent_start_course(self):
+        try:
+            return (self.independent_start_sections and
+                    len(self.independent_start_sections) > 0)
+        except AttributeError:
+            return False
 
 
 class Major(models.Model):
@@ -984,3 +1015,28 @@ class Minor(models.Model):
                 'full_name': self.full_name,
                 'short_name': self.short_name
                 }
+
+
+FEEBASED = "fee based course"
+
+
+class IndependentStartSectionReference(models.Model):
+    section_ref = models.ForeignKey(SectionReference,
+                                    on_delete=models.PROTECT)
+    end_date = models.DateField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    feebase_type = models.CharField(max_length=64)
+    is_reg_src_pce = models.NullBooleanField()
+
+    def is_fee_based(self):
+        return self.feebase_type.lower() == FEEBASED
+
+    def json_data(self, include_section_ref=False):
+        data = {'start_date': str(self.start_date),
+                'end_date': str(self.end_date),
+                'feebase_type': self.feebase_type,
+                'is_reg_src_pce': self.is_reg_src_pce
+                }
+        if include_section_ref:
+            data['section_ref'] = self.section_ref.json_data()
+        return data

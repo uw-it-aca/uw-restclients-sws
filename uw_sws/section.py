@@ -22,8 +22,9 @@ from uw_sws.models import (Section, SectionReference, FinalExam,
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
 course_res_url_prefix = "/student/v5/course"
 section_res_url_prefix = "/student/v5/section.json"
+sln_pattern = re.compile('^[1-9]\d{4}$')
 section_label_pattern = re.compile(
-    '^\d{4},'                           # year
+    '^[1-9]\d{3},'                           # year
     '(?:winter|spring|summer|autumn),'  # quarter
     '[\w& ]+,'                          # curriculum
     '\d{3}\/'                           # course number
@@ -31,6 +32,15 @@ section_label_pattern = re.compile(
     re.VERBOSE
 )
 logger = logging.getLogger(__name__)
+
+
+def validate_section_label(label):
+    if label is None or section_label_pattern.match(label) is None:
+        raise InvalidSectionID("Invalid section label: %s" % label)
+
+
+def is_valid_sln(sln_str):
+    return not (sln_str is None or sln_pattern.match(sln_str) is None)
 
 
 def get_sections_by_instructor_and_term(person, term):
@@ -159,8 +169,7 @@ def get_section_by_label(label,
     Returns a uw_sws.models.Section object for
     the passed section label.
     """
-    if not section_label_pattern.match(label):
-        raise InvalidSectionID(label)
+    validate_section_label(label)
 
     url = "%s/%s.json" % (
         course_res_url_prefix,
