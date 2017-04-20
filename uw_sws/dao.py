@@ -6,7 +6,6 @@ import time
 import re
 import random
 from datetime import date, datetime, timedelta
-from lxml import etree
 from commonconf import settings
 from os.path import abspath, dirname
 import os
