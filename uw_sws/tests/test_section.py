@@ -13,9 +13,9 @@ from uw_sws.section import get_section_by_label,\
     get_sections_by_instructor_and_term,\
     get_sections_by_curriculum_and_term,\
     get_sections_by_building_and_term,\
-    get_changed_sections_by_term,\
+    get_changed_sections_by_term, validate_section_label,\
     get_sections_by_delegate_and_term,\
-    is_a_term, is_b_term, is_full_summer_term
+    is_a_term, is_b_term, is_full_summer_term, is_valid_sln
 
 
 
@@ -69,47 +69,65 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(end.hour, 16)
             self.assertEquals(end.minute, 20)
 
-    def test_section_by_label(self):
+    def test_is_valid_sln(self):
+        self.assertFalse(is_valid_sln(None))
+        self.assertFalse(is_valid_sln(''))
+        self.assertFalse(is_valid_sln('0000'))
+        self.assertFalse(is_valid_sln('1000'))
+        self.assertFalse(is_valid_sln('00000'))
+        self.assertFalse(is_valid_sln('100000'))
+        self.assertTrue(is_valid_sln('10000'))
+
+    def test_validate_section_label(self):
             #Valid data, shouldn't throw any exceptions
-            get_section_by_label('2013,summer,TRAIN,100/A')
+            validate_section_label('2013,summer,TRAIN,100/A')
 
             #Invalid data, should throw exceptions
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
+                              None)
+
+            self.assertRaises(InvalidSectionID,
+                              validate_section_label,
                               '')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               ' ')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012,summer')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012,summer,TRAIN')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012, summer, TRAIN, 100')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               'summer, TRAIN, 100/A')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '2012,fall,TRAIN,100/A')
 
             self.assertRaises(InvalidSectionID,
-                              get_section_by_label,
+                              validate_section_label,
                               '-2012,summer,TRAIN,100/A')
 
+            self.assertRaises(InvalidSectionID,
+                              validate_section_label,
+                              '0000,summer,TRAIN,100/A')
+
+    def test_get_section_by_label(self):
             self.assertRaises(DataFailureException,
                               get_section_by_label,
                               '9999,summer,TRAIN,100/A')
@@ -464,3 +482,23 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(end.year, 2013)
             self.assertEquals(end.month, 9)
             self.assertEquals(end.day, 18)
+
+    def test_pce_course_section(self):
+        section = get_section_by_label('2013,autumn,MATH,120/ZZ')
+        self.assertFalse(section.is_inst_pce())
+        self.assertFalse(section.is_independent_start)
+        section = get_section_by_label('2013,winter,COM,201/A')
+        self.assertTrue(section.is_inst_pce())
+        self.assertTrue(section.is_independent_start)
+
+    def test_early_fall_start(self):
+        section = get_section_by_label('2013,spring,EFS_FAILT,101/AQ')
+        self.assertTrue(section.is_early_fall_start())
+        self.assertEqual(str(section.end_date), '2013-09-18')
+        json_data = section.json_data()
+        self.assertEqual(json_data["start_date"], '2013-08-24')
+        self.assertEqual(json_data["end_date"], '2013-09-18')
+
+        section = get_section_by_label('2013,winter,COM,201/A')
+        self.assertFalse(section.is_early_fall_start())
+        self.assertFalse(section.end_date)

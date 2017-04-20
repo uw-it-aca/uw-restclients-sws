@@ -2,10 +2,12 @@
 Interfacing with the Student Web Service, Enrollment resource.
 """
 import logging
+import re
 from uw_pws import PWS
 from uw_sws.models import (Term, StudentGrades, StudentCourseGrade, Enrollment,
-                           Major, Minor)
-from uw_sws import get_resource
+                           Major, Minor, SectionReference,
+                           IndependentStartSectionReference)
+from uw_sws import get_resource, parse_sws_date
 from uw_sws.section import get_section_by_url
 
 
@@ -49,14 +51,24 @@ def get_enrollment_by_regid_and_term(regid, term):
                                 term.year,
                                 term.quarter,
                                 regid)
-    return _json_to_enrollment(get_resource(url))
+    return _json_to_enrollment(get_resource(url), term)
 
 
-def _json_to_enrollment(json_data):
+def _json_to_enrollment(json_data, term):
     enrollment = Enrollment()
     enrollment.regid = json_data['RegID']
     enrollment.class_level = json_data['ClassLevel']
     enrollment.is_honors = json_data['HonorsProgram']
+    enrollment.is_enroll_src_pce = is_reg_src_pce(json_data,
+                                                  ENROLLMENT_SOURCE_PCE)
+
+    enrollment.independent_start_sections = []
+    if json_data.get('Registrations') is not None and\
+            len(json_data['Registrations']) > 0:
+        for registration in json_data['Registrations']:
+            if registration.get('IsIndependentStart'):
+                enrollment.independent_start_sections.append(
+                    _json_to_independent_start_section(registration, term))
 
     enrollment.majors = []
     if json_data.get('Majors') is not None and len(json_data['Majors']) > 0:
@@ -68,6 +80,31 @@ def _json_to_enrollment(json_data):
         for minor in json_data['Minors']:
             enrollment.minors.append(_json_to_minor(minor))
     return enrollment
+
+
+def _json_to_independent_start_section(json_data, aterm):
+    is_section = IndependentStartSectionReference()
+    is_section.section_ref = SectionReference(
+        term=aterm,
+        curriculum_abbr=json_data['Section']['CurriculumAbbreviation'],
+        course_number=json_data['Section']['CourseNumber'],
+        section_id=json_data['Section']['SectionID'],
+        url=json_data['Section']['Href']
+        )
+    is_section.feebase_type = json_data['FeeBaseType']
+    try:
+        is_section.end_date = parse_sws_date(json_data['EndDate'])
+    except Exception:
+        is_section.end_date = ""
+
+    try:
+        is_section.start_date = parse_sws_date(json_data['StartDate'])
+    except Exception:
+        is_section.start_date = ""
+
+    is_section.is_reg_src_pce = is_reg_src_pce(json_data,
+                                               REGISTRATION_SOURCE_PCE)
+    return is_section
 
 
 def _json_to_major(json_data):
@@ -89,3 +126,16 @@ def _json_to_minor(json_data):
     minor.full_name = json_data['FullName']
     minor.short_name = json_data['ShortName']
     return minor
+
+
+ENROLLMENT_SOURCE_PCE = re.compile('^EnrollmentSourceLocation=SDB_EOS;',
+                                   re.I)
+REGISTRATION_SOURCE_PCE = re.compile('^RegistrationSourceLocation=SDB_EOS;',
+                                     re.I)
+
+
+def is_reg_src_pce(json_data, pattern):
+    try:
+        return re.match(pattern, json_data['Metadata']) is not None
+    except KeyError:
+        return False
