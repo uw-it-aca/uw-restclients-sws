@@ -4,15 +4,17 @@ Interfacing with the Student Web Service, Enrollment resource.
 import logging
 import re
 from uw_pws import PWS
-from uw_sws.models import (Term, StudentGrades, StudentCourseGrade, Enrollment,
-                           Major, Minor, SectionReference,
+from uw_sws.models import (StudentGrades, StudentCourseGrade, Enrollment,
+                           Major, Minor, SectionReference, Term,
                            IndependentStartSectionReference)
 from uw_sws import get_resource, parse_sws_date
 from uw_sws.section import get_section_by_url
+from uw_sws.term import get_term_by_year_and_quarter
 
 
 logger = logging.getLogger(__name__)
 enrollment_res_url_prefix = "/student/v5/enrollment"
+enrollment_search_url_prefix = "/student/v5/enrollment.json?reg_id="
 
 
 def get_grades_by_regid_and_term(regid, term):
@@ -44,6 +46,39 @@ def _json_to_grades(data, regid, term):
         grades.grades.append(grade)
 
     return grades
+
+
+def enrollment_search_by_regid(regid,
+                               verbose='true',
+                               transcriptable_course='all',
+                               changed_since_date=''):
+    """
+    See SWS Enrollment search resource spec at:
+    https://wiki.cac.washington.edu/x/_qjeAw
+    :return: a dictionary of {Term: Enrollment}
+    """
+    url = "%s%s&verbose=%s&transcriptable_course=%s&changed_since_date=%s" %\
+        (enrollment_search_url_prefix,
+         regid,
+         verbose,
+         transcriptable_course,
+         changed_since_date)
+    return _json_to_term_enrollment_dict(get_resource(url))
+
+
+def _json_to_term_enrollment_dict(json_data):
+    term_enrollment_dict = {}
+    if "Enrollments" not in json_data:
+        return term_enrollment_dict
+    for term_enro in json_data["Enrollments"]:
+        if "Term" in term_enro and\
+                "Year" in term_enro["Term"] and\
+                "Quarter" in term_enro["Term"]:
+            term = Term(year=term_enro["Term"]["Year"],
+                        quarter=term_enro["Term"]["Quarter"].lower())
+            enrollment = _json_to_enrollment(term_enro, term)
+            term_enrollment_dict[term] = enrollment
+    return term_enrollment_dict
 
 
 def get_enrollment_by_regid_and_term(regid, term):

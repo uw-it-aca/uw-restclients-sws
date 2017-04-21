@@ -230,7 +230,15 @@ class Term(models.Model):
     registration_period3_end = models.DateTimeField(blank=True)
 
     def __eq__(self, other):
-        return self.year == other.year and self.quarter == other.quarter
+        return (other is not None and
+                type(self) == type(other) and
+                self.__key() == other.__key())
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __key(self):
+        return (str(self.year), self.quarter)
 
     def is_grading_period_open(self):
         if self.quarter == self.SUMMER:
