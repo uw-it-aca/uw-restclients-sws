@@ -3,6 +3,7 @@ from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from datetime import datetime, timedelta
 from restclients_core.exceptions import DataFailureException
+from uw_sws.models import Term
 from uw_sws.term import get_term_by_year_and_quarter,\
     get_term_before, get_term_after, get_current_term, get_next_term,\
     get_previous_term, get_term_by_date, get_specific_term,\
@@ -503,3 +504,16 @@ class SWSTestTerm(TestCase):
             self.assertEquals(term.year, 2013)
             self.assertEquals(term.quarter, 'autumn')
 
+    def test_key(self):
+        term = Term()
+        term.year = 2013
+        term.quarter = 'spring'
+        self.assertEqual(type(term), Term)
+
+        term1 = get_current_term()
+        self.assertEqual(term, term1)
+        self.assertEqual(hash(term), hash(term1))
+
+        term2 = Term(year=2013, quarter='autumn')
+        self.assertFalse(term == term2)
+        self.assertFalse(hash(term) == hash(term2))
