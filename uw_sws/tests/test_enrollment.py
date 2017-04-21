@@ -5,6 +5,7 @@ from uw_sws.models import Term
 from uw_sws.term import get_current_term, get_next_term,\
     get_term_by_year_and_quarter, get_term_after
 from uw_sws.enrollment import get_grades_by_regid_and_term,\
+    is_src_location_pce, ENROLLMENT_SOURCE_PCE,\
     get_enrollment_by_regid_and_term, enrollment_search_by_regid
 from restclients_core.exceptions import DataFailureException
 
@@ -45,6 +46,20 @@ class SWSTestEnrollments(TestCase):
         self.assertFalse(enrollement.is_non_matric())
         self.assertFalse(enrollement.has_independent_start_course())
         self.assertFalse(enrollement.is_enroll_src_pce)
+
+    def test_is_src_location_pce(self):
+        self.assertFalse(is_src_location_pce(
+                {'Metadata': ''},
+                ENROLLMENT_SOURCE_PCE))
+        self.assertFalse(is_src_location_pce(
+                {'Metadata': "EnrollmentSourceLocation=SDB;"},
+                ENROLLMENT_SOURCE_PCE))
+        self.assertTrue(is_src_location_pce(
+                {'Metadata': "EnrollmentSourceLocation=SDB_EOS"},
+                ENROLLMENT_SOURCE_PCE))
+        self.assertTrue(is_src_location_pce(
+                {'Metadata': "EnrollmentSourceLocation=EOS"},
+                ENROLLMENT_SOURCE_PCE))
 
     def test_offterm_enrolled_courses(self):
         term = get_term_by_year_and_quarter(2013, 'winter')
