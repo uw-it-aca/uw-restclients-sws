@@ -1,7 +1,9 @@
 from unittest import TestCase
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
-from uw_sws.term import get_current_term, get_term_by_year_and_quarter
+from uw_sws.models import Term
+from uw_sws.term import get_current_term, get_next_term,\
+    get_term_by_year_and_quarter, get_term_after
 from uw_sws.enrollment import get_grades_by_regid_and_term,\
     get_enrollment_by_regid_and_term, enrollment_search_by_regid
 from restclients_core.exceptions import DataFailureException
@@ -90,15 +92,28 @@ class SWSTestEnrollments(TestCase):
              'year': 2013})
 
     def test_enrollment_search(self):
-        result_dict = enrollment_search_by_regid('9136CCB8F66711D5BE060004AC494FFE')
+        result_dict = enrollment_search_by_regid(
+            '9136CCB8F66711D5BE060004AC494FFE')
         self.assertEqual(len(result_dict), 6)
         term = get_current_term()
-        self.assertTrue(term in result_dict.keys())
-        self.assertIsNotNone(result_dict[term])
+        self.assertTrue(term in result_dict)
+        self.assertIsNotNone(result_dict.get(term))
         enrollement = result_dict.get(term)
         self.assertEquals(enrollement.class_level, "SENIOR")
         self.assertEquals(len(enrollement.majors), 1)
         self.assertEquals(len(enrollement.minors), 1)
-        self.assertFalse(enrollement.is_non_matric())
-        self.assertFalse(enrollement.has_independent_start_course())
-        self.assertFalse(enrollement.is_enroll_src_pce)
+
+        term2 = get_term_by_year_and_quarter(2013, 'autumn')
+        self.assertIsNone(result_dict.get(term2))
+
+        term3 = get_term_by_year_and_quarter(2012, 'spring')
+        self.assertTrue(term3 in result_dict)
+        self.assertIsNotNone(result_dict.get(term3))
+
+        term1 = get_term_by_year_and_quarter(2013, 'summer')
+        self.assertTrue(term1 in result_dict)
+        self.assertIsNotNone(result_dict.get(term1))
+
+        term4 = Term(year=1996, quarter='autumn')
+        self.assertTrue(term4 in result_dict)
+        self.assertIsNotNone(result_dict.get(term4))

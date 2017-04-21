@@ -690,7 +690,7 @@
             "ClassLevel": "SENIOR",
             "CurrentRegisteredCredits": null,
             "EnrollmentStatus": "Registered",
-            "EnrollmentStatusDate": "2000-03-15",
+            "EnrollmentStatusDate": "2012-03-15",
             "FullName": "James McMiddle Average",
             "HonorsProgram": false,
             "LeaveEndQuarter": 0,
@@ -750,7 +750,7 @@
                     "GradeDocumentID": "4190099999",
                     "GradingSystem": null,
                     "HonorsCourse": false,
-                    "Href": "/student/v5/registration/2000,spring,CSE,498,,9136CCB8F66711D5BE060004AC494FFE,0.json",
+                    "Href": "/student/v5/registration/2012,spring,CSE,498,,9136CCB8F66711D5BE060004AC494FFE,0.json",
                     "Instructor": null,
                     "IsActive": true,
                     "IsCredit": true,
@@ -768,10 +768,10 @@
                     "Section": {
                         "CourseNumber": "498",
                         "CurriculumAbbreviation": "CSE",
-                        "Href": "/student/v5/course/2000,spring,CSE,498/.json",
+                        "Href": "/student/v5/course/2012,spring,CSE,498/.json",
                         "Quarter": "spring",
                         "SectionID": "",
-                        "Year": 2000
+                        "Year": 2012
                     },
                     "StartDate": "",
                     "VariableCredit": false,
@@ -791,7 +791,7 @@
                     "GradeDocumentID": "",
                     "GradingSystem": null,
                     "HonorsCourse": false,
-                    "Href": "/student/v5/registration/2000,spring,MATH,301,,9136CCB8F66711D5BE060004AC494FFE,0.json",
+                    "Href": "/student/v5/registration/2012,spring,MATH,301,,9136CCB8F66711D5BE060004AC494FFE,0.json",
                     "Instructor": null,
                     "IsActive": true,
                     "IsCredit": true,
@@ -809,10 +809,10 @@
                     "Section": {
                         "CourseNumber": "301",
                         "CurriculumAbbreviation": "MATH",
-                        "Href": "/student/v5/course/2000,spring,MATH,301/.json",
+                        "Href": "/student/v5/course/2012,spring,MATH,301/.json",
                         "Quarter": "spring",
                         "SectionID": "",
-                        "Year": 2000
+                        "Year": 2012
                     },
                     "StartDate": "",
                     "VariableCredit": false,
@@ -832,7 +832,7 @@
                     "GradeDocumentID": "",
                     "GradingSystem": null,
                     "HonorsCourse": false,
-                    "Href": "/student/v5/registration/2000,spring,STAT,311,,9136CCB8F66711D5BE060004AC494FFE,0.json",
+                    "Href": "/student/v5/registration/2012,spring,STAT,311,,9136CCB8F66711D5BE060004AC494FFE,0.json",
                     "Instructor": null,
                     "IsActive": true,
                     "IsCredit": true,
@@ -850,10 +850,10 @@
                     "Section": {
                         "CourseNumber": "311",
                         "CurriculumAbbreviation": "STAT",
-                        "Href": "/student/v5/course/2000,spring,STAT,311/.json",
+                        "Href": "/student/v5/course/2012,spring,STAT,311/.json",
                         "Quarter": "spring",
                         "SectionID": "",
-                        "Year": 2000
+                        "Year": 2012
                     },
                     "StartDate": "",
                     "VariableCredit": false,
@@ -862,9 +862,9 @@
             ],
             "RepositoryTimeStamp": "3/28/2017 2:33:14 PM",
             "Term": {
-                "Href": "/student/v5/term/2000,spring.json",
+                "Href": "/student/v5/term/2012,spring.json",
                 "Quarter": "spring",
-                "Year": 2000
+                "Year": 2012
             }
         },
         {
