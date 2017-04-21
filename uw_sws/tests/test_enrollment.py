@@ -118,6 +118,7 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(term4 in result_dict)
         self.assertIsNotNone(result_dict.get(term4))
 
+        # regid of none
         result_dict = enrollment_search_by_regid(
             '00000000000000000000000000000001')
         self.assertEqual(len(result_dict), 0)
