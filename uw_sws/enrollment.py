@@ -13,6 +13,9 @@ from uw_sws.section import get_section_by_url
 
 logger = logging.getLogger(__name__)
 enrollment_res_url_prefix = "/student/v5/enrollment"
+enrollment_search_url_prefix = "/student/v5/enrollment.json?reg_id="
+enrollment_search_url_default_suffix =\
+    "&verbose=true&transcriptable_course=all&changed_since_date="
 
 
 def get_grades_by_regid_and_term(regid, term):
@@ -44,6 +47,26 @@ def _json_to_grades(data, regid, term):
         grades.grades.append(grade)
 
     return grades
+
+
+def enrollment_search_by_regid(regid):
+    url = "%s%s%s" % (enrollment_search_url_prefix,
+                      regid,
+                      enrollment_search_url_default_suffix)
+    return _json_to_term_enrollment_dict(get_resource(url))
+
+
+def _json_to_term_enrollment_dict(json_data):
+    term_enrollment_dict = {}
+    if not json_data.get("Enrollments"):
+        return term_enrollment_dict
+    for term_enro in json_data["Enrollments"]:
+        if "Term" in term_enro:
+            term = Term(year=term_enro["Term"]["Year"],
+                        quarter=term_enro["Term"]["Quarter"])
+            enrollment = _json_to_enrollment(term_enro, term)
+            term_enrollment_dict[term] = enrollment
+    return term_enrollment_dict
 
 
 def get_enrollment_by_regid_and_term(regid, term):

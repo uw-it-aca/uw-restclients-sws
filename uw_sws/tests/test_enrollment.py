@@ -3,7 +3,7 @@ from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.term import get_current_term, get_term_by_year_and_quarter
 from uw_sws.enrollment import get_grades_by_regid_and_term,\
-    get_enrollment_by_regid_and_term
+    get_enrollment_by_regid_and_term, enrollment_search_by_regid
 from restclients_core.exceptions import DataFailureException
 
 
@@ -88,3 +88,17 @@ class SWSTestEnrollments(TestCase):
              'section_label': u'2013,winter,PSYCH,203/A',
              'url': u'/student/v5/course/2013,winter,PSYCH,203/A.json',
              'year': 2013})
+
+    def test_enrollment_search(self):
+        result_dict = enrollment_search_by_regid('9136CCB8F66711D5BE060004AC494FFE')
+        self.assertEqual(len(result_dict), 6)
+        term = get_current_term()
+        self.assertTrue(term in result_dict.keys())
+        self.assertIsNotNone(result_dict[term])
+        enrollement = result_dict.get(term)
+        self.assertEquals(enrollement.class_level, "SENIOR")
+        self.assertEquals(len(enrollement.majors), 1)
+        self.assertEquals(len(enrollement.minors), 1)
+        self.assertFalse(enrollement.is_non_matric())
+        self.assertFalse(enrollement.has_independent_start_course())
+        self.assertFalse(enrollement.is_enroll_src_pce)
