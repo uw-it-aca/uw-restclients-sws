@@ -55,7 +55,7 @@ def enrollment_search_by_regid(regid,
     """
     See SWS Enrollment search resource spec at:
     https://wiki.cac.washington.edu/x/_qjeAw
-    :return: a dictionary {"year,quarter": Enrollment object}
+    :return: a dictionary of {Term: Enrollment}
     """
     url = "%s%s&verbose=%s&transcriptable_course=%s&changed_since_date=%s" %\
         (enrollment_search_url_prefix,
