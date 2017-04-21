@@ -94,8 +94,8 @@ def _json_to_enrollment(json_data, term):
     enrollment.regid = json_data['RegID']
     enrollment.class_level = json_data['ClassLevel']
     enrollment.is_honors = json_data['HonorsProgram']
-    enrollment.is_enroll_src_pce = is_reg_src_pce(json_data,
-                                                  ENROLLMENT_SOURCE_PCE)
+    enrollment.is_enroll_src_pce = is_src_location_pce(json_data,
+                                                       ENROLLMENT_SOURCE_PCE)
 
     enrollment.independent_start_sections = []
     if json_data.get('Registrations') is not None and\
@@ -137,8 +137,8 @@ def _json_to_independent_start_section(json_data, aterm):
     except Exception:
         is_section.start_date = ""
 
-    is_section.is_reg_src_pce = is_reg_src_pce(json_data,
-                                               REGISTRATION_SOURCE_PCE)
+    is_section.is_reg_src_pce = is_src_location_pce(json_data,
+                                                    REGISTRATION_SOURCE_PCE)
     return is_section
 
 
@@ -163,14 +163,13 @@ def _json_to_minor(json_data):
     return minor
 
 
-ENROLLMENT_SOURCE_PCE = re.compile('^EnrollmentSourceLocation=SDB_EOS;',
-                                   re.I)
-REGISTRATION_SOURCE_PCE = re.compile('^RegistrationSourceLocation=SDB_EOS;',
-                                     re.I)
+ENROLLMENT_SOURCE_PCE = re.compile('^EnrollmentSourceLocation=', re.I)
+REGISTRATION_SOURCE_PCE = re.compile('^RegistrationSourceLocation=', re.I)
 
 
-def is_reg_src_pce(json_data, pattern):
+def is_src_location_pce(json_data, pattern):
     try:
-        return re.match(pattern, json_data['Metadata']) is not None
+        return (re.match(pattern, json_data['Metadata']) is not None and
+                "EOS" in json_data['Metadata'])
     except KeyError:
         return False
