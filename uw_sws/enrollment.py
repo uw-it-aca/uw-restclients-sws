@@ -68,7 +68,7 @@ def enrollment_search_by_regid(regid,
 
 def _json_to_term_enrollment_dict(json_data):
     term_enrollment_dict = {}
-    if not json_data.get("Enrollments"):
+    if "Enrollments" not in json_data:
         return term_enrollment_dict
     for term_enro in json_data["Enrollments"]:
         if "Term" in term_enro and\
