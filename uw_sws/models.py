@@ -648,10 +648,14 @@ class SectionReference(models.Model):
     url = models.URLField(max_length=255,
                           blank=True)
 
+    def __eq__(self, other):
+        return (other is not None and
+                type(self) == type(other) and
+                self.section_label() == other.section_label())
+
     def section_label(self):
         return "%s,%s,%s,%s/%s" % (
-            self.term.year,
-            self.term.quarter, self.curriculum_abbr,
+            self.term.year, self.term.quarter, self.curriculum_abbr,
             self.course_number, self.section_id)
 
     def json_data(self):
@@ -969,10 +973,8 @@ class Finance(models.Model):
             self.tuition_accbalance, self.pce_accbalance)
 
 
-NON_MATRIC = "non_matric"
-
-
 class Enrollment(models.Model):
+    CLASS_LEVEL_NON_MATRIC = "non_matric"
     is_honors = models.NullBooleanField()
     class_level = models.CharField(max_length=100)
     regid = models.CharField(max_length=32,
@@ -981,12 +983,12 @@ class Enrollment(models.Model):
     is_enroll_src_pce = models.NullBooleanField()
 
     def is_non_matric(self):
-        return self.class_level.lower() == NON_MATRIC
+        return self.class_level.lower() == Enrollment.CLASS_LEVEL_NON_MATRIC
 
-    def has_independent_start_course(self):
+    def has_off_term_course(self):
         try:
-            return (self.independent_start_sections and
-                    len(self.independent_start_sections) > 0)
+            return (self.off_term_sections and
+                    len(self.off_term_sections) > 0)
         except AttributeError:
             return False
 
@@ -1025,10 +1027,11 @@ class Minor(models.Model):
                 }
 
 
-FEEBASED = "fee based course"
+class OffTermSectionReference(models.Model):
+    FEEBASED = "fee based course"
 
-
-class IndependentStartSectionReference(models.Model):
+    # OffTerm: has non-empty start_date and end_date
+    # including IndependentStart sections
     section_ref = models.ForeignKey(SectionReference,
                                     on_delete=models.PROTECT)
     end_date = models.DateField(null=True, blank=True)
@@ -1037,7 +1040,7 @@ class IndependentStartSectionReference(models.Model):
     is_reg_src_pce = models.NullBooleanField()
 
     def is_fee_based(self):
-        return self.feebase_type.lower() == FEEBASED
+        return self.feebase_type.lower() == OffTermSectionReference.FEEBASED
 
     def json_data(self, include_section_ref=False):
         data = {'start_date': str(self.start_date),
