@@ -27,8 +27,6 @@ setup(
                       'mock',
                       'python-dateutil',
                       'pytz',
-                      'lxml',
-                      'Jinja2',
                      ],
     license='Apache License, Version 2.0',
     description=('A library for connecting to the SWS at the University '
