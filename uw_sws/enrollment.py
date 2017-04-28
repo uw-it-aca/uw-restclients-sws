@@ -6,7 +6,7 @@ import re
 from uw_pws import PWS
 from uw_sws.models import (StudentGrades, StudentCourseGrade, Enrollment,
                            Major, Minor, SectionReference, Term,
-                           IndependentStartSectionReference)
+                           OffTermSectionReference)
 from uw_sws import get_resource, parse_sws_date
 from uw_sws.section import get_section_by_url
 from uw_sws.term import get_term_by_year_and_quarter
@@ -89,6 +89,13 @@ def get_enrollment_by_regid_and_term(regid, term):
     return _json_to_enrollment(get_resource(url), term)
 
 
+def has_start_end_dates(registration_json_data):
+    start_date = registration_json_data.get('StartDate')
+    end_date = registration_json_data.get('EndDate')
+    return (start_date is not None and len(start_date) > 0 and
+            end_date is not None and len(start_date) > 0)
+
+
 def _json_to_enrollment(json_data, term):
     enrollment = Enrollment()
     enrollment.regid = json_data['RegID']
@@ -96,14 +103,16 @@ def _json_to_enrollment(json_data, term):
     enrollment.is_honors = json_data['HonorsProgram']
     enrollment.is_enroll_src_pce = is_src_location_pce(json_data,
                                                        ENROLLMENT_SOURCE_PCE)
-
-    enrollment.independent_start_sections = []
-    if json_data.get('Registrations') is not None and\
-            len(json_data['Registrations']) > 0:
-        for registration in json_data['Registrations']:
-            if registration.get('IsIndependentStart'):
-                enrollment.independent_start_sections.append(
-                    _json_to_independent_start_section(registration, term))
+    enrollment.off_term_sections = {}
+    # dictionary {section_label: OffTermSectionReference}
+    if enrollment.is_enroll_src_pce:
+        if json_data.get('Registrations') is not None and\
+           len(json_data['Registrations']) > 0:
+            for registration in json_data['Registrations']:
+                if has_start_end_dates(registration):
+                    ot_section = _json_to_off_term_section(registration, term)
+                    key = ot_section.section_ref.section_label()
+                    enrollment.off_term_sections[key] = ot_section
 
     enrollment.majors = []
     if json_data.get('Majors') is not None and len(json_data['Majors']) > 0:
@@ -117,29 +126,21 @@ def _json_to_enrollment(json_data, term):
     return enrollment
 
 
-def _json_to_independent_start_section(json_data, aterm):
-    is_section = IndependentStartSectionReference()
-    is_section.section_ref = SectionReference(
+def _json_to_off_term_section(json_data, aterm):
+    ot_section = OffTermSectionReference()
+    ot_section.section_ref = SectionReference(
         term=aterm,
         curriculum_abbr=json_data['Section']['CurriculumAbbreviation'],
         course_number=json_data['Section']['CourseNumber'],
         section_id=json_data['Section']['SectionID'],
         url=json_data['Section']['Href']
         )
-    is_section.feebase_type = json_data['FeeBaseType']
-    try:
-        is_section.end_date = parse_sws_date(json_data['EndDate'])
-    except Exception:
-        is_section.end_date = ""
-
-    try:
-        is_section.start_date = parse_sws_date(json_data['StartDate'])
-    except Exception:
-        is_section.start_date = ""
-
-    is_section.is_reg_src_pce = is_src_location_pce(json_data,
+    ot_section.start_date = parse_sws_date(json_data['StartDate'])
+    ot_section.end_date = parse_sws_date(json_data['EndDate'])
+    ot_section.feebase_type = json_data['FeeBaseType']
+    ot_section.is_reg_src_pce = is_src_location_pce(json_data,
                                                     REGISTRATION_SOURCE_PCE)
-    return is_section
+    return ot_section
 
 
 def _json_to_major(json_data):

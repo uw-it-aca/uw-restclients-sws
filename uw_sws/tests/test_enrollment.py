@@ -5,7 +5,7 @@ from uw_sws.models import Term
 from uw_sws.term import get_current_term, get_next_term,\
     get_term_by_year_and_quarter, get_term_after
 from uw_sws.enrollment import get_grades_by_regid_and_term,\
-    is_src_location_pce, ENROLLMENT_SOURCE_PCE,\
+    is_src_location_pce, ENROLLMENT_SOURCE_PCE, has_start_end_dates,\
     get_enrollment_by_regid_and_term, enrollment_search_by_regid
 from restclients_core.exceptions import DataFailureException
 
@@ -32,20 +32,20 @@ class SWSTestEnrollments(TestCase):
 
     def test_javerage_major(self):
         term = get_current_term()
-        enrollement = get_enrollment_by_regid_and_term(
+        enrollment = get_enrollment_by_regid_and_term(
             '9136CCB8F66711D5BE060004AC494FFE', term)
-        self.assertEquals(enrollement.class_level, "SENIOR")
-        self.assertEquals(enrollement.is_honors, False)
-        self.assertEquals(len(enrollement.majors), 1)
-        self.assertEquals(enrollement.majors[0].campus, "Seattle")
+        self.assertEquals(enrollment.class_level, "SENIOR")
+        self.assertEquals(enrollment.is_honors, False)
+        self.assertEquals(len(enrollment.majors), 1)
+        self.assertEquals(enrollment.majors[0].campus, "Seattle")
         self.assertEquals(
-            enrollement.majors[0].degree_name,
+            enrollment.majors[0].degree_name,
             "BACHELOR OF SCIENCE (APPLIED & COMPUTATIONAL MATH SCIENCES)")
-        self.assertEquals(enrollement.minors[0].campus, "Seattle")
-        self.assertEquals(enrollement.minors[0].name, "AMERICAN SIGN LANGUAGE")
-        self.assertFalse(enrollement.is_non_matric())
-        self.assertFalse(enrollement.has_independent_start_course())
-        self.assertFalse(enrollement.is_enroll_src_pce)
+        self.assertEquals(enrollment.minors[0].campus, "Seattle")
+        self.assertEquals(enrollment.minors[0].name, "AMERICAN SIGN LANGUAGE")
+        self.assertFalse(enrollment.is_non_matric())
+        self.assertFalse(enrollment.has_off_term_course())
+        self.assertFalse(enrollment.is_enroll_src_pce)
 
     def test_is_src_location_pce(self):
         self.assertFalse(is_src_location_pce(
@@ -63,14 +63,17 @@ class SWSTestEnrollments(TestCase):
 
     def test_offterm_enrolled_courses(self):
         term = get_term_by_year_and_quarter(2013, 'winter')
-        enrollement = get_enrollment_by_regid_and_term(
+        enrollment = get_enrollment_by_regid_and_term(
             'AABBCCDDEEFFAABBCCDDEEFFAABBCCDC', term)
-        self.assertEquals(enrollement.class_level, u'NON_MATRIC')
-        self.assertTrue(enrollement.is_enroll_src_pce)
-        self.assertTrue(enrollement.is_non_matric())
-        self.assertTrue(enrollement.has_independent_start_course())
-        self.assertEqual(len(enrollement.independent_start_sections), 2)
-        section1 = enrollement.independent_start_sections[0]
+        self.assertEquals(enrollment.class_level, u'NON_MATRIC')
+        self.assertTrue(enrollment.is_enroll_src_pce)
+        self.assertTrue(enrollment.is_non_matric())
+        self.assertTrue(enrollment.has_off_term_course())
+        self.assertEqual(len(enrollment.off_term_sections), 2)
+
+        self.assertTrue(
+            enrollment.off_term_sections.get("2013,winter,COM,201/A"))
+        section1 = enrollment.off_term_sections["2013,winter,COM,201/A"]
         self.assertTrue(section1.is_fee_based())
         self.assertEqual(str(section1.end_date), '2013-04-29 00:00:00')
         self.assertEqual(str(section1.start_date), '2013-01-28 00:00:00')
@@ -91,7 +94,9 @@ class SWSTestEnrollments(TestCase):
              'url': u'/student/v5/course/2013,winter,COM,201/A.json',
              'year': 2013})
 
-        section2 = enrollement.independent_start_sections[1]
+        self.assertTrue(
+            enrollment.off_term_sections.get("2013,winter,PSYCH,203/A"))
+        section2 = enrollment.off_term_sections["2013,winter,PSYCH,203/A"]
         self.assertTrue(section2.is_fee_based())
         self.assertEqual(str(section2.end_date), '2013-06-22 00:00:00')
         self.assertEqual(str(section2.start_date), '2013-01-29 00:00:00')
@@ -106,17 +111,41 @@ class SWSTestEnrollments(TestCase):
              'url': u'/student/v5/course/2013,winter,PSYCH,203/A.json',
              'year': 2013})
 
+        self.assertFalse(
+            enrollment.off_term_sections.get("2014,winter,PSYCH,203/A"))
+
     def test_enrollment_search(self):
+        # off term course sections
+        result_dict = enrollment_search_by_regid(
+            'AABBCCDDEEFFAABBCCDDEEFFAABBCCDC')
+        self.assertEqual(len(result_dict), 2)
+        term = get_current_term()
+        self.assertTrue(term in result_dict)
+        enrollment = result_dict.get(term)
+        self.assertTrue(enrollment.is_non_matric())
+        self.assertEqual(len(enrollment.off_term_sections), 3)
+        self.assertTrue(
+            "2013,spring,AAES,150/A" in enrollment.off_term_sections)
+        self.assertTrue(
+            "2013,spring,ACCTG,508/A" in enrollment.off_term_sections)
+        self.assertTrue(
+            "2013,spring,CPROGRM,712/A" in enrollment.off_term_sections)
+        section1 = enrollment.off_term_sections["2013,spring,ACCTG,508/A"]
+        self.assertEqual(str(section1.end_date), '2013-06-19 00:00:00')
+        self.assertEqual(str(section1.start_date), '2013-04-01 00:00:00')
+        self.assertTrue(section1.is_reg_src_pce)
+        
+        # regular course
         result_dict = enrollment_search_by_regid(
             '9136CCB8F66711D5BE060004AC494FFE')
         self.assertEqual(len(result_dict), 6)
         term = get_current_term()
         self.assertTrue(term in result_dict)
         self.assertIsNotNone(result_dict.get(term))
-        enrollement = result_dict.get(term)
-        self.assertEquals(enrollement.class_level, "SENIOR")
-        self.assertEquals(len(enrollement.majors), 1)
-        self.assertEquals(len(enrollement.minors), 1)
+        enrollment = result_dict.get(term)
+        self.assertEquals(enrollment.class_level, "SENIOR")
+        self.assertEquals(len(enrollment.majors), 1)
+        self.assertEquals(len(enrollment.minors), 1)
 
         term2 = get_term_by_year_and_quarter(2013, 'autumn')
         self.assertIsNone(result_dict.get(term2))
@@ -137,3 +166,12 @@ class SWSTestEnrollments(TestCase):
         result_dict = enrollment_search_by_regid(
             '00000000000000000000000000000001')
         self.assertEqual(len(result_dict), 0)
+
+    def test_has_start_end_dates(self):
+        json_data = {u'StartDate': u'01/29/2013',
+                     u'EndDate': u'06/22/2013'}
+        self.assertTrue(has_start_end_dates(json_data))
+        json_data = {"FeeBaseType": ""}
+        self.assertFalse(has_start_end_dates(json_data))
+        json_data = {"FeeBaseType": "", "StartDate":"", "EndDate":""}
+        self.assertFalse(has_start_end_dates(json_data))
