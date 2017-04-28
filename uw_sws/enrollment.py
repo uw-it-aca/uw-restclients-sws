@@ -111,8 +111,9 @@ def _json_to_enrollment(json_data, term):
         for registration in json_data['Registrations']:
             if has_start_end_dates(registration):
                 ot_section = _json_to_off_term_section(registration, term)
-                key = ot_section.section_ref.section_label()
-                enrollment.off_term_sections[key] = ot_section
+                if ot_section.is_reg_src_pce:
+                    key = ot_section.section_ref.section_label()
+                    enrollment.off_term_sections[key] = ot_section
 
     enrollment.majors = []
     if json_data.get('Majors') is not None and len(json_data['Majors']) > 0:
