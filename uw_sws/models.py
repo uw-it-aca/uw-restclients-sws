@@ -3,7 +3,6 @@ from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
 from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
                          convert_to_end_of_day)
 from restclients_core import models
-from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 import os
 
@@ -648,10 +647,14 @@ class SectionReference(models.Model):
     url = models.URLField(max_length=255,
                           blank=True)
 
+    def __eq__(self, other):
+        return (other is not None and
+                type(self) == type(other) and
+                self.section_label() == other.section_label())
+
     def section_label(self):
         return "%s,%s,%s,%s/%s" % (
-            self.term.year,
-            self.term.quarter, self.curriculum_abbr,
+            self.term.year, self.term.quarter, self.curriculum_abbr,
             self.course_number, self.section_id)
 
     def json_data(self):
@@ -825,71 +828,6 @@ class Curriculum(models.Model):
     full_name = models.CharField(max_length=60)
 
 
-class GradeRoster(models.Model):
-    section = models.ForeignKey(Section,
-                                on_delete=models.PROTECT)
-    instructor = models.ForeignKey(Person,
-                                   on_delete=models.PROTECT)
-    section_credits = models.FloatField()
-    allows_writing_credit = models.NullBooleanField()
-
-    def graderoster_label(self):
-        return "%s,%s,%s,%s,%s,%s" % (
-            self.section.term.year,
-            self.section.term.quarter,
-            self.section.curriculum_abbr,
-            self.section.course_number,
-            self.section.section_id,
-            self.instructor.uwregid)
-
-    def xhtml(self):
-        template_path = os.path.join(os.path.dirname(__file__), "templates/")
-        context = {
-            "graderoster": self,
-            "section_id": self.section.section_label()
-        }
-        return Environment(
-            loader=FileSystemLoader(template_path)
-        ).get_template("graderoster.xhtml").render(context)
-
-
-class GradeRosterItem(models.Model):
-    student_uwregid = models.CharField(max_length=32)
-    student_first_name = models.CharField(max_length=100)
-    student_surname = models.CharField(max_length=100)
-    student_former_name = models.CharField(max_length=120, null=True)
-    student_number = models.PositiveIntegerField()
-    student_type = models.CharField(max_length=20, null=True)
-    student_credits = models.FloatField()
-    duplicate_code = models.CharField(max_length=8, null=True)
-    section_id = models.CharField(max_length=2)
-    is_auditor = models.BooleanField(default=False)
-    allows_incomplete = models.BooleanField(default=False)
-    has_incomplete = models.BooleanField(default=False)
-    has_writing_credit = models.BooleanField(default=False)
-    no_grade_now = models.BooleanField(default=False)
-    date_withdrawn = models.DateField(null=True)
-    grade = models.CharField(max_length=20, null=True, default=None)
-    allows_grade_change = models.BooleanField(default=False)
-    date_graded = models.DateField(null=True)
-    grade_submitter_person = models.ForeignKey(Person,
-                                               related_name="grade_submitter",
-                                               null=True)
-    grade_submitter_source = models.CharField(max_length=8, null=True)
-    status_code = models.CharField(max_length=3, null=True)
-    status_message = models.CharField(max_length=500, null=True)
-
-    def student_label(self, separator=","):
-        label = self.student_uwregid
-        if self.duplicate_code is not None and len(self.duplicate_code):
-            label += "%s%s" % (separator, self.duplicate_code)
-        return label
-
-    def __eq__(self, other):
-        return (self.student_uwregid == other.student_uwregid and
-                self.duplicate_code == other.duplicate_code)
-
-
 class GradeSubmissionDelegate(models.Model):
     person = models.ForeignKey(Person,
                                on_delete=models.PROTECT)
@@ -969,10 +907,8 @@ class Finance(models.Model):
             self.tuition_accbalance, self.pce_accbalance)
 
 
-NON_MATRIC = "non_matric"
-
-
 class Enrollment(models.Model):
+    CLASS_LEVEL_NON_MATRIC = "non_matric"
     is_honors = models.NullBooleanField()
     class_level = models.CharField(max_length=100)
     regid = models.CharField(max_length=32,
@@ -981,12 +917,12 @@ class Enrollment(models.Model):
     is_enroll_src_pce = models.NullBooleanField()
 
     def is_non_matric(self):
-        return self.class_level.lower() == NON_MATRIC
+        return self.class_level.lower() == Enrollment.CLASS_LEVEL_NON_MATRIC
 
-    def has_independent_start_course(self):
+    def has_off_term_course(self):
         try:
-            return (self.independent_start_sections and
-                    len(self.independent_start_sections) > 0)
+            return (self.off_term_sections and
+                    len(self.off_term_sections) > 0)
         except AttributeError:
             return False
 
@@ -1025,10 +961,11 @@ class Minor(models.Model):
                 }
 
 
-FEEBASED = "fee based course"
+class OffTermSectionReference(models.Model):
+    FEEBASED = "fee based course"
 
-
-class IndependentStartSectionReference(models.Model):
+    # OffTerm: has non-empty start_date and end_date
+    # including IndependentStart sections
     section_ref = models.ForeignKey(SectionReference,
                                     on_delete=models.PROTECT)
     end_date = models.DateField(null=True, blank=True)
@@ -1037,7 +974,7 @@ class IndependentStartSectionReference(models.Model):
     is_reg_src_pce = models.NullBooleanField()
 
     def is_fee_based(self):
-        return self.feebase_type.lower() == FEEBASED
+        return self.feebase_type.lower() == OffTermSectionReference.FEEBASED
 
     def json_data(self, include_section_ref=False):
         data = {'start_date': str(self.start_date),
