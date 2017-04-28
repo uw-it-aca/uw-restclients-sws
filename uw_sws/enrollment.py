@@ -103,15 +103,14 @@ def _json_to_enrollment(json_data, term):
     enrollment.is_honors = json_data['HonorsProgram']
     enrollment.is_enroll_src_pce = is_src_location_pce(json_data,
                                                        ENROLLMENT_SOURCE_PCE)
-
     enrollment.off_term_sections = {}
     # dictionary {section_label: OffTermSectionReference}
-    if json_data.get('Registrations') is not None and\
-            len(json_data['Registrations']) > 0:
-        for registration in json_data['Registrations']:
-            if has_start_end_dates(registration):
-                ot_section = _json_to_off_term_section(registration, term)
-                if ot_section.is_reg_src_pce:
+    if enrollment.is_enroll_src_pce:
+        if json_data.get('Registrations') is not None and\
+           len(json_data['Registrations']) > 0:
+            for registration in json_data['Registrations']:
+                if has_start_end_dates(registration):
+                    ot_section = _json_to_off_term_section(registration, term)
                     key = ot_section.section_ref.section_label()
                     enrollment.off_term_sections[key] = ot_section
 
