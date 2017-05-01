@@ -1013,6 +1013,9 @@ class Major(models.Model):
     def __key(self):
         return (self.campus, self.college_abbr, self.major_name)
 
+    def __hash__(self):
+        return hash(self.__key())
+
     def json_data(self):
         return {'degree_abbr': self.degree_abbr,
                 'college_abbr': self.college_abbr,
@@ -1040,6 +1043,9 @@ class Minor(models.Model):
 
     def __key(self):
         return (self.campus, self.full_name)
+
+    def __hash__(self):
+        return hash(self.__key())
 
     def json_data(self):
         return {'abbr': self.abbr,

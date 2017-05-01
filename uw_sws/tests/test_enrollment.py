@@ -201,3 +201,18 @@ class SWSTestEnrollments(TestCase):
         self.assertFalse(has_start_end_dates(json_data))
         json_data = {"FeeBaseType": "", "StartDate":"", "EndDate":""}
         self.assertFalse(has_start_end_dates(json_data))
+
+    def test_comparing_majors_minors(self):
+        result_dict = enrollment_search_by_regid(
+            '9136CCB8F66711D5BE060004AC494FFE')
+
+        enroll = result_dict.get(get_current_term())
+        self.assertTrue(enroll.majors[0] in enroll.majors)
+        self.assertTrue(enroll.minors[0] in enroll.minors)
+
+        enroll1 = result_dict.get(get_term_by_year_and_quarter(2013, 'summer'))
+        self.assertFalse(enroll.majors[0] in enroll1.majors)
+        
+        enroll3 = result_dict.get(
+            get_term_by_year_and_quarter(2012, 'spring'))
+        self.assertFalse(enroll3.minors[0] in enroll.minors)
