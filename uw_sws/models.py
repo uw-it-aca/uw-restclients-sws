@@ -981,6 +981,7 @@ class Enrollment(models.Model):
                              db_index=True,
                              unique=True)
     is_enroll_src_pce = models.NullBooleanField()
+    has_pending_major_change = models.NullBooleanField()
 
     def is_non_matric(self):
         return self.class_level.lower() == Enrollment.CLASS_LEVEL_NON_MATRIC
@@ -994,15 +995,29 @@ class Enrollment(models.Model):
 
 
 class Major(models.Model):
+    degree_abbr = models.CharField(max_length=50)
+    college_abbr = models.CharField(max_length=50)
+    college_full_name = models.CharField(max_length=100)
     degree_name = models.CharField(max_length=100)
-    degree_abbr = models.CharField(max_length=100)
+    degree_level = models.IntegerField()
     full_name = models.CharField(max_length=100)
     major_name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=50)
     campus = models.CharField(max_length=8)
 
+    def __eq__(self, other):
+        return (other is not None and
+                type(self) == type(other) and
+                self.__key() == other.__key())
+
+    def __key(self):
+        return (self.campus, self.college_abbr, self.major_name)
+
     def json_data(self):
         return {'degree_abbr': self.degree_abbr,
+                'college_abbr': self.college_abbr,
+                'college_full_name': self.college_abbr,
+                'degree_level': self.degree_level,
                 'degree_name': self.degree_name,
                 'campus': self.campus,
                 'name': self.major_name,
@@ -1017,6 +1032,14 @@ class Minor(models.Model):
     name = models.CharField(max_length=100)
     full_name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=50)
+
+    def __eq__(self, other):
+        return (other is not None and
+                type(self) == type(other) and
+                self.__key() == other.__key())
+
+    def __key(self):
+        return (self.campus, self.full_name)
 
     def json_data(self):
         return {'abbr': self.abbr,

@@ -908,11 +908,11 @@
                 "RegID": "9136CCB8F66711D5BE060004AC494FFE"
             },
             "QtrGradePoints": 30,
-    "QtrGradedAttmp": 10,
-    "QtrNonGrdEarned": 2,
-    "RegID": "9136CCB8F66711D5BE060004AC494FFE",
-    "Registrations": [
-        {
+            "QtrGradedAttmp": 10,
+            "QtrNonGrdEarned": 2,
+            "RegID": "9136CCB8F66711D5BE060004AC494FFE",
+            "Registrations": [
+            {
             "AddAccessCode": "",
             "Auditor": false,
             "Credits": " 2.0",
@@ -943,8 +943,8 @@
             },
             "VariableCredit": false,
             "WritingCourse": false
-        },
-        {
+           },
+           {
             "AddAccessCode": "",
             "Auditor": false,
             "Credits": " 5.0",
@@ -975,8 +975,8 @@
             },
             "VariableCredit": false,
             "WritingCourse": false
-        },
-        {
+           },
+           {
             "AddAccessCode": "",
             "Auditor": false,
             "Credits": " 3.0",
@@ -1007,8 +1007,8 @@
             },
             "VariableCredit": false,
             "WritingCourse": true
-        },
-        {
+           },
+           {
             "AddAccessCode": "",
             "Auditor": false,
             "Credits": " 1.0",
@@ -1039,8 +1039,8 @@
             },
             "VariableCredit": false,
             "WritingCourse": true
-        },
-        {
+           },
+           {
             "AddAccessCode": "",
             "Auditor": false,
             "Credits": " 1.0",
@@ -1088,20 +1088,24 @@
     "LeaveEndYear": 0,
     "Majors": [
         {
-            "Abbreviation": "ACMS",
-            "Campus": "Seattle",
-            "DegreeLevel": 1,
-            "DegreeName": "BACHELOR OF SCIENCE (APPLIED & COMPUTATIONAL MATH SCIENCES)",
-            "DegreeType": 5,
-            "FullName": "App & Comp Math Sci (Social & Behav Sci)",
-            "MajorName": "ACMS (SOC & BEH SCI)",
-            "Pathway": 80,
-            "ShortName": "ACMS (SBS)"
+            "Abbreviation":"ENGL",
+            "Campus":"Seattle",
+            "CollegeAbbreviation":"A & S",
+            "CollegeFullName":"COLLEGE OF ARTS & SCIENCES",
+            "DegreeLevel":1,
+            "DegreeName":"BACHELOR OF ARTS (ENGLISH)",
+            "DegreeType":1,
+            "FullName":"English",
+            "MajorName":"ENGLISH",
+            "Pathway":0,
+            "ShortName":"ENGLISH"
         }
     ],
+    "Metadata":"EnrollmentSourceLocation=SDB;",
+    "Minors":[],
     "PendingClassChange": false,
     "PendingHonorsChange": false,
-    "PendingMajorChange": false,
+    "PendingMajorChange": true,
     "PendingResidentChange": false,
     "PendingSpecialProgramChange": false,
     "Person": {
