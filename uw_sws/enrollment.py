@@ -101,6 +101,10 @@ def _json_to_enrollment(json_data, term):
     enrollment.regid = json_data['RegID']
     enrollment.class_level = json_data['ClassLevel']
     enrollment.is_honors = json_data['HonorsProgram']
+
+    value = json_data['PendingMajorChange']
+    enrollment.has_pending_major_change = value
+
     enrollment.is_enroll_src_pce = is_src_location_pce(json_data,
                                                        ENROLLMENT_SOURCE_PCE)
     enrollment.off_term_sections = {}
@@ -146,7 +150,17 @@ def _json_to_off_term_section(json_data, aterm):
 def _json_to_major(json_data):
     major = Major()
     major.degree_abbr = json_data['Abbreviation']
+    try:
+        major.college_abbr = json_data['CollegeAbbreviation']
+    except KeyError:
+        major.college_abbr = ""
+    try:
+        major.college_full_name = json_data['CollegeFullName']
+    except KeyError:
+        major.college_full_name = ""
+
     major.degree_name = json_data['DegreeName']
+    major.degree_level = int(json_data['DegreeLevel'])
     major.full_name = json_data['FullName']
     major.major_name = json_data['MajorName']
     major.short_name = json_data['ShortName']
