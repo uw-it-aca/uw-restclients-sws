@@ -502,3 +502,13 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2013,winter,COM,201/A')
         self.assertFalse(section.is_early_fall_start())
         self.assertFalse(section.end_date)
+
+    def test_normalized_meeting_time(self):
+        section = get_section_by_label('2013,autumn,MATH,120/ZZ')
+        meeting = section.meetings[0]
+        meeting.start_time = '11:30:00'
+        meeting.end_time = '12:20:00'
+        jd = section.meetings[0].json_data()
+        self.assertFalse(jd['no_meeting'])
+        self.assertEqual(jd['start_time'], '11:30')
+        self.assertEqual(jd['end_time'], '12:20')
