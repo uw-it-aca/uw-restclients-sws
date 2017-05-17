@@ -76,12 +76,12 @@ class SWSTestEnrollments(TestCase):
             enrollment.off_term_sections.get("2013,winter,COM,201/A"))
         section1 = enrollment.off_term_sections["2013,winter,COM,201/A"]
         self.assertTrue(section1.is_fee_based())
-        self.assertEqual(str(section1.end_date), '2013-04-29 00:00:00')
-        self.assertEqual(str(section1.start_date), '2013-01-28 00:00:00')
+        self.assertEqual(str(section1.end_date), '2013-04-29')
+        self.assertEqual(str(section1.start_date), '2013-01-28')
         self.assertTrue(section1.is_reg_src_pce)
         self.assertEqual(section1.json_data(),
-                         {'start_date': '2013-01-28 00:00:00',
-                          'end_date': '2013-04-29 00:00:00',
+                         {'start_date': '2013-01-28',
+                          'end_date': '2013-04-29',
                           'feebase_type': u'Fee based course',
                           'is_reg_src_pce': True,
                           })
@@ -99,8 +99,8 @@ class SWSTestEnrollments(TestCase):
             enrollment.off_term_sections.get("2013,winter,PSYCH,203/A"))
         section2 = enrollment.off_term_sections["2013,winter,PSYCH,203/A"]
         self.assertTrue(section2.is_fee_based())
-        self.assertEqual(str(section2.end_date), '2013-06-22 00:00:00')
-        self.assertEqual(str(section2.start_date), '2013-01-29 00:00:00')
+        self.assertEqual(str(section2.end_date), '2013-06-22')
+        self.assertEqual(str(section2.start_date), '2013-01-29')
         self.assertTrue(section2.is_reg_src_pce)
         self.assertEqual(
             section2.section_ref.json_data(),
@@ -137,8 +137,8 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(
             "2013,spring,CPROGRM,712/A" in enrollment.off_term_sections)
         section1 = enrollment.off_term_sections["2013,spring,ACCTG,508/A"]
-        self.assertEqual(str(section1.end_date), '2013-06-19 00:00:00')
-        self.assertEqual(str(section1.start_date), '2013-04-01 00:00:00')
+        self.assertEqual(str(section1.end_date), '2013-06-19')
+        self.assertEqual(str(section1.start_date), '2013-04-01')
         self.assertTrue(section1.is_reg_src_pce)
 
         term0 = get_term_before(term)

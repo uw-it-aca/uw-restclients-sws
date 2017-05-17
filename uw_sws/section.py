@@ -4,6 +4,7 @@ Interfacing with the Student Web Service, for Section and Course resources.
 import logging
 import re
 from datetime import datetime
+from dateutil.parser import parse
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -266,19 +267,13 @@ def _json_to_section(section_data,
     section.is_independent_start = section_data.get("IsIndependentStart",
                                                     False)
 
-    # Some section data sources have different formats for these dates.
-    try:
-        date_format = "%Y-%m-%d"
-        if section_data.get("StartDate", None):
-            str_date = section_data["StartDate"]
-            start_date = datetime.strptime(str_date, date_format).date()
-            section.start_date = start_date
+    if "StartDate" in section_data and\
+       len(section_data["StartDate"]) > 0:
+        section.start_date = parse(section_data["StartDate"]).date()
 
-        if section_data.get("EndDate", None):
-            str_date = section_data["EndDate"]
-            section.end_date = datetime.strptime(str_date, date_format).date()
-    except Exception as ex:
-        pass
+    if "EndDate" in section_data and\
+       len(section_data["EndDate"]) > 0:
+        section.end_date = parse(section_data["EndDate"]).date()
 
     section.section_type = section_data["SectionType"]
     if "independent study" == section.section_type:

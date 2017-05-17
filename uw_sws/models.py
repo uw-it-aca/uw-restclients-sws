@@ -480,6 +480,10 @@ class Section(models.Model):
         return self.course_campus is not None and\
             self.course_campus.lower() == 'tacoma'
 
+    def is_campus_pce(self):
+        return self.course_campus is not None and\
+            self.course_campus.lower() == 'pce'
+
     def is_inst_pce(self):
         return self.institute_name == Section.INSTITUTE_NAME_PCE
 

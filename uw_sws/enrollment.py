@@ -2,12 +2,13 @@
 Interfacing with the Student Web Service, Enrollment resource.
 """
 import logging
+from dateutil.parser import parse
 import re
 from uw_pws import PWS
 from uw_sws.models import (StudentGrades, StudentCourseGrade, Enrollment,
                            Major, Minor, SectionReference, Term,
                            OffTermSectionReference)
-from uw_sws import get_resource, parse_sws_date
+from uw_sws import get_resource
 from uw_sws.section import get_section_by_url
 from uw_sws.term import get_term_by_year_and_quarter
 
@@ -139,8 +140,8 @@ def _json_to_off_term_section(json_data, aterm):
         section_id=json_data['Section']['SectionID'],
         url=json_data['Section']['Href']
         )
-    ot_section.start_date = parse_sws_date(json_data['StartDate'])
-    ot_section.end_date = parse_sws_date(json_data['EndDate'])
+    ot_section.start_date = parse(json_data['StartDate']).date()
+    ot_section.end_date = parse(json_data['EndDate']).date()
     ot_section.feebase_type = json_data['FeeBaseType']
     ot_section.is_reg_src_pce = is_src_location_pce(json_data,
                                                     REGISTRATION_SOURCE_PCE)

@@ -137,6 +137,13 @@ class SWSTestRegistrations(TestCase):
                 self.assertTrue(section.is_primary_section)
                 self.assertEquals(section.is_auditor, False)
 
+        term = Term(quarter="winter", year=2013)
+        class_schedule = get_schedule_by_regid_and_term(
+            'FE36CCB8F66711D5BE060004AC494F31', term,
+            transcriptable_course="all",
+        )
+        self.assertEquals(len(class_schedule.sections), 1)
+
     def test_empty_request_date(self):
         section = get_section_by_label('2013,winter,DROP_T,100/A')
         registrations = get_all_registrations_by_section(section)
