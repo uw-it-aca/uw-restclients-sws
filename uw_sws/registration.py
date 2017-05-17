@@ -319,7 +319,6 @@ def _json_to_schedule(term_data, term, regid,
         save_all_queued_entries()
         disable_cache_entry_queueing()
     except Exception as ex:
-        print ex
         save_all_queued_entries()
         disable_cache_entry_queueing()
         raise ex
