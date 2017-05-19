@@ -1008,10 +1008,10 @@ class Enrollment(models.Model):
     def is_non_matric(self):
         return self.class_level.lower() == Enrollment.CLASS_LEVEL_NON_MATRIC
 
-    def has_off_term_course(self):
+    def has_unfinished_pce_course(self):
         try:
-            return (self.off_term_sections and
-                    len(self.off_term_sections) > 0)
+            return (self.unf_pce_courses and
+                    len(self.unf_pce_courses) > 0)
         except AttributeError:
             return False
 
@@ -1078,26 +1078,42 @@ class Minor(models.Model):
                 }
 
 
-class OffTermSectionReference(models.Model):
+class UnfinishedPceCourse(models.Model):
+    # Having non-empty StartDate and EndDate
     FEEBASED = "fee based course"
+    STANDBY = "added to standby"
+    PENDING = "pending added to class"
 
-    # OffTerm: has non-empty start_date and end_date
-    # including IndependentStart sections
+    end_date = models.DateField()
+    feebase_type = models.CharField(max_length=64, blank=True)
+    independent_start = models.BooleanField()
+    is_credit = models.BooleanField()
+    meta_data = models.CharField(max_length=96)
+    request_status = models.CharField(max_length=96, blank=True)
+    start_date = models.DateField()
     section_ref = models.ForeignKey(SectionReference,
                                     on_delete=models.PROTECT)
-    end_date = models.DateField(null=True, blank=True)
-    start_date = models.DateField(null=True, blank=True)
-    feebase_type = models.CharField(max_length=64)
-    is_reg_src_pce = models.NullBooleanField()
+
+    def eos_only(self):
+        return "RegistrationSourceLocation=EOS;" in self.meta_data
 
     def is_fee_based(self):
-        return self.feebase_type.lower() == OffTermSectionReference.FEEBASED
+        return self.feebase_type.lower() == UnfinishedPceCourse.FEEBASED
+
+    def on_standby(self):
+        status = self.request_status.lower()
+        return (status == UnfinishedPceCourse.STANDBY or
+                status == UnfinishedPceCourse.PENDING)
 
     def json_data(self, include_section_ref=False):
         data = {'start_date': str(self.start_date),
                 'end_date': str(self.end_date),
                 'feebase_type': self.feebase_type,
-                'is_reg_src_pce': self.is_reg_src_pce
+                'independent_start': self.independent_start,
+                'is_credit': self.is_credit,
+                'meta_data': self.meta_data,
+                'on_standby': self.on_standby(),
+                'request_status': self.request_status,
                 }
         if include_section_ref:
             data['section_ref'] = self.section_ref.json_data()
