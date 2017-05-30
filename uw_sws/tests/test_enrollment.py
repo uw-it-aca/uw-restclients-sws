@@ -79,7 +79,8 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(str(section1.end_date), '2013-04-29')
         self.assertEqual(str(section1.start_date), '2013-01-28')
         self.assertFalse(section1.eos_only())
-        self.assertFalse(section1.on_standby())
+        self.assertFalse(section1.standby())
+        self.assertFalse(section1.pending())
         self.assertTrue(len(section1.json_data()) > 0)
         self.assertEqual(
             section1.section_ref.json_data(),
@@ -140,7 +141,8 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(str(section1.end_date), '2013-06-19')
         self.assertEqual(str(section1.start_date), '2013-04-01')
         self.assertTrue(section1.is_credit)
-        self.assertFalse(section1.on_standby())
+        self.assertFalse(section1.standby())
+        self.assertFalse(section1.pending())
 
         term0 = get_term_before(term)
         self.assertTrue(term0 in result_dict)
@@ -205,7 +207,8 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(len(enroll.unf_pce_courses), 1)
         section = enroll.unf_pce_courses.get("2013,summer,LIS,498/C")
         self.assertTrue(section.eos_only())
-        self.assertTrue(section.on_standby())
+        self.assertTrue(section.standby())
+        self.assertFalse(section.pending())
 
         term1 = get_term_by_year_and_quarter(2013, 'autumn')
         self.assertTrue(term in result_dict)
@@ -214,7 +217,8 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(len(enroll1.unf_pce_courses), 1)
         section1 = enroll1.unf_pce_courses.get("2013,autumn,MUSEUM,700/A")
         self.assertTrue(section1.eos_only())
-        self.assertTrue(section1.on_standby())
+        self.assertFalse(section1.standby())
+        self.assertTrue(section1.pending())
 
     def test_has_start_end_dates(self):
         json_data = {u'StartDate': u'01/29/2013',

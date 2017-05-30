@@ -1100,10 +1100,11 @@ class UnfinishedPceCourse(models.Model):
     def is_fee_based(self):
         return self.feebase_type.lower() == UnfinishedPceCourse.FEEBASED
 
-    def on_standby(self):
-        status = self.request_status.lower()
-        return (status == UnfinishedPceCourse.STANDBY or
-                status == UnfinishedPceCourse.PENDING)
+    def standby(self):
+        return self.request_status.lower() == UnfinishedPceCourse.STANDBY
+
+    def pending(self):
+        return self.request_status.lower() == UnfinishedPceCourse.PENDING
 
     def json_data(self, include_section_ref=False):
         data = {'start_date': str(self.start_date),
@@ -1112,7 +1113,8 @@ class UnfinishedPceCourse(models.Model):
                 'independent_start': self.independent_start,
                 'is_credit': self.is_credit,
                 'meta_data': self.meta_data,
-                'on_standby': self.on_standby(),
+                'standby': self.standby(),
+                'pending': self.pending(),
                 'request_status': self.request_status,
                 }
         if include_section_ref:
