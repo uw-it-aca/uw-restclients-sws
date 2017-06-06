@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 from time import strftime
-from jinja2 import Environment, FileSystemLoader
 from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
 from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
