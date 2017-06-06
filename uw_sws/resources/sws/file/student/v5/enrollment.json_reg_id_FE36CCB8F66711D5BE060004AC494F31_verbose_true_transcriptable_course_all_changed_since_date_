@@ -251,14 +251,14 @@
             "PendingResidentChange": false,
             "PendingSpecialProgramChange": false,
             "Person": {
-                "Href": "/student/v5/person/CDD44D5E796F11DBB3EA000629C31437.json",
+                "Href": "/student/v5/person/FE36CCB8F66711D5BE060004AC494F31.json",
                 "Name": "Jessie New Student",
-                "RegID": "CDD44D5E796F11DBB3EA000629C31437"
+                "RegID": "FE36CCB8F66711D5BE060004AC494F31"
             },
             "QtrGradePoints": null,
             "QtrGradedAttmp": null,
             "QtrNonGrdEarned": null,
-            "RegID": "CDD44D5E796F11DBB3EA000629C31437",
+            "RegID": "FE36CCB8F66711D5BE060004AC494F31",
             "Registrations": [
                 {
                     "AccessDateRangeEnd": "12/08/2014",
