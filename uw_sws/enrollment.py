@@ -90,13 +90,6 @@ def get_enrollment_by_regid_and_term(regid, term):
     return _json_to_enrollment(get_resource(url), term)
 
 
-def has_start_end_dates(registration_json_data):
-    start_date = registration_json_data.get('StartDate')
-    end_date = registration_json_data.get('EndDate')
-    return (start_date is not None and len(start_date) > 0 and
-            end_date is not None and len(start_date) > 0)
-
-
 def _json_to_enrollment(json_data, term):
     enrollment = Enrollment()
     enrollment.regid = json_data['RegID']
@@ -113,10 +106,9 @@ def _json_to_enrollment(json_data, term):
     if json_data.get('Registrations') is not None and\
        len(json_data['Registrations']) > 0:
         for registration in json_data['Registrations']:
-            if has_start_end_dates(registration) and\
-               is_src_location_pce(registration, REGISTRATION_SOURCE_PCE):
-                unf_pce_course = _json_to_unfinished_pce_course(
-                    registration, term)
+            if is_unfinished_pce_course(registration):
+                unf_pce_course = _json_to_unfinished_pce_course(registration,
+                                                                term)
                 key = unf_pce_course.section_ref.section_label()
                 enrollment.unf_pce_courses[key] = unf_pce_course
 
@@ -130,6 +122,18 @@ def _json_to_enrollment(json_data, term):
         for minor in json_data['Minors']:
             enrollment.minors.append(_json_to_minor(minor))
     return enrollment
+
+
+def has_start_end_dates(registration_json_data):
+    start_date = registration_json_data.get('StartDate')
+    end_date = registration_json_data.get('EndDate')
+    return (start_date is not None and len(start_date) > 0 and
+            end_date is not None and len(start_date) > 0)
+
+
+def is_unfinished_pce_course(registration):
+    return has_start_end_dates(registration) and\
+        is_src_location_pce(registration, REGISTRATION_SOURCE_PCE)
 
 
 def _json_to_unfinished_pce_course(json_data, aterm):
