@@ -30,6 +30,18 @@ class SWSTestSectionData(TestCase):
             section = get_section_by_label('2013,autumn,T BUS,310/A')
             self.assertTrue(section.is_campus_tacoma())
 
+    def test_non_credit_certificate_couse_section(self):
+            section = get_section_by_label('2013,winter,BIGDATA,220/A')
+            self.assertTrue(section.is_campus_pce())
+            self.assertEquals(str(section.start_date), "2013-01-16")
+            self.assertEquals(str(section.end_date), "2013-03-20")
+
+            section = get_section_by_label('2013,spring,BIGDATA,230/A')
+            self.assertTrue(section.is_campus_pce())
+            self.assertEquals(str(section.start_date), "2013-04-03")
+            self.assertEquals(str(section.end_date), "2013-06-12")
+            self.assertIsNotNone(section.json_data())
+
     def test_final_exams(self):
             section = get_section_by_label('2013,summer,B BIO,180/A')
             self.assertEquals(section.final_exam, None,
@@ -502,3 +514,19 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2013,winter,COM,201/A')
         self.assertFalse(section.is_early_fall_start())
         self.assertFalse(section.end_date)
+
+    def test_normalized_meeting_time(self):
+        section = get_section_by_label('2013,autumn,MATH,120/ZZ')
+        meeting = section.meetings[0]
+        meeting.start_time = '11:30:00'
+        meeting.end_time = '12:20:00'
+        jd = section.meetings[0].json_data()
+        self.assertFalse(jd['no_meeting'])
+        self.assertEqual(jd['start_time'], '11:30')
+        self.assertEqual(jd['end_time'], '12:20')
+
+        section = get_section_by_label('2013,winter,BIGDATA,220/A')
+        meeting = section.meetings[0]
+        jd = section.meetings[0].json_data()
+        self.assertEqual(jd['start_time'], '18:00')
+        self.assertEqual(jd['end_time'], '21:00')

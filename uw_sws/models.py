@@ -1,10 +1,11 @@
+import os
+from datetime import datetime
+from time import strftime
 from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
 from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
                          convert_to_end_of_day)
 from restclients_core import models
-from datetime import datetime
-import os
 
 
 # PWS Person
@@ -478,6 +479,10 @@ class Section(models.Model):
         return self.course_campus is not None and\
             self.course_campus.lower() == 'tacoma'
 
+    def is_campus_pce(self):
+        return self.course_campus is not None and\
+            self.course_campus.lower() == 'pce'
+
     def is_inst_pce(self):
         return self.institute_name == Section.INSTITUTE_NAME_PCE
 
@@ -738,6 +743,23 @@ class SectionMeeting(models.Model):
     meets_sunday = models.NullBooleanField()
     # instructor = models.ForeignKey(Instructor, on_delete=models.PROTECT)
 
+    def normalized_time(self, meeting_time):
+        # truncates :seconds from meeting start/end time
+        mt = str(meeting_time)
+        if len(mt) > 5:
+            return mt[:5]
+        else:
+            return mt
+
+    def no_meeting(self):
+        return not(self.meets_monday or
+                   self.meets_tuesday or
+                   self.meets_wednesday or
+                   self.meets_thursday or
+                   self.meets_friday or
+                   self.meets_saturday or
+                   self.meets_sunday)
+
     def json_data(self):
         data = {
             'index': self.meeting_index,
@@ -752,8 +774,9 @@ class SectionMeeting(models.Model):
                 'saturday': self.meets_saturday,
                 'sunday': self.meets_sunday,
             },
-            'start_time': self.start_time,
-            'end_time': self.end_time,
+            'no_meeting': self.no_meeting(),
+            'start_time': self.normalized_time(self.start_time),
+            'end_time': self.normalized_time(self.end_time),
             'building_tbd': self.building_to_be_arranged,
             'building': self.building,
             'room_tbd': self.room_to_be_arranged,
@@ -915,28 +938,46 @@ class Enrollment(models.Model):
                              db_index=True,
                              unique=True)
     is_enroll_src_pce = models.NullBooleanField()
+    has_pending_major_change = models.NullBooleanField()
 
     def is_non_matric(self):
         return self.class_level.lower() == Enrollment.CLASS_LEVEL_NON_MATRIC
 
-    def has_off_term_course(self):
+    def has_unfinished_pce_course(self):
         try:
-            return (self.off_term_sections and
-                    len(self.off_term_sections) > 0)
+            return (self.unf_pce_courses and
+                    len(self.unf_pce_courses) > 0)
         except AttributeError:
             return False
 
 
 class Major(models.Model):
+    degree_abbr = models.CharField(max_length=50)
+    college_abbr = models.CharField(max_length=50)
+    college_full_name = models.CharField(max_length=100)
     degree_name = models.CharField(max_length=100)
-    degree_abbr = models.CharField(max_length=100)
+    degree_level = models.IntegerField()
     full_name = models.CharField(max_length=100)
     major_name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=50)
     campus = models.CharField(max_length=8)
 
+    def __eq__(self, other):
+        return (other is not None and
+                type(self) == type(other) and
+                self.__key() == other.__key())
+
+    def __key(self):
+        return (self.campus, self.college_abbr, self.major_name)
+
+    def __hash__(self):
+        return hash(self.__key())
+
     def json_data(self):
         return {'degree_abbr': self.degree_abbr,
+                'college_abbr': self.college_abbr,
+                'college_full_name': self.college_abbr,
+                'degree_level': self.degree_level,
                 'degree_name': self.degree_name,
                 'campus': self.campus,
                 'name': self.major_name,
@@ -952,6 +993,17 @@ class Minor(models.Model):
     full_name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=50)
 
+    def __eq__(self, other):
+        return (other is not None and
+                type(self) == type(other) and
+                self.__key() == other.__key())
+
+    def __key(self):
+        return (self.campus, self.full_name)
+
+    def __hash__(self):
+        return hash(self.__key())
+
     def json_data(self):
         return {'abbr': self.abbr,
                 'campus': self.campus,
@@ -961,26 +1013,44 @@ class Minor(models.Model):
                 }
 
 
-class OffTermSectionReference(models.Model):
+class UnfinishedPceCourse(models.Model):
+    # Having non-empty StartDate and EndDate
     FEEBASED = "fee based course"
+    STANDBY = "added to standby"
+    PENDING = "pending added to class"
 
-    # OffTerm: has non-empty start_date and end_date
-    # including IndependentStart sections
+    end_date = models.DateField()
+    feebase_type = models.CharField(max_length=64, blank=True)
+    independent_start = models.BooleanField()
+    is_credit = models.BooleanField()
+    meta_data = models.CharField(max_length=96)
+    request_status = models.CharField(max_length=96, blank=True)
+    start_date = models.DateField()
     section_ref = models.ForeignKey(SectionReference,
                                     on_delete=models.PROTECT)
-    end_date = models.DateField(null=True, blank=True)
-    start_date = models.DateField(null=True, blank=True)
-    feebase_type = models.CharField(max_length=64)
-    is_reg_src_pce = models.NullBooleanField()
+
+    def eos_only(self):
+        return "RegistrationSourceLocation=EOS;" in self.meta_data
 
     def is_fee_based(self):
-        return self.feebase_type.lower() == OffTermSectionReference.FEEBASED
+        return self.feebase_type.lower() == UnfinishedPceCourse.FEEBASED
+
+    def standby(self):
+        return self.request_status.lower() == UnfinishedPceCourse.STANDBY
+
+    def pending(self):
+        return self.request_status.lower() == UnfinishedPceCourse.PENDING
 
     def json_data(self, include_section_ref=False):
         data = {'start_date': str(self.start_date),
                 'end_date': str(self.end_date),
                 'feebase_type': self.feebase_type,
-                'is_reg_src_pce': self.is_reg_src_pce
+                'independent_start': self.independent_start,
+                'is_credit': self.is_credit,
+                'meta_data': self.meta_data,
+                'standby': self.standby(),
+                'pending': self.pending(),
+                'request_status': self.request_status,
                 }
         if include_section_ref:
             data['section_ref'] = self.section_ref.json_data()
