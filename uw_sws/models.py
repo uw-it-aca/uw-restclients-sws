@@ -745,6 +745,7 @@ class SectionMeeting(models.Model):
     # instructor = models.ForeignKey(Instructor, on_delete=models.PROTECT)
 
     def normalized_time(self, meeting_time):
+        # truncates :seconds from meeting start/end time
         mt = str(meeting_time)
         if len(mt) > 5:
             return mt[:5]
