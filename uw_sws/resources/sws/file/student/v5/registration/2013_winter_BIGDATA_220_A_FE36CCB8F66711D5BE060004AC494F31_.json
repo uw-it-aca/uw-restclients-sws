@@ -1,0 +1,41 @@
+{
+    "AccessDateRangeEnd": "03/10/2014",
+    "AccessDateRangeStart": "12/28/2012",
+    "Auditor": false,
+    "Credits": "0.0",
+    "DuplicateCode": "",
+    "EducationUnitType": "CEU",
+    "EndDate": "03/20/2013",
+    "FeeBaseType": "",
+    "Grade": "SC",
+    "GradeDate": "3/20/2013 3:45:00 PM",
+    "GradeDocumentID": "",
+    "GradingSystem": "SCUSC",
+    "HonorsCourse": false,
+    "Href": "/student/v5/registration/2013,winter,BIGDATA,220,A,FE36CCB8F66711D5BE060004AC494F31,.json",
+    "Instructor": null,
+    "IsActive": true,
+    "IsCredit": false,
+    "IsIndependentStart": false,
+    "Metadata": "RegistrationSourceLocation=EOS;",
+    "Person": {
+        "Href": "/student/v5/person/FE36CCB8F66711D5BE060004AC494F31.json",
+        "Name": "ABHAY PANDE",
+        "RegID": "FE36CCB8F66711D5BE060004AC494F31"
+    },
+    "RepeatCourse": false,
+    "RepositoryTimeStamp": "3/28/2013 1:16:05 PM",
+    "RequestDate": "2016-12-27",
+    "RequestStatus": "Added to class",
+    "Section": {
+        "CourseNumber": "220",
+        "CurriculumAbbreviation": "BIGDATA",
+        "Href": "/student/v5/course/2013,winter,BIGDATA,220/A.json",
+        "Quarter": "winter",
+        "SectionID": "A",
+        "Year": 2013
+    },
+    "StartDate": "01/16/2013",
+    "VariableCredit": false,
+    "WritingCourse": false
+}

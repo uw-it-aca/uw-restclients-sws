@@ -10,6 +10,7 @@ except ImportError:
     from urllib import urlencode
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
+from dateutil.parser import parse
 from uw_sws.models import Registration, ClassSchedule
 from restclients_core.exceptions import DataFailureException
 from restclients_core.cache_manager import (enable_cache_entry_queueing,
@@ -18,7 +19,7 @@ from restclients_core.cache_manager import (enable_cache_entry_queueing,
 from uw_pws import PWS
 from restclients_core.thread import (Thread, GenericPrefetchThread,
                                      generic_prefetch)
-from uw_sws import get_resource, parse_sws_date
+from uw_sws import get_resource
 from uw_sws.compat import deprecation
 from uw_sws.thread import SWSThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
@@ -86,11 +87,11 @@ def _json_to_registrations(data, section):
         registration.is_auditor = reg_data["Auditor"]
         registration.is_independent_start = reg_data["IsIndependentStart"]
         if len(reg_data["StartDate"]):
-            registration.start_date = parse_sws_date(reg_data["StartDate"])
+            registration.start_date = parse(reg_data["StartDate"])
         if len(reg_data["EndDate"]):
-            registration.end_date = parse_sws_date(reg_data["EndDate"])
+            registration.end_date = parse(reg_data["EndDate"])
         if len(reg_data["RequestDate"]):
-            registration.request_date = parse_sws_date(reg_data["RequestDate"])
+            registration.request_date = parse(reg_data["RequestDate"])
         registration.request_status = reg_data["RequestStatus"]
         registration.duplicate_code = reg_data["DuplicateCode"]
         registration.credits = reg_data["Credits"]
@@ -334,8 +335,7 @@ def _add_credits_grade_to_section(url, section):
         section.student_grade = section_reg_data['Grade']
         section.is_auditor = section_reg_data['Auditor']
         if len(section_reg_data['GradeDate']) > 0:
-            raw_date = section_reg_data["GradeDate"]
-            section.grade_date = parse_sws_date(raw_date).date()
+            section.grade_date = parse(section_reg_data["GradeDate"]).date()
         try:
             raw_credits = section_reg_data['Credits'].strip()
             section.student_credits = Decimal(raw_credits)
