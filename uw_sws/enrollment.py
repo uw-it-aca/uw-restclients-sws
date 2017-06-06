@@ -103,14 +103,12 @@ def _json_to_enrollment(json_data, term):
                                                        ENROLLMENT_SOURCE_PCE)
     enrollment.unf_pce_courses = {}
     # dictionary {section_label: UnfinishedPceCourse}
-    if json_data.get('Registrations') is not None and\
-       len(json_data['Registrations']) > 0:
-        for registration in json_data['Registrations']:
-            if is_unfinished_pce_course(registration):
-                unf_pce_course = _json_to_unfinished_pce_course(registration,
-                                                                term)
-                key = unf_pce_course.section_ref.section_label()
-                enrollment.unf_pce_courses[key] = unf_pce_course
+    for registration in json_data.get('Registrations', []):
+        if is_unfinished_pce_course(registration):
+            unf_pce_course = _json_to_unfinished_pce_course(registration,
+                                                            term)
+            key = unf_pce_course.section_ref.section_label()
+            enrollment.unf_pce_courses[key] = unf_pce_course
 
     enrollment.majors = []
     if json_data.get('Majors') is not None and len(json_data['Majors']) > 0:
