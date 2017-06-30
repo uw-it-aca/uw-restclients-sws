@@ -282,7 +282,12 @@ def _json_to_section(section_data,
         section.is_independent_study = False
 
     section.class_website_url = section_data["ClassWebsiteUrl"]
-    section.sln = section_data["SLN"]
+
+    if is_valid_sln(section_data["SLN"]):
+        section.sln = section_data["SLN"]
+    else:
+        section.sln = 0
+
     if "SummerTerm" in section_data:
         section.summer_term = section_data["SummerTerm"]
     else:
