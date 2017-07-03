@@ -10,6 +10,7 @@ try:
 except ImportError:
     from urllib import urlencode
 from restclients_core.thread import generic_prefetch
+from restclients_core.util.local_cache import get_cache_value, set_cache_value
 from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
 from restclients_core.exceptions import DataFailureException
 from uw_sws import get_resource, encode_section_label
@@ -151,17 +152,26 @@ def _get_sections_by_person_and_term(person, term, course_role,
 
 def get_section_by_url(url,
                        include_instructor_not_on_time_schedule=True):
+
+    key = "section_by_url_%s_%s" % (url,
+                                    include_instructor_not_on_time_schedule)
     """
     Returns a uw_sws.models.Section object
     for the passed section url.
     """
+    cached = get_cache_value(key)
+    if cached:
+        return cached
     if not course_url_pattern.match(url):
         raise InvalidSectionURL(url)
 
-    return _json_to_section(
+    value = _json_to_section(
         get_resource(url),
         include_instructor_not_on_time_schedule=(
             include_instructor_not_on_time_schedule))
+
+    set_cache_value(key, value)
+    return value
 
 
 def get_section_by_label(label,
