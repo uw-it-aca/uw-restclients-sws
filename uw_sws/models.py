@@ -413,6 +413,7 @@ class Section(models.Model):
     course_title = models.CharField(max_length=20)
     course_title_long = models.CharField(max_length=50)
     course_campus = models.CharField(max_length=7)
+    credit_control = models.CharField(max_length=32, null=True)
     section_type = models.CharField(max_length=30)
     is_independent_study = models.NullBooleanField()
     independent_study_instructor_regid = models.CharField(max_length=32,
@@ -583,6 +584,9 @@ class Section(models.Model):
             return str(self.grade_date)
         return None
 
+    def for_credit(self):
+        return self.credit_control is not None
+
     def is_summer_a_term(self):
         return self.summer_term is not None and\
             len(self.summer_term) > 0 and\
@@ -627,6 +631,7 @@ class Section(models.Model):
                 self.limit_estimate_enrollment_indicator,
             'auditors': self.auditors,
             'meetings': [],
+            'for-credit': self.for_credit(),
             'credits': str(self.student_credits),
             'is_auditor':  self.is_auditor,
             'grade': self.student_grade,

@@ -266,6 +266,7 @@ def _json_to_section(section_data,
     section.lms_ownership = section_data.get("LMSOwnership", None)
     section.is_independent_start = section_data.get("IsIndependentStart",
                                                     False)
+    section.credit_control = section_data.get("CreditControl", "")
 
     if "StartDate" in section_data and\
        len(section_data["StartDate"]) > 0:

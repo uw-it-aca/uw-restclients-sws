@@ -530,3 +530,13 @@ class SWSTestSectionData(TestCase):
         jd = section.meetings[0].json_data()
         self.assertEqual(jd['start_time'], '18:00')
         self.assertEqual(jd['end_time'], '21:00')
+
+    def test_for_credit_course(self):
+        section = get_section_by_label('2013,spring,ESS,107/A')
+        self.assertFalse(section.for_credit())
+        section = get_section_by_label('2013,winter,COM,201/A')
+        self.assertTrue(section.for_credit())
+        section = get_section_by_label('2013,spring,ELCBUS,451/A')
+        self.assertTrue(section.for_credit())
+        section = get_section_by_label('2013,spring,TRAIN,100/A')
+        self.assertTrue(section.for_credit())
