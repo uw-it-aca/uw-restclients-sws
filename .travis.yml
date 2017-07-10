@@ -22,7 +22,7 @@ before_deploy:
 - echo $TRAVIS_TAG > uw_sws/VERSION
 deploy:
   provider: pypi
-  server: https://pypi.python.org/pypi
+  server: https://upload.pypi.org/legacy/
   user: uw-it-aca
   skip_cleanup: true
   password:
