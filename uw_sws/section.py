@@ -285,7 +285,7 @@ def _json_to_section(section_data,
     section.class_website_url = section_data["ClassWebsiteUrl"]
 
     if is_valid_sln(section_data["SLN"]):
-        section.sln = section_data["SLN"]
+        section.sln = int(section_data["SLN"])
     else:
         section.sln = 0
 
