@@ -364,7 +364,8 @@ class FinalExam(models.Model):
             data["end_date"] = self.end_date.strftime("%Y-%m-%d %H:%M")
             data["building"] = self.building
             data["room_number"] = self.room_number
-
+        else:
+            data["start_date"] = None
         return data
 
 
