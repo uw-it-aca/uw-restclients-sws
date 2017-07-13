@@ -105,26 +105,13 @@
                 {
                     "FacultySequenceNumber": "1",
                     "GradeRoster": {
-                        "Href": "/student/v5/graderoster/2017,spring,BIGDATA,230,A,C8EC847C0E7E4EE3BAA735406C1DA4B4"
+                        "Href": "/student/v5/graderoster/2017,spring,BIGDATA,230,A,260A0DEC95CB11D78BAA000629C31437"
                     },
                     "PercentInvolve": "",
                     "Person": {
-                        "Href": "/student/v5/person/C8EC847C0E7E4EE3BAA735406C1DA4B4.json",
+                        "Href": "/student/v5/person/260A0DEC95CB11D78BAA000629C31437.json",
                         "Name": null,
-                        "RegID": "C8EC847C0E7E4EE3BAA735406C1DA4B4"
-                    },
-                    "TSPrint": false
-                },
-                {
-                    "FacultySequenceNumber": "1",
-                    "GradeRoster": {
-                        "Href": "/student/v5/graderoster/2017,spring,BIGDATA,230,A,94CE3D06FB5E4AB8B7E489CE8B81210E"
-                    },
-                    "PercentInvolve": "",
-                    "Person": {
-                        "Href": "/student/v5/person/94CE3D06FB5E4AB8B7E489CE8B81210E.json",
-                        "Name": null,
-                        "RegID": "94CE3D06FB5E4AB8B7E489CE8B81210E"
+                        "RegID": "260A0DEC95CB11D78BAA000629C31437"
                     },
                     "TSPrint": false
                 }
