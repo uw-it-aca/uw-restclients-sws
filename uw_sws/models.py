@@ -725,6 +725,7 @@ class Registration(models.Model):
 
 
 class SectionMeeting(models.Model):
+    NON_MEETING = "NON"
     term = models.ForeignKey(Term,
                              on_delete=models.PROTECT)
     section = models.ForeignKey(Section,
@@ -747,6 +748,9 @@ class SectionMeeting(models.Model):
     meets_saturday = models.NullBooleanField()
     meets_sunday = models.NullBooleanField()
     # instructor = models.ForeignKey(Instructor, on_delete=models.PROTECT)
+
+    def wont_meet(self):
+        return self.meeting_type == SectionMeeting.NON_MEETING
 
     def normalized_time(self, meeting_time):
         # truncates :seconds from meeting start/end time
@@ -779,6 +783,7 @@ class SectionMeeting(models.Model):
                 'saturday': self.meets_saturday,
                 'sunday': self.meets_sunday,
             },
+            'wont_meet': self.wont_meet(),
             'no_meeting': self.no_meeting(),
             'start_time': self.normalized_time(self.start_time),
             'end_time': self.normalized_time(self.end_time),
