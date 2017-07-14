@@ -318,7 +318,23 @@ class Term(models.Model):
         return "%s-%s" % (self.year, self.quarter.lower())
 
     def json_data(self):
-        return {
+        registration_period = []
+        if self.registration_period1_start:
+            registration_period.append({
+                'start': str(self.registration_period1_start.date()),
+                'end': str(self.registration_period1_end.date())
+            })
+        if self.registration_period2_start:
+            registration_period.append({
+                'start': str(self.registration_period2_start.date()),
+                'end': str(self.registration_period2_end.date())
+            })
+        if self.registration_period3_start:
+            registration_period.append({
+                'start': str(self.registration_period3_start.date()),
+                'end': str(self.registration_period3_end.date())
+            })
+        data = {
             'quarter': self.get_quarter_display(),
             'year': self.year,
             'label': self.term_label(),
@@ -327,22 +343,15 @@ class Term(models.Model):
             'first_day_quarter': str(self.first_day_quarter),
             'census_day': str(self.census_day),
             'last_day_instruction': str(self.last_day_instruction),
-            'last_final_exam_date': self.last_final_exam_date.strftime(
-                "%Y-%m-%d 23:59:59"),  # Datetime for backwards compatibility
             'grading_period_open': str(self.grading_period_open),
             'aterm_grading_period_open': str(self.aterm_grading_period_open),
             'grade_submission_deadline': str(self.grade_submission_deadline),
-            'registration_periods': [{
-                    'start': str(self.registration_period1_start.date()),
-                    'end': str(self.registration_period1_end.date())
-                }, {
-                    'start': str(self.registration_period2_start.date()),
-                    'end': str(self.registration_period2_end.date())
-                }, {
-                    'start': str(self.registration_period3_start.date()),
-                    'end': str(self.registration_period3_end.date())
-                }]
+            'registration_periods': registration_period
         }
+        if self.last_final_exam_date:
+            data['last_final_exam_date'] = self.last_final_exam_date.strftime(
+                "%Y-%m-%d 23:59:59")  # Datetime for backwards compatibility
+        return data
 
 
 class FinalExam(models.Model):

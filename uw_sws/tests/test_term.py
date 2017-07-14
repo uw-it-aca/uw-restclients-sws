@@ -517,3 +517,11 @@ class SWSTestTerm(TestCase):
         term2 = Term(year=2013, quarter='autumn')
         self.assertFalse(term == term2)
         self.assertFalse(hash(term) == hash(term2))
+
+    def test_term_wo_reg_start_data(self):
+        term = get_term_by_year_and_quarter(2016, 'winter')
+        self.assertIsNone(term.registration_services_start)
+        self.assertIsNone(term.registration_period1_start)
+        self.assertIsNone(term.registration_period2_start)
+        self.assertIsNone(term.registration_period3_start)
+        self.assertTrue(len(term.json_data()) > 0)
