@@ -640,7 +640,7 @@ class Section(models.Model):
                 self.limit_estimate_enrollment_indicator,
             'auditors': self.auditors,
             'meetings': [],
-            'for-credit': self.for_credit(),
+            'for_credit': self.for_credit(),
             'credits': str(self.student_credits),
             'is_auditor':  self.is_auditor,
             'grade': self.student_grade,
