@@ -542,3 +542,5 @@ class SWSTestSectionData(TestCase):
         self.assertTrue(section.for_credit())
         section = get_section_by_label('2013,spring,TRAIN,100/A')
         self.assertTrue(section.for_credit())
+
+        self.assertTrue('for_credit' in section.json_data())
