@@ -46,6 +46,8 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(javerage_reg.request_status, 'DROPPED FROM CLASS')
         self.assertEquals(javerage_reg.duplicate_code, '')
         self.assertEquals(javerage_reg.repository_timestamp.isoformat(), '2016-01-05T02:45:15')
+        self.assertEquals(javerage_reg.repeat_course, False)
+        self.assertEquals(javerage_reg.grade, 'X')
 
     def test_active_registration_status_after_drop_and_add(self):
         section = get_section_by_label('2013,winter,DROP_T,100/B')
@@ -61,6 +63,8 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(javerage_reg.request_status, 'ADDED TO CLASS')
         self.assertEquals(javerage_reg.duplicate_code, 'A')
         self.assertEquals(javerage_reg.repository_timestamp.isoformat(), '2016-01-05T02:45:15')
+        self.assertEquals(javerage_reg.repeat_course, False)
+        self.assertEquals(javerage_reg.grade, 'X')
 
     @mock.patch('uw_sws.registration.get_resource')
     def test_all_registrations_with_transcriptable_course(self, mock_get_resource):
