@@ -97,6 +97,8 @@ def _json_to_registrations(data, section):
         registration.credits = reg_data["Credits"]
         registration.repository_timestamp = datetime.strptime(
             reg_data["RepositoryTimeStamp"], "%m/%d/%Y %H:%M:%S %p")
+        registration.repeat_course = reg_data["RepeatCourse"]
+        registration.grade = reg_data["Grade"]
 
         registration._uwregid = reg_data["Person"]["RegID"]
         if registration._uwregid not in person_threads:

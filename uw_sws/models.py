@@ -729,8 +729,10 @@ class Registration(models.Model):
     request_date = models.DateField(blank=True)
     request_status = models.CharField(max_length=50)
     duplicate_code = models.CharField(max_length=3)
+    repeat_course = models.NullBooleanField()
     credits = models.CharField(max_length=5, null=True)
     repository_timestamp = models.DateTimeField()
+    grade = models.CharField(max_length=5, null=True)
 
 
 class SectionMeeting(models.Model):
