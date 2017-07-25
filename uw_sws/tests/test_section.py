@@ -327,6 +327,12 @@ class SWSTestSectionData(TestCase):
             sections = get_sections_by_instructor_and_term(instructor, term)
             self.assertEquals(len(sections), 1)
 
+            try:
+                sections = get_sections_by_instructor_and_term(
+                    instructor, term, future_terms=None)
+            except DataFailureException as ex:
+                self.assertEquals(ex.status, 400)
+
     def test_sections_by_delegate_and_term(self):
             term = Term(quarter="summer", year=2013)
             delegate = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
