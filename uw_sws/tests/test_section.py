@@ -319,13 +319,19 @@ class SWSTestSectionData(TestCase):
             self.assertRaises(DataFailureException,
                               get_linked_sections, section)
 
-
     def test_sections_by_instructor_and_term(self):
             term = Term(quarter="summer", year=2013)
             instructor = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
-
             sections = get_sections_by_instructor_and_term(instructor, term)
             self.assertEquals(len(sections), 1)
+
+    def test_get_transcriptable_course_all_sections(self):
+            term = Term(quarter="spring", year=2013)
+            instructor = Person(uwregid="260A0DEC95CB11D78BAA000629C31437")
+            sections = get_sections_by_instructor_and_term(
+                instructor, term, transcriptable_course="all")
+            self.assertEquals(len(sections), 3)
+            self.assertEquals(sections[1].curriculum_abbr, "BIGDATA")
 
     def test_sections_by_delegate_and_term(self):
             term = Term(quarter="summer", year=2013)
