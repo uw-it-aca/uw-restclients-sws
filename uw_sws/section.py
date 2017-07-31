@@ -25,7 +25,7 @@ course_res_url_prefix = "/student/v5/course"
 section_res_url_prefix = "/student/v5/section.json"
 sln_pattern = re.compile('^[1-9]\d{4}$')
 section_label_pattern = re.compile(
-    '^[1-9]\d{3},'                           # year
+    '^[1-9]\d{3},'                      # year
     '(?:winter|spring|summer|autumn),'  # quarter
     '[\w& ]+,'                          # curriculum
     '\d{3}\/'                           # course number
@@ -44,29 +44,42 @@ def is_valid_sln(sln_str):
     return not (sln_str is None or sln_pattern.match(sln_str) is None)
 
 
-def get_sections_by_instructor_and_term(person, term, future_terms=0,
+def get_sections_by_instructor_and_term(person,
+                                        term,
+                                        future_terms=0,
+                                        include_secondaries=True,
                                         transcriptable_course='yes'):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed instructor and term.
-    @param: future_terms: 0..400
+    param:future_terms: 0..400
+    param:transcriptable_course: 'yes', 'no', 'all'
     """
-    return _get_sections_by_person_and_term(
-        person, term, course_role="Instructor", future_terms=future_terms,
-        transcriptable_course=transcriptable_course)
+    return _get_sections_by_person_and_term(person,
+                                            term,
+                                            "Instructor",
+                                            include_secondaries,
+                                            future_terms,
+                                            transcriptable_course)
 
 
-def get_sections_by_delegate_and_term(person, term, future_terms=0,
+def get_sections_by_delegate_and_term(person,
+                                      term,
+                                      future_terms=0,
+                                      include_secondaries=True,
                                       transcriptable_course='yes'):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed grade submission delegate and term.
-    @param: future_terms: 0..400
+    param:future_terms: 0..400
+    param:transcriptable_course: 'yes', 'no', 'all'
     """
-    return _get_sections_by_person_and_term(
-        person, term, course_role="GradeSubmissionDelegate",
-        future_terms=future_terms,
-        transcriptable_course=transcriptable_course)
+    return _get_sections_by_person_and_term(person,
+                                            term,
+                                            "GradeSubmissionDelegate",
+                                            include_secondaries,
+                                            future_terms,
+                                            transcriptable_course)
 
 
 def get_sections_by_curriculum_and_term(curriculum, term):
@@ -137,10 +150,12 @@ def _json_to_sectionref(data, aterm):
     return sections
 
 
-def _get_sections_by_person_and_term(person, term, course_role,
-                                     include_secondaries="on",
-                                     future_terms=0,
-                                     transcriptable_course='yes'):
+def _get_sections_by_person_and_term(person,
+                                     term,
+                                     course_role,
+                                     include_secondaries,
+                                     future_terms,
+                                     transcriptable_course):
     """
     Returns a list of uw_sws.models.SectionReference object
     for the passed course_role and term (including secondaries).
@@ -149,14 +164,14 @@ def _get_sections_by_person_and_term(person, term, course_role,
     url = "%s?%s" % (
         section_res_url_prefix,
         urlencode([
-                   ("reg_id", person.uwregid,),
-                   ("search_by", course_role,),
-                   ("quarter", term.quarter.lower(),),
-                   ("include_secondaries", include_secondaries),
-                   ("year", term.year,),
-                   ("future_terms", future_terms,),
-                   ("transcriptable_course", transcriptable_course,),
-                   ]))
+            ("reg_id", person.uwregid,),
+            ("search_by", course_role,),
+            ("quarter", term.quarter.lower(),),
+            ("include_secondaries", 'on' if include_secondaries else ''),
+            ("year", term.year,),
+            ("future_terms", future_terms,),
+            ("transcriptable_course", transcriptable_course,),
+        ]))
 
     return _json_to_sectionref(get_resource(url), term)
 
