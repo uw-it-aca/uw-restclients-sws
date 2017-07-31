@@ -334,7 +334,7 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(sections[1].curriculum_abbr, "BIGDATA")
 
             sections = get_sections_by_instructor_and_term(
-                instructor, term, future_terms=2, include_secondaries='',
+                instructor, term, future_terms=2, include_secondaries=False,
                 transcriptable_course="all")
             self.assertEquals(len(sections), 5)
 
