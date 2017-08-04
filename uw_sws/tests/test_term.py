@@ -118,6 +118,10 @@ class SWSTestTerm(TestCase):
             self.assertEquals(term.get_eod_last_instruction(),
                               datetime(2013, 6, 8, 0, 0, 0))
 
+            self.assertTrue(term.time_schedule_published.get(u'seattle'))
+            self.assertTrue(term.time_schedule_published.get(u'bothell'))
+            self.assertTrue(term.time_schedule_published.get(u'tacoma'))
+
             next_autumn_term = get_next_autumn_term(term)
             self.assertEquals(next_autumn_term.year, 2013)
             self.assertEquals(next_autumn_term.quarter, 'autumn')
@@ -288,7 +292,7 @@ class SWSTestTerm(TestCase):
             self.assertEquals(term.time_schedule_construction['bothell'], True)
 
             self.assertEquals(len(term.time_schedule_published), 3)
-            self.assertEquals(term.time_schedule_published['bothell'], False)
+            self.assertTrue(term.time_schedule_published['bothell'])
 
             self.assertEquals(term.is_grading_period_open(), False,
                               "Grading period is not open")
@@ -525,3 +529,20 @@ class SWSTestTerm(TestCase):
         self.assertIsNone(term.registration_period2_start)
         self.assertIsNone(term.registration_period3_start)
         self.assertTrue(len(term.json_data()) > 0)
+
+    def test_json_data(self):
+        term = get_term_by_year_and_quarter(2014, 'winter')
+        json_data = term.json_data()
+        self.assertTrue('quarter' in json_data)
+        self.assertTrue('year' in json_data)
+        self.assertTrue('label' in json_data)
+        self.assertTrue('last_day_add' in json_data)
+        self.assertTrue('last_day_drop' in json_data)
+        self.assertTrue('first_day_quarter' in json_data)
+        self.assertTrue('census_day' in json_data)
+        self.assertTrue('last_day_instruction' in json_data)
+        self.assertTrue('grading_period_open' in json_data)
+        self.assertTrue('aterm_grading_period_open' in json_data)
+        self.assertTrue('grade_submission_deadline' in json_data)
+        self.assertTrue('registration_periods' in json_data)
+        self.assertTrue('time_schedule_published' in json_data)
