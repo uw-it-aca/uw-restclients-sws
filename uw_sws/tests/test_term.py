@@ -528,7 +528,9 @@ class SWSTestTerm(TestCase):
         self.assertIsNone(term.registration_period1_start)
         self.assertIsNone(term.registration_period2_start)
         self.assertIsNone(term.registration_period3_start)
-        self.assertTrue(len(term.json_data()) > 0)
+        self.assertFalse(term.time_schedule_published.get(u'seattle'))
+        self.assertFalse(term.time_schedule_published.get(u'bothell'))
+        self.assertFalse(term.time_schedule_published.get(u'tacoma'))
 
     def test_json_data(self):
         term = get_term_by_year_and_quarter(2014, 'winter')
