@@ -334,6 +334,11 @@ class Term(models.Model):
                 'start': str(self.registration_period3_start.date()),
                 'end': str(self.registration_period3_end.date())
             })
+        time_schedule_published = {
+            'seattle': self.time_schedule_published['seattle'],
+            'bothell': self.time_schedule_published['bothell'],
+            'tacoma': self.time_schedule_published['tacoma']
+            }
 
         data = {
             'quarter': self.get_quarter_display(),
@@ -348,7 +353,7 @@ class Term(models.Model):
             'aterm_grading_period_open': str(self.aterm_grading_period_open),
             'grade_submission_deadline': str(self.grade_submission_deadline),
             'registration_periods': registration_period,
-            'time_schedule_published': str(self.time_schedule_published)
+            'time_schedule_published': time_schedule_published
         }
         if self.last_final_exam_date:
             data['last_final_exam_date'] = self.last_final_exam_date.strftime(

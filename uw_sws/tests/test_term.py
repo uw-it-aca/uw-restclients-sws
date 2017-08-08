@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
@@ -548,3 +549,12 @@ class SWSTestTerm(TestCase):
         self.assertTrue('grade_submission_deadline' in json_data)
         self.assertTrue('registration_periods' in json_data)
         self.assertTrue('time_schedule_published' in json_data)
+        self.assertFalse(json_data['time_schedule_published']['seattle'])
+        self.assertFalse(json_data['time_schedule_published']['bothell'])
+        self.assertFalse(json_data['time_schedule_published']['tacoma'])
+
+        term = get_term_by_year_and_quarter(2013, 'winter')
+        json_data = term.json_data()
+        self.assertTrue(json_data['time_schedule_published']['seattle'])
+        self.assertTrue(json_data['time_schedule_published']['bothell'])
+        self.assertTrue(json_data['time_schedule_published']['tacoma'])
