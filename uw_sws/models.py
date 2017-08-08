@@ -334,11 +334,10 @@ class Term(models.Model):
                 'start': str(self.registration_period3_start.date()),
                 'end': str(self.registration_period3_end.date())
             })
-        time_schedule_published = {
-            'seattle': self.time_schedule_published['seattle'],
-            'bothell': self.time_schedule_published['bothell'],
-            'tacoma': self.time_schedule_published['tacoma']
-            }
+
+        time_schedule_published = {}
+        for key in self.time_schedule_published:
+            time_schedule_published[key] = self.time_schedule_published[key]
 
         data = {
             'quarter': self.get_quarter_display(),
