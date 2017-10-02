@@ -377,9 +377,11 @@ class FinalExam(models.Model):
         if self.start_date:
             data["start_date"] = self.start_date.strftime("%Y-%m-%d %H:%M")
             data["end_date"] = self.end_date.strftime("%Y-%m-%d %H:%M")
+        if self.building:
             data["building"] = self.building
+        if self.room_number:
             data["room_number"] = self.room_number
-
+            data["room"] = self.room_number
         return data
 
 
@@ -633,6 +635,9 @@ class Section(models.Model):
             'course_number': self.course_number,
             'section_id': self.section_id,
             'is_primary_section': self.is_primary_section,
+            'is_independent_study': self.is_independent_study,
+            'independent_study_instructor_regid':
+                self.independent_study_instructor_regid,
             'course_title': self.course_title,
             'course_campus': self.course_campus,
             'class_website_url': self.class_website_url,
@@ -808,6 +813,7 @@ class SectionMeeting(models.Model):
             'building': self.building,
             'room_tbd': self.room_to_be_arranged,
             'room': self.room_number,
+            'room_number': self.room_number,
             'instructors': [],
         }
 
