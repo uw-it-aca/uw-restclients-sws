@@ -23,6 +23,12 @@ class SWSTestRegistrations(TestCase):
                           get_active_registrations_by_section,
                           section)
 
+        section = get_section_by_label('2017,autumn,EDC&I,552/A')
+        self.assertEqual(section.section_label(), '2017,autumn,EDC&I,552/A')
+        reg = get_active_registrations_by_section(section,
+                                                  transcriptable_course="all")
+        self.assertEqual(len(reg), 2)
+
     def test_all_registrations_by_section(self):
         # Valid section, missing file resources
         section = get_section_by_label('2013,winter,C LIT,396/A')
