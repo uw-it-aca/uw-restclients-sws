@@ -382,10 +382,18 @@ class SWSTestTerm(TestCase):
             term = get_term_by_year_and_quarter(2015, 'autumn')
             self.assertEquals(term.registration_services_start, None)
 
+            # Loading a term with null Grading Periods
+            term = get_term_by_year_and_quarter(2008, 'autumn')
+            grading_period_open = term.last_final_exam_date.replace(
+                hour=8, minute=00)
+            grading_period_close = term.last_final_exam_date.replace(
+                hour=17, minute=00)
+            self.assertEquals(term.grading_period_open, grading_period_open)
+            self.assertEquals(term.grading_period_close, grading_period_close)
+
     def test_week_of_term(self):
             now = datetime.now()
             term = get_current_term()
-
 
             term.first_day_quarter = now.date()
 

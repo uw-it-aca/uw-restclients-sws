@@ -158,31 +158,31 @@ def _json_to_term_model(term_data):
     try:
         term.grading_period_open = strptime(
             term_data["GradingPeriodOpen"], datetime_format)
-    except (TypeError, ValueError) as ex:
-	logger.warn('Malformed term_data["GradingPeriodOpen"] : %s' % (
+    except (TypeError, ValueError):
+        logger.warn('Malformed term_data["GradingPeriodOpen"] : %s' % (
             term_data["GradingPeriodOpen"]))
         term.grading_period_open = strptime(
-           '%sT08:00:00' % term_data['LastFinalExamDay'],
+            '%sT08:00:00' % term_data['LastFinalExamDay'],
             datetime_format)
 
     try:
         term.grading_period_close = strptime(
             term_data["GradingPeriodClose"], datetime_format)
-    except (TypeError, ValueError) as ex:
-	logger.warn('Malformed term_data["GradingPeriodClose"] : %s' % (
+    except (TypeError, ValueError):
+        logger.warn('Malformed term_data["GradingPeriodClose"] : %s' % (
             term_data["GradingPeriodClose"]))
         term.grading_period_close = strptime(
-           '%sT17:00:00' % term_data['LastFinalExamDay'],
+            '%sT17:00:00' % term_data['LastFinalExamDay'],
             datetime_format)
 
     try:
         term.grade_submission_deadline = strptime(
             term_data["GradeSubmissionDeadline"], datetime_format)
-    except (TypeError, ValueError) as ex:
-	logger.warn('Malformed term_data["GradeSubmissionDeadline"] : %s' % (
+    except (TypeError, ValueError):
+        logger.warn('Malformed term_data["GradeSubmissionDeadline"] : %s' % (
             term_data["GradeSubmissionDeadline"]))
         term.grade_submission_deadline = strptime(
-           '%sT17:00:00' % term_data['LastFinalExamDay'],
+            '%sT17:00:00' % term_data['LastFinalExamDay'],
             datetime_format)
 
     if term_data["RegistrationServicesStart"] is not None:

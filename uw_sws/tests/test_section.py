@@ -81,6 +81,12 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(end.hour, 16)
             self.assertEquals(end.minute, 20)
 
+            section = get_section_by_label('2013,spring,MATH,125/H')
+            final_exam = section.final_exam
+
+            self.assertEquals(final_exam.end_date, None,
+                              "Bad final exam time for MATH 125 H")
+
     def test_is_valid_sln(self):
         self.assertFalse(is_valid_sln(None))
         self.assertFalse(is_valid_sln(''))
