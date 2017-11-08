@@ -176,6 +176,7 @@ class SwsPerson(models.Model):
         return {
             'uwnetid': self.uwnetid,
             'uwregid': self.uwregid,
+            'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
             'student_name': self.student_name,
