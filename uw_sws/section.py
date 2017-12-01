@@ -425,10 +425,10 @@ def _json_to_section(section_data,
             final_exam = FinalExam()
             final_data = section_data["FinalExam"]
             status = final_data["MeetingStatus"]
-            #MeetingStatus values:
+            # MeetingStatus values:
             # 0 - default final exam meeting date/time has not been confirmed
             # 1 - no final exam or no traditional final exam
-            # 2 - confirmed, at the default final exam meeting date/time/location
+            # 2 - confirmed, at the default final exam date/time/location
             # 3 - confirmed, but at a different date/time/location
 
             final_exam.no_exam_or_nontraditional = False
