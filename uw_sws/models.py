@@ -272,7 +272,7 @@ class Term(models.Model):
         return (str(self.year), self.quarter)
 
     def is_grading_period_open(self):
-        if self.quarter == self.SUMMER:
+        if self.is_summer_quarter():
             open_date = self.aterm_grading_period_open
         else:
             open_date = self.grading_period_open
@@ -293,7 +293,7 @@ class Term(models.Model):
         return (days // 7)
 
     def is_summer_quarter(self):
-        return self.quarter.lower() == "summer"
+        return self.quarter.lower() == Term.SUMMER
 
     def get_bod_first_day(self):
         # returns a datetime object of the midnight at begining of day
