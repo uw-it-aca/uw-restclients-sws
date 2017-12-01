@@ -15,6 +15,20 @@ from uw_sws.term import get_term_by_year_and_quarter,\
 @fdao_pws_override
 class SWSTestTerm(TestCase):
 
+    def setUp(self):
+        self.winter2016 = Term()
+        self.winter2016.quarter = 'winter'
+        self.winter2016.year = 2016
+        self.spring2016 = Term()
+        self.spring2016.quarter = 'spring'
+        self.spring2016.year = 2016
+        self.summer2017 = Term()
+        self.summer2017.quarter = 'summer'
+        self.summer2017.year = 2017
+        self.autumn2017 = Term()
+        self.autumn2017.quarter = 'autumn'
+        self.autumn2017.year = 2017
+
     def test_mock_data_fake_grading_window(self):
             # This rounds down to 0 days, so check by seconds :(
             hour1_delta = timedelta(hours=-1)
@@ -558,3 +572,27 @@ class SWSTestTerm(TestCase):
         self.assertTrue(json_data['time_schedule_published']['seattle'])
         self.assertTrue(json_data['time_schedule_published']['bothell'])
         self.assertTrue(json_data['time_schedule_published']['tacoma'])
+
+    def test_lt(self):
+
+        self.assertFalse(self.autumn2017 < self.winter2016)
+        self.assertTrue(self.winter2016 < self.autumn2017)
+        self.assertFalse(self.autumn2017 < self.autumn2017)
+
+    def test_lte(self):
+
+        self.assertFalse(self.autumn2017 <= self.winter2016)
+        self.assertTrue(self.winter2016 <= self.autumn2017)
+        self.assertTrue(self.autumn2017 <= self.autumn2017)
+
+    def test_gt(self):
+
+        self.assertTrue(self.autumn2017 > self.winter2016)
+        self.assertFalse(self.winter2016 > self.autumn2017)
+        self.assertFalse(self.autumn2017 > self.autumn2017)
+
+    def test_gte(self):
+
+        self.assertTrue(self.autumn2017 >= self.winter2016)
+        self.assertFalse(self.winter2016 >= self.autumn2017)
+        self.assertTrue(self.autumn2017 >= self.autumn2017)

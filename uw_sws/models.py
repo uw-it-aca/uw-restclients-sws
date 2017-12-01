@@ -235,6 +235,53 @@ class Term(models.Model):
                 type(self) == type(other) and
                 self.__key() == other.__key())
 
+    def __lt__(self, other):
+        if self.year < other.year:
+            return True
+        elif self.year > other.year:
+            return False
+
+        return (Term._quarter_to_int(self.quarter) <
+                Term._quarter_to_int(other.quarter))
+
+    def __le__(self, other):
+        if self.year < other.year:
+            return True
+        elif self.year > other.year:
+            return False
+
+        return (Term._quarter_to_int(self.quarter) <=
+                Term._quarter_to_int(other.quarter))
+
+    def __gt__(self, other):
+        if self.year > other.year:
+            return True
+        elif self.year < other.year:
+            return False
+
+        return (Term._quarter_to_int(self.quarter) >
+                Term._quarter_to_int(other.quarter))
+
+    def __ge__(self, other):
+        if self.year > other.year:
+            return True
+        elif self.year < other.year:
+            return False
+
+        return (Term._quarter_to_int(self.quarter) >=
+                Term._quarter_to_int(other.quarter))
+
+    @staticmethod
+    def _quarter_to_int(quarter):
+        if quarter == 'winter' or quarter == 'Winter':
+            return 0
+        elif quarter == 'spring' or quarter == 'Spring':
+            return 1
+        elif quarter == 'summer' or quarter == 'Summer':
+            return 2
+        elif quarter == 'autumn' or quarter == 'Autumn':
+            return 3
+
     def __hash__(self):
         return hash(self.__key())
 
