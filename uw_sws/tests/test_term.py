@@ -596,3 +596,7 @@ class SWSTestTerm(TestCase):
         self.assertTrue(self.autumn2017 >= self.winter2016)
         self.assertFalse(self.winter2016 >= self.autumn2017)
         self.assertTrue(self.autumn2017 >= self.autumn2017)
+
+    def test_ne(self):
+        self.assertNotEqual(self.winter2016, self.autumn2017)
+        self.assertFalse(self.autumn2017 != self.autumn2017)

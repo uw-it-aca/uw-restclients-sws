@@ -235,32 +235,19 @@ class Term(models.Model):
                 type(self) == type(other) and
                 self.__key() == other.__key())
 
-    def __lt__(self, other):
-        if self.year < other.year:
-            return True
-        elif self.year > other.year:
-            return False
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
-        return (Term._quarter_to_int(self.quarter) <
-                Term._quarter_to_int(other.quarter))
+    def __lt__(self, other):
+        return (type(self) == type(other) and
+                self.__cmp_key() < other.__cmp_key())
 
     def __le__(self, other):
-        if self.year < other.year:
-            return True
-        elif self.year > other.year:
-            return False
-
-        return (Term._quarter_to_int(self.quarter) <=
-                Term._quarter_to_int(other.quarter))
+        return self.__lt__(other) or self.__eq__(other)
 
     def __gt__(self, other):
-        if self.year > other.year:
-            return True
-        elif self.year < other.year:
-            return False
-
-        return (Term._quarter_to_int(self.quarter) >
-                Term._quarter_to_int(other.quarter))
+        return (type(self) == type(other) and
+                self.__cmp_key() > other.__cmp_key())
 
     def __ge__(self, other):
         if self.year > other.year:
@@ -273,20 +260,23 @@ class Term(models.Model):
 
     @staticmethod
     def _quarter_to_int(quarter):
-        if quarter == 'winter' or quarter == 'Winter':
-            return 0
-        elif quarter == 'spring' or quarter == 'Spring':
+        if quarter.lower() == Term.WINTER:
             return 1
-        elif quarter == 'summer' or quarter == 'Summer':
+        elif quarter.lower() == Term.SPRING:
             return 2
-        elif quarter == 'autumn' or quarter == 'Autumn':
+        elif quarter.lower() == Term.SUMMER:
             return 3
+        elif quarter.lower() == Term.AUTUMN:
+            return 4
 
     def __hash__(self):
         return hash(self.__key())
 
     def __key(self):
         return (str(self.year), self.quarter)
+
+    def __cmp_key(self):
+        return self.year * 10 + self._quarter_to_int(self.quarter)
 
     def is_grading_period_open(self):
         if self.quarter == self.SUMMER:
