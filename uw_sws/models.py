@@ -230,10 +230,40 @@ class Term(models.Model):
     registration_period3_start = models.DateTimeField(blank=True)
     registration_period3_end = models.DateTimeField(blank=True)
 
+    @staticmethod
+    def _quarter_to_int(quarter):
+        if quarter.lower() == Term.WINTER:
+            return 1
+        if quarter.lower() == Term.SPRING:
+            return 2
+        if quarter.lower() == Term.SUMMER:
+            return 3
+        return 4
+
+    def int_key(self):
+        return int(self.year) * 10 + self._quarter_to_int(self.quarter)
+
     def __eq__(self, other):
         return (other is not None and
                 type(self) == type(other) and
-                self.__key() == other.__key())
+                self.int_key() == other.int_key())
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        return (type(self) == type(other) and
+                self.int_key() < other.int_key())
+
+    def __le__(self, other):
+        return self.__lt__(other) or self.__eq__(other)
+
+    def __gt__(self, other):
+        return (type(self) == type(other) and
+                self.int_key() > other.int_key())
+
+    def __ge__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
 
     def __hash__(self):
         return hash(self.__key())
