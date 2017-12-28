@@ -25,10 +25,18 @@ class SWSTestSectionData(TestCase):
     def test_section(self):
             section = get_section_by_label('2012,autumn,B BIO,180/A')
             self.assertTrue(section.is_campus_bothell())
+            self.assertFalse(section.is_quiz())
             section = get_section_by_label('2013,summer,MATH,125/G')
             self.assertTrue(section.is_campus_seattle())
+            self.assertFalse(section.is_quiz())
             section = get_section_by_label('2013,autumn,T BUS,310/A')
             self.assertTrue(section.is_campus_tacoma())
+            self.assertFalse(section.is_lab())
+            section = get_section_by_label('2013,summer,PHYS,121/AK')
+            self.assertTrue(section.is_quiz())
+            section = get_section_by_label('2013,summer,PHYS,121/AQ')
+            self.assertTrue(section.is_lab())
+            self.assertIsNotNone(section.json_data())
 
     def test_non_credit_certificate_couse_section(self):
             section = get_section_by_label('2013,winter,BIGDATA,220/A')
