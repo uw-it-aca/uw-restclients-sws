@@ -462,11 +462,12 @@ class Section(models.Model):
     course_title_long = models.CharField(max_length=50)
     course_campus = models.CharField(max_length=7)
     credit_control = models.CharField(max_length=32, null=True)
-    section_type = models.CharField(max_length=30)
-    is_independent_study = models.NullBooleanField()
+    section_type = models.CharField(max_length=30, null=True)
+    is_independent_study = models.NullBooleanField(default=False)
     independent_study_instructor_regid = models.CharField(max_length=32,
                                                           null=True)
     institute_name = models.CharField(max_length=200, null=True)
+    metadata = models.CharField(max_length=100, null=True)
     class_website_url = models.URLField(max_length=255,
                                         blank=True)
     sln = models.PositiveIntegerField()
@@ -590,7 +591,7 @@ class Section(models.Model):
                 self.course_number,
                 self.section_id.upper())
 
-            if self.is_independent_study:
+            if self.is_ind_study():
                 if self.independent_study_instructor_regid is None:
                     raise InvalidCanvasIndependentStudyCourse(
                         "Undefined " +
@@ -610,7 +611,7 @@ class Section(models.Model):
         if self.is_primary_section:
             sis_id = self.canvas_course_sis_id()
 
-            if not self.is_independent_study and len(self.linked_section_urls):
+            if not self.is_ind_study() and len(self.linked_section_urls):
                 raise InvalidCanvasSection(sis_id)
 
             sis_id += "--"
@@ -660,13 +661,62 @@ class Section(models.Model):
             self.summer_term is not None and summer_term is not None and\
             self.summer_term.lower() == summer_term.lower()
 
+    def is_clerkship(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "clerkship" or
+             self.section_type.lower() == "ck")
+
+    def is_clinic(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "clinic" or
+             self.section_type.lower() == "cl")
+
+    def is_conference(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "conference" or
+             self.section_type.lower() == "co")
+
+    def is_lab(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "laboratory" or
+             self.section_type.lower() == "lb")
+
+    def is_lecture(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "lecture" or
+             self.section_type.lower() == "lc")
+
+    def is_ind_study(self):
+        return self.is_independent_study
+
+    def is_practicum(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "practicum" or
+             self.section_type.lower() == "pr")
+
+    def is_quiz(self):
+        return self.section_type is not None and\
+            (self.section_type == "quiz" or
+             self.section_type.lower() == "qz")
+
+    def is_seminar(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "seminar" or
+             self.section_type.lower() == "sm")
+
+    def is_studio(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "studio" or
+             self.section_type.lower() == "st")
+
     def json_data(self):
         data = {
             'curriculum_abbr': self.curriculum_abbr,
             'course_number': self.course_number,
             'section_id': self.section_id,
             'is_primary_section': self.is_primary_section,
-            'is_independent_study': self.is_independent_study,
+            'is_independent_study': self.is_ind_study(),
+            'section_type': self.section_type,
             'independent_study_instructor_regid':
                 self.independent_study_instructor_regid,
             'course_title': self.course_title,
