@@ -447,9 +447,6 @@ class Section(models.Model):
         (LMS_OWNER_OL, LMS_OWNER_OL),
     )
 
-    QUIZ = "quiz"
-    LAB = "laboratory"
-
     term = models.ForeignKey(Term,
                              on_delete=models.PROTECT)
     final_exam = models.ForeignKey(FinalExam,
@@ -470,6 +467,7 @@ class Section(models.Model):
     independent_study_instructor_regid = models.CharField(max_length=32,
                                                           null=True)
     institute_name = models.CharField(max_length=200, null=True)
+    metadata = models.CharField(max_length=100, null=True)
     class_website_url = models.URLField(max_length=255,
                                         blank=True)
     sln = models.PositiveIntegerField()
@@ -663,11 +661,41 @@ class Section(models.Model):
             self.summer_term is not None and summer_term is not None and\
             self.summer_term.lower() == summer_term.lower()
 
+    def is_clerkship(self):
+        return self.section_type.lower() == "clerkship" or\
+            self.section_type.lower() == "ck"
+
+    def is_clinic(self):
+        return self.section_type.lower() == "clinic" or\
+            self.section_type.lower() == "cl"
+
+    def is_conference(self):
+        return self.section_type.lower() == "conference" or\
+            self.section_type.lower() == "co"
+
     def is_lab(self):
-        return self.section_type == Section.LAB
+        return self.section_type.lower() == "laboratory" or\
+            self.section_type.lower() == "lb"
+
+    def is_lecture(self):
+        return self.section_type.lower() == "lecture" or\
+            self.section_type.lower() == "lc"
+
+    def is_practicum(self):
+        return self.section_type.lower() == "practicum" or\
+            self.section_type.lower() == "pr"
 
     def is_quiz(self):
-        return self.section_type == Section.QUIZ
+        return self.section_type == "quiz" or\
+            self.section_type.lower() == "qz"
+
+    def is_seminar(self):
+        return self.section_type.lower() == "seminar" or\
+            self.section_type.lower() == "sm"
+
+    def is_studio(self):
+        return self.section_type.lower() == "studio" or\
+            self.section_type.lower() == "st"
 
     def json_data(self):
         data = {
@@ -677,8 +705,6 @@ class Section(models.Model):
             'is_primary_section': self.is_primary_section,
             'is_independent_study': self.is_independent_study,
             'section_type': self.section_type,
-            'is_lab': self.is_lab(),
-            'is_quiz': self.is_quiz(),
             'independent_study_instructor_regid':
                 self.independent_study_instructor_regid,
             'course_title': self.course_title,
