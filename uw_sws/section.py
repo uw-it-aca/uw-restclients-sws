@@ -294,6 +294,9 @@ def _json_to_section(section_data,
     section.lms_ownership = section_data.get("LMSOwnership", None)
     section.is_independent_start = section_data.get("IsIndependentStart",
                                                     False)
+    section.section_type = section_data["SectionType"]
+    section.is_independent_study = section_data.get(
+        "IndependentStudy", "independent study" == section.section_type)
     section.credit_control = section_data.get("CreditControl", "")
 
     if "StartDate" in section_data and\
@@ -303,12 +306,6 @@ def _json_to_section(section_data,
     if "EndDate" in section_data and\
        len(section_data["EndDate"]) > 0:
         section.end_date = parse(section_data["EndDate"]).date()
-
-    section.section_type = section_data["SectionType"]
-    if "independent study" == section.section_type:
-        section.is_independent_study = True
-    else:
-        section.is_independent_study = False
 
     section.class_website_url = section_data["ClassWebsiteUrl"]
 
