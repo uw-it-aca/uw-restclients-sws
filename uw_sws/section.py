@@ -295,7 +295,8 @@ def _json_to_section(section_data,
     section.is_independent_start = section_data.get("IsIndependentStart",
                                                     False)
     section.section_type = section_data["SectionType"]
-    if "independent study" == section.section_type:
+    if "independent study" == section.section_type or\
+       "IS" == section.section_type:
         is_independent_study = True
     else:
         is_independent_study = False

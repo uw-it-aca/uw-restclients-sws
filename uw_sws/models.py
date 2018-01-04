@@ -687,10 +687,7 @@ class Section(models.Model):
              self.section_type.lower() == "lc")
 
     def is_ind_study(self):
-        return self.is_independent_study or\
-            self.section_type is not None and\
-            (self.section_type.lower() == "independent study" or
-             self.section_type.lower() == "is")
+        return self.is_independent_study
 
     def is_practicum(self):
         return self.section_type is not None and\
@@ -709,7 +706,7 @@ class Section(models.Model):
 
     def is_studio(self):
         return self.section_type is not None and\
-            (self.section_type.lower() == "studio" or\
+            (self.section_type.lower() == "studio" or
              self.section_type.lower() == "st")
 
     def json_data(self):
