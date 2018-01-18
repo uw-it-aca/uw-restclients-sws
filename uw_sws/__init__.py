@@ -48,7 +48,7 @@ def get_resource(url):
     :returns: http response with content in json
     """
     response = DAO.getURL(url, {'Accept': 'application/json',
-                                      'Connection': 'keep-alive'})
+                                'Connection': 'keep-alive'})
     if response.status != 200:
         raise DataFailureException(url, response.status, response.data)
     return json.loads(response.data)
