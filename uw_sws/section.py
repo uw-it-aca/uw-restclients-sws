@@ -416,7 +416,7 @@ def _json_to_section(section_data,
                 if "RegID" in pdata and pdata["RegID"] is not None:
                     try:
                         instructor = pws.get_person_by_regid(pdata["RegID"])
-                    except:
+                    except Exception:
                         instructor = Person(uwregid=pdata["RegID"],
                                             display_name=pdata["Name"])
                     instructor.TSPrint = instructor_data["TSPrint"]
