@@ -289,10 +289,21 @@ def _json_to_section(section_data,
     section.course_campus = section_data["CourseCampus"]
     section.section_id = section_data["SectionID"]
     section.institute_name = section_data.get("InstituteName", "")
+    section.metadata = section_data.get("Metadata", "")
     section.primary_lms = section_data.get("PrimaryLMS", None)
     section.lms_ownership = section_data.get("LMSOwnership", None)
     section.is_independent_start = section_data.get("IsIndependentStart",
                                                     False)
+    section.section_type = section_data["SectionType"]
+    if "independent study" == section.section_type or\
+       "IS" == section.section_type:
+        is_independent_study = True
+    else:
+        is_independent_study = False
+
+    section.is_independent_study = section_data.get(
+        "IndependentStudy", is_independent_study)
+
     section.credit_control = section_data.get("CreditControl", "")
 
     if "StartDate" in section_data and\
@@ -302,12 +313,6 @@ def _json_to_section(section_data,
     if "EndDate" in section_data and\
        len(section_data["EndDate"]) > 0:
         section.end_date = parse(section_data["EndDate"]).date()
-
-    section.section_type = section_data["SectionType"]
-    if "independent study" == section.section_type:
-        section.is_independent_study = True
-    else:
-        section.is_independent_study = False
 
     section.class_website_url = section_data["ClassWebsiteUrl"]
 
@@ -411,7 +416,7 @@ def _json_to_section(section_data,
                 if "RegID" in pdata and pdata["RegID"] is not None:
                     try:
                         instructor = pws.get_person_by_regid(pdata["RegID"])
-                    except:
+                    except Exception:
                         instructor = Person(uwregid=pdata["RegID"],
                                             display_name=pdata["Name"])
                     instructor.TSPrint = instructor_data["TSPrint"]
@@ -425,8 +430,15 @@ def _json_to_section(section_data,
             final_exam = FinalExam()
             final_data = section_data["FinalExam"]
             status = final_data["MeetingStatus"]
+            # MeetingStatus values:
+            # 0 - default final exam meeting date/time has not been confirmed
+            # 1 - no final exam or no traditional final exam
+            # 2 - confirmed, at the default final exam date/time/location
+            # 3 - confirmed, but at a different date/time/location
+
             final_exam.no_exam_or_nontraditional = False
             final_exam.is_confirmed = False
+
             if (status == "2") or (status == "3"):
                 final_exam.is_confirmed = True
             elif status == "1":

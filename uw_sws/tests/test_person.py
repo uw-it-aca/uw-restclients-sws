@@ -78,7 +78,6 @@ class PersonTest(TestCase):
             self.assertEquals(data.permanent_address.state, "Mumbai")
             self.assertEquals(data.permanent_address.zip_code, "")
 
-
     def test_person_none(self):
             data = get_person_by_regid("00000000000000000000000000000001")
             self.assertEquals(data.uwnetid, "none")
@@ -97,3 +96,7 @@ class PersonTest(TestCase):
             self.assertEquals(data.local_address, None)
             self.assertEquals(data.permanent_phone, None)
             self.assertEquals(data.permanent_address, None)
+
+    def test_json_datat(self):
+            data = get_person_by_regid("9136CCB8F66711D5BE060004AC494FFE")
+            self.assertEquals(data.json_data()['email'], "javerage@u.washington.edu")
