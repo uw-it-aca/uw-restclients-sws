@@ -413,10 +413,10 @@ class SWSTestTerm(TestCase):
             # Loading a term with null Grading Periods
             term = get_term_by_year_and_quarter(2008, 'autumn')
             grading_period_open = datetime.combine(term.last_final_exam_date,
-                                                   datetime.time())
+                                                   datetime.min.time())
             grading_period_open.replace(hours=8)
             grading_period_close = datetime.combine(term.last_final_exam_date,
-                                                    datetime.time())
+                                                    datetime.min.time())
             grading_period_open.replace(hours=17)
             self.assertEquals(term.grading_period_open, grading_period_open)
             self.assertEquals(term.grading_period_close, grading_period_close)
