@@ -165,6 +165,10 @@ def _json_to_term_model(term_data):
             '%sT08:00:00' % term_data['LastFinalExamDay'],
             datetime_format)
 
+    if term_data["GradingPeriodOpenATerm"] is not None:
+        term.aterm_grading_period_open = strptime(
+            term_data["GradingPeriodOpenATerm"], datetime_format)
+
     try:
         term.grading_period_close = strptime(
             term_data["GradingPeriodClose"], datetime_format)
