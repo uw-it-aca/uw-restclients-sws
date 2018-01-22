@@ -460,7 +460,12 @@ def _json_to_section(section_data,
                 if final_data["EndTime"]:
                     end_string = "%s : %s" % (final_data["Date"],
                                               final_data["EndTime"])
-                    final_exam.end_date = strptime(end_string, final_format)
+                    try:
+                        final_exam.end_date = strptime(
+                            end_string, final_format)
+                    except ValueError:
+                        logger.info('bad final EndTime: %s' % end_string)
+                        final_exam.end_date = None
 
             final_exam.clean_fields()
             section.final_exam = final_exam

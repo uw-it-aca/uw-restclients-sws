@@ -1,0 +1,65 @@
+{
+    "ATermLastDay": null, 
+    "AcademicCatalog": "2015-08-01", 
+    "BTermFirstDay": null, 
+    "CensusDay": "2008-10-03", 
+    "FifthDay": "2008-09-30", 
+    "FinancialAidYear": null, 
+    "FirstDay": "2008-09-24", 
+    "FirstDayMedSchool": "2008-09-02", 
+    "GradeSubmissionDeadline": null, 
+    "GradingPeriodClose": null, 
+    "GradingPeriodOpen": null, 
+    "GradingPeriodOpenATerm": null, 
+    "LastAddDay": "2008-10-14", 
+    "LastAddDayATerm": null, 
+    "LastAddDayBTerm": null, 
+    "LastDayOfClasses": "2008-12-05", 
+    "LastDropDay": "2008-11-09", 
+    "LastDropDayATerm": null, 
+    "LastDropDayBTerm": null, 
+    "LastDropDayNotRecorded": "2008-10-07", 
+    "LastDropDayNotRecordedATerm": null, 
+    "LastDropDayNotRecordedBTerm": null, 
+    "LastFinalExamDay": "2008-12-12", 
+    "Metadata": "TermSourceKey=SDB;", 
+    "NextTerm": {
+        "Href": "/student/v5/term/2009,winter.json", 
+        "Quarter": "winter", 
+        "Year": 2009
+    }, 
+    "PreviousTerm": {
+        "Href": "/student/v5/term/2008,summer.json", 
+        "Quarter": "summer", 
+        "Year": 2008
+    }, 
+    "Quarter": "autumn", 
+    "RegistrationPeriods": [
+        {
+            "EndDate": "2008-06-22", 
+            "StartDate": "2008-05-09"
+        }, 
+        {
+            "EndDate": "2008-09-23", 
+            "StartDate": "2008-06-23"
+        }, 
+        {
+            "EndDate": "2008-09-30", 
+            "StartDate": "2008-09-24"
+        }
+    ], 
+    "RegistrationServicesStart": "2008-05-02", 
+    "RepositoryTimeStamp": "3/24/2017 10:05:13 AM", 
+    "StudentAccountStart": null, 
+    "TimeScheduleConstruction": {
+        "Bothell": false, 
+        "Seattle": false, 
+        "Tacoma": false
+    }, 
+    "TimeSchedulePublished": {
+        "Bothell": true, 
+        "Seattle": true, 
+        "Tacoma": true
+    }, 
+    "Year": 2008
+}
