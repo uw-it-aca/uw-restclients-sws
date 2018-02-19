@@ -105,7 +105,8 @@ class SWSTestTerm(TestCase):
 
     def test_current_quarter(self):
             term = get_current_term()
-
+            comparison_datetime = datetime(2013, 4, 10, 0, 0, 0)
+            self.assertTrue(term.is_current(comparison_datetime))
             expected_quarter = "spring"
             expected_year = 2013
 
@@ -169,6 +170,9 @@ class SWSTestTerm(TestCase):
 
             expected_quarter = "winter"
             expected_year = 2013
+
+            comparison_datetime = datetime(2013, 4, 10, 0, 0, 0)
+            self.assertTrue(term.is_past(comparison_datetime))
 
             self.assertEquals(term.year, expected_year,
                               "Return %s for the previous year" %
@@ -236,6 +240,9 @@ class SWSTestTerm(TestCase):
             self.assertTrue(term.is_summer_quarter())
             expected_quarter = "summer"
             expected_year = 2013
+
+            comparison_datetime = datetime(2013, 4, 10, 0, 0, 0)
+            self.assertTrue(term.is_future(comparison_datetime))
 
             self.assertEquals(term.year, expected_year,
                               "Return %s for the next year" %
