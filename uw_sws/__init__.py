@@ -24,6 +24,8 @@ def parse_sws_date(date_string):
     :param date_string:
     :return: date object
     """
+    if date_string is None:
+        return None
     date_formats = ["%m/%d/%Y", "%Y-%m-%d", "%Y%m%d"]
     datetime_obj = None
     for fmt in date_formats:

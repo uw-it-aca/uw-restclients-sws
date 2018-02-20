@@ -6,7 +6,8 @@ from uw_sws.term import get_current_term, get_next_term,\
     get_term_by_year_and_quarter, get_term_after, get_term_before
 from uw_sws.enrollment import get_grades_by_regid_and_term,\
     is_src_location_pce, ENROLLMENT_SOURCE_PCE, has_start_end_dates,\
-    get_enrollment_by_regid_and_term, enrollment_search_by_regid
+    get_enrollment_by_regid_and_term, enrollment_search_by_regid,\
+    get_enrollment_history_by_regid
 from restclients_core.exceptions import DataFailureException
 
 
@@ -243,3 +244,16 @@ class SWSTestEnrollments(TestCase):
         enroll3 = result_dict.get(
             get_term_by_year_and_quarter(2012, 'spring'))
         self.assertFalse(enroll3.minors[0] in enroll.minors)
+
+    def test_get_enrollment_history_by_regid(self):
+        result_list = get_enrollment_history_by_regid(
+            '9136CCB8F66711D5BE060004AC494FFE')
+        self.assertEqual(len(result_list), 6)
+        self.assertEqual(result_list[0].term.year, 1996)
+        self.assertEqual(result_list[0].term.quarter, "autumn")
+        self.assertEqual(result_list[0].majors[0].major_name,
+                         "PRE MAJOR (A&S)")
+
+        self.assertEqual(result_list[-1].term.year, 2013)
+        self.assertEqual(result_list[-1].term.quarter, "summer")
+        self.assertEqual(result_list[-1].majors[0].major_name, "ENGLISH")

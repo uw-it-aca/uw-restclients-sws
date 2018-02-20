@@ -292,9 +292,6 @@ class Term(models.Model):
 
         return (days // 7)
 
-    def is_summer_quarter(self):
-        return self.quarter.lower() == Term.SUMMER
-
     def get_bod_first_day(self):
         # returns a datetime object of the midnight at begining of day
         return convert_to_begin_of_day(self.first_day_quarter)
@@ -311,6 +308,9 @@ class Term(models.Model):
     def get_eod_grade_submission(self):
         # returns a datetime object of the midnight at end of day
         return convert_to_end_of_day(self.grade_submission_deadline)
+
+    def get_end_of_the_term(self):
+        return self.get_eod_grade_submission()
 
     def get_eod_aterm_last_day_add(self):
         if not self.is_summer_quarter():
@@ -341,6 +341,19 @@ class Term(models.Model):
         if not self.is_summer_quarter():
             return None
         return convert_to_end_of_day(self.aterm_last_date)
+
+    def is_current(self, comparison_datetime):
+        return self.get_bod_first_day() < comparison_datetime and\
+            comparison_datetime < self.get_end_of_the_term()
+
+    def is_past(self, comparison_datetime):
+        return comparison_datetime > self.get_end_of_the_term()
+
+    def is_future(self, comparison_datetime):
+        return comparison_datetime < self.get_bod_first_day()
+
+    def is_summer_quarter(self):
+        return self.quarter.lower() == Term.SUMMER
 
     def term_label(self):
         return "%s,%s" % (self.year, self.quarter)
