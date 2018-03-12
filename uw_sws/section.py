@@ -48,7 +48,8 @@ def get_sections_by_instructor_and_term(person,
                                         term,
                                         future_terms=0,
                                         include_secondaries=True,
-                                        transcriptable_course='yes'):
+                                        transcriptable_course='yes',
+                                        delete_flag='active'):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed instructor and term.
@@ -60,14 +61,16 @@ def get_sections_by_instructor_and_term(person,
                                             "Instructor",
                                             include_secondaries,
                                             future_terms,
-                                            transcriptable_course)
+                                            transcriptable_course,
+                                            delete_flag)
 
 
 def get_sections_by_delegate_and_term(person,
                                       term,
                                       future_terms=0,
                                       include_secondaries=True,
-                                      transcriptable_course='yes'):
+                                      transcriptable_course='yes',
+                                      delete_flag='active'):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed grade submission delegate and term.
@@ -79,7 +82,8 @@ def get_sections_by_delegate_and_term(person,
                                             "GradeSubmissionDelegate",
                                             include_secondaries,
                                             future_terms,
-                                            transcriptable_course)
+                                            transcriptable_course,
+                                            delete_flag)
 
 
 def get_sections_by_curriculum_and_term(curriculum, term):
@@ -155,7 +159,8 @@ def _get_sections_by_person_and_term(person,
                                      course_role,
                                      include_secondaries,
                                      future_terms,
-                                     transcriptable_course):
+                                     transcriptable_course,
+                                     delete_flag):
     """
     Returns a list of uw_sws.models.SectionReference object
     for the passed course_role and term (including secondaries).
@@ -171,6 +176,7 @@ def _get_sections_by_person_and_term(person,
             ("year", term.year,),
             ("future_terms", future_terms,),
             ("transcriptable_course", transcriptable_course,),
+            ("delete_flag", delete_flag,),
         ]))
 
     return _json_to_sectionref(get_resource(url), term)
