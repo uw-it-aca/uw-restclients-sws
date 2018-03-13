@@ -346,7 +346,13 @@ class SWSTestSectionData(TestCase):
             sections = get_sections_by_instructor_and_term(instructor, term)
             self.assertEquals(len(sections), 1)
 
-    def test_get_transcriptable_course_all_sections(self):
+            # test delete_flag
+            term = Term(quarter="spring", year=2013)
+            sections = get_sections_by_instructor_and_term(
+                instructor, term, delete_flag='active,suspended')
+            self.assertEquals(len(sections), 2)
+
+            # test different setting for transcriptable_course
             term = Term(quarter="spring", year=2013)
             instructor = Person(uwregid="260A0DEC95CB11D78BAA000629C31437")
             sections = get_sections_by_instructor_and_term(
@@ -364,6 +370,11 @@ class SWSTestSectionData(TestCase):
             delegate = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
 
             sections = get_sections_by_delegate_and_term(delegate, term)
+            self.assertEquals(len(sections), 2)
+
+            # with delete_flag
+            sections = get_sections_by_delegate_and_term(
+                delegate, term, delete_flag='active,suspended')
             self.assertEquals(len(sections), 2)
 
     def test_sections_by_curriculum_and_term(self):
