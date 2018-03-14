@@ -49,12 +49,13 @@ def get_sections_by_instructor_and_term(person,
                                         future_terms=0,
                                         include_secondaries=True,
                                         transcriptable_course='yes',
-                                        delete_flag='active'):
+                                        delete_flag=['active']):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed instructor and term.
-    param:future_terms: 0..400
-    param:transcriptable_course: 'yes', 'no', 'all'
+    @param: future_terms: 0..400
+    @param: transcriptable_course: 'yes', 'no', 'all'
+    @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
     return _get_sections_by_person_and_term(person,
                                             term,
@@ -70,12 +71,13 @@ def get_sections_by_delegate_and_term(person,
                                       future_terms=0,
                                       include_secondaries=True,
                                       transcriptable_course='yes',
-                                      delete_flag='active'):
+                                      delete_flag=['active']):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed grade submission delegate and term.
-    param:future_terms: 0..400
-    param:transcriptable_course: 'yes', 'no', 'all'
+    @param: future_terms: 0..400
+    @param: transcriptable_course: 'yes', 'no', 'all'
+    @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
     return _get_sections_by_person_and_term(person,
                                             term,
@@ -164,20 +166,26 @@ def _get_sections_by_person_and_term(person,
     """
     Returns a list of uw_sws.models.SectionReference object
     for the passed course_role and term (including secondaries).
-    @param: future_terms: [0..400]
+    @param: future_terms: 0..400
+    @param: transcriptable_course: 'yes', 'no', 'all'
+    @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
-    url = "%s?%s" % (
-        section_res_url_prefix,
-        urlencode([
-            ("reg_id", person.uwregid,),
-            ("search_by", course_role,),
-            ("quarter", term.quarter.lower(),),
-            ("include_secondaries", 'on' if include_secondaries else ''),
-            ("year", term.year,),
-            ("future_terms", future_terms,),
-            ("transcriptable_course", transcriptable_course,),
-            ("delete_flag", delete_flag,),
-        ]))
+    params = [
+        ("reg_id", person.uwregid,),
+        ("search_by", course_role,),
+        ("quarter", term.quarter.lower(),),
+        ("include_secondaries", 'on' if include_secondaries else ''),
+        ("year", term.year,),
+        ("future_terms", future_terms,),
+        ("transcriptable_course", transcriptable_course,),
+    ]
+
+    if delete_flag is not None:
+        if not isinstance(delete_flag, list):
+            raise ValueError("delete_flag must be a list")
+        params.append(("delete_flag", ','.join(sorted(delete_flag)),))
+
+    url = "%s?%s" % (section_res_url_prefix, urlencode(params))
 
     return _json_to_sectionref(get_resource(url), term)
 
