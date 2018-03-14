@@ -349,7 +349,7 @@ class SWSTestSectionData(TestCase):
             # test delete_flag
             term = Term(quarter="spring", year=2013)
             sections = get_sections_by_instructor_and_term(
-                instructor, term, delete_flag='active,suspended')
+                instructor, term, delete_flag=['active','suspended'])
             self.assertEquals(len(sections), 2)
 
             # test different setting for transcriptable_course
@@ -374,8 +374,17 @@ class SWSTestSectionData(TestCase):
 
             # with delete_flag
             sections = get_sections_by_delegate_and_term(
-                delegate, term, delete_flag='active,suspended')
+                delegate, term, delete_flag=['active','suspended'])
             self.assertEquals(len(sections), 2)
+
+            # test delete_flag ordering
+            sections = get_sections_by_delegate_and_term(
+                delegate, term, delete_flag=['suspended', 'active'])
+            self.assertEquals(len(sections), 2)
+
+            # incorrect delete_flag
+            self.assertRaises(ValueError, get_sections_by_delegate_and_term,
+                              delegate, term, delete_flag='active')
 
     def test_sections_by_curriculum_and_term(self):
             term = Term(quarter="winter", year=2013)
