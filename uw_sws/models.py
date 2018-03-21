@@ -486,7 +486,9 @@ class Section(models.Model):
     sln = models.PositiveIntegerField()
     summer_term = models.CharField(max_length=12, null=True)
     delete_flag = models.CharField(max_length=20)
-    is_withdrawn = models.NullBooleanField()
+    is_active = models.NullBooleanField(default=False)
+    is_withdrawn = models.NullBooleanField(default=False)
+    is_suspended = models.NullBooleanField(default=False)
     primary_lms = models.CharField(max_length=12, choices=PRIMARY_LMS_CHOICES,
                                    null=True)
     lms_ownership = models.CharField(max_length=12, choices=LMS_OWNER_CHOICES)

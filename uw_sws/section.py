@@ -343,8 +343,10 @@ def _json_to_section(section_data,
     section.delete_flag = section_data["DeleteFlag"]
     if "withdrawn" == section.delete_flag:
         section.is_withdrawn = True
-    else:
-        section.is_withdrawn = False
+    elif "suspended" == section.delete_flag:
+        section.is_suspended = True
+    elif "active" == section.delete_flag:
+        section.is_active = True
 
     section.current_enrollment = int(section_data['CurrentEnrollment'])
     section.limit_estimate_enrollment = int(
