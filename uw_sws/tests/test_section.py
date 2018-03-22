@@ -50,12 +50,18 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(str(section.start_date), "2013-01-16")
             self.assertEquals(str(section.end_date), "2013-03-20")
             self.assertEquals(section.metadata, "SectionSourceKey=EOS;")
+            self.assertEquals(section.is_active(), False)
+            self.assertEquals(section.is_withdrawn(), False)
+            self.assertEquals(section.is_suspended(), True)
 
             section = get_section_by_label('2013,spring,BIGDATA,230/A')
             self.assertTrue(section.is_campus_pce())
             self.assertEquals(str(section.start_date), "2013-04-03")
             self.assertEquals(str(section.end_date), "2013-06-12")
             self.assertIsNotNone(section.json_data())
+            self.assertEquals(section.is_active(), True)
+            self.assertEquals(section.is_withdrawn(), False)
+            self.assertEquals(section.is_suspended(), False)
 
     def test_final_exams(self):
             section = get_section_by_label('2013,summer,B BIO,180/A')
