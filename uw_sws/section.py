@@ -411,8 +411,15 @@ def _json_to_section(section_data,
             attribute = "meets_%s" % day_data["Name"].lower()
             setattr(meeting, attribute, True)
 
-        meeting.start_time = meeting_data["StartTime"]
-        meeting.end_time = meeting_data["EndTime"]
+        if len(meeting_data["StartTime"]):
+            meeting.start_time = meeting_data["StartTime"]
+            # in case of "18:00:00", only keep hh:mm
+            if len(meeting.start_time) > 5:
+                meeting.start_time = meeting.start_time[:5]
+        if len(meeting_data["EndTime"]):
+            meeting.end_time = meeting_data["EndTime"]
+            if len(meeting.end_time) > 5:
+                meeting.end_time = meeting.end_time[:5]
 
         meeting.instructors = []
         for instructor_data in meeting_data["Instructors"]:

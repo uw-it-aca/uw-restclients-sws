@@ -871,8 +871,8 @@ class SectionMeeting(models.Model):
     room_to_be_arranged = models.NullBooleanField()
     room_number = models.CharField(max_length=5)
     days_to_be_arranged = models.NullBooleanField()
-    start_time = models.TimeField(blank=True)
-    end_time = models.TimeField(blank=True)
+    start_time = models.TimeField(null=True, default=None)
+    end_time = models.TimeField(null=True, default=None)
 
     meets_monday = models.NullBooleanField()
     meets_tuesday = models.NullBooleanField()
