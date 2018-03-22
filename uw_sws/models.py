@@ -460,6 +460,16 @@ class Section(models.Model):
         (LMS_OWNER_OL, LMS_OWNER_OL),
     )
 
+    DELETE_FLAG_ACTIVE = 'active'
+    DELETE_FLAG_SUSPENDED = 'suspended'
+    DELETE_FLAG_WITHDRAWN = 'withdrawn'
+
+    DELETE_FLAG_CHOICES = (
+        (DELETE_FLAG_ACTIVE, DELETE_FLAG_ACTIVE),
+        (DELETE_FLAG_SUSPENDED, DELETE_FLAG_SUSPENDED),
+        (DELETE_FLAG_WITHDRAWN, DELETE_FLAG_WITHDRAWN),
+    )
+
     term = models.ForeignKey(Term,
                              on_delete=models.PROTECT)
     final_exam = models.ForeignKey(FinalExam,
@@ -485,10 +495,7 @@ class Section(models.Model):
                                         blank=True)
     sln = models.PositiveIntegerField()
     summer_term = models.CharField(max_length=12, null=True)
-    delete_flag = models.CharField(max_length=20)
-    is_active = models.NullBooleanField(default=False)
-    is_withdrawn = models.NullBooleanField(default=False)
-    is_suspended = models.NullBooleanField(default=False)
+    delete_flag = models.CharField(max_length=20, choices=DELETE_FLAG_CHOICES)
     primary_lms = models.CharField(max_length=12, choices=PRIMARY_LMS_CHOICES,
                                    null=True)
     lms_ownership = models.CharField(max_length=12, choices=LMS_OWNER_CHOICES)
@@ -553,6 +560,15 @@ class Section(models.Model):
 
     def is_early_fall_start(self):
         return self.institute_name == Section.EARLY_FALL_START
+
+    def is_active(self):
+        return self.delete_flag == Section.DELETE_FLAG_ACTIVE
+
+    def is_suspended(self):
+        return self.delete_flag == Section.DELETE_FLAG_SUSPENDED
+
+    def is_withdrawn(self):
+        return self.delete_flag == Section.DELETE_FLAG_WITHDRAWN
 
     def section_label(self):
         return "%s,%s,%s,%s/%s" % (
