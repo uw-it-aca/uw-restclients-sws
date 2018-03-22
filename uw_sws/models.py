@@ -886,14 +886,6 @@ class SectionMeeting(models.Model):
     def wont_meet(self):
         return self.meeting_type == SectionMeeting.NON_MEETING
 
-    def normalized_time(self, meeting_time):
-        # truncates :seconds from meeting start/end time
-        mt = str(meeting_time)
-        if len(mt) > 5:
-            return mt[:5]
-        else:
-            return mt
-
     def no_meeting(self):
         return not(self.meets_monday or
                    self.meets_tuesday or
@@ -919,8 +911,8 @@ class SectionMeeting(models.Model):
             },
             'wont_meet': self.wont_meet(),
             'no_meeting': self.no_meeting(),
-            'start_time': self.normalized_time(self.start_time),
-            'end_time': self.normalized_time(self.end_time),
+            'start_time': self.start_time,
+            'end_time': self.end_time,
             'building_tbd': self.building_to_be_arranged,
             'building': self.building,
             'room_tbd': self.room_to_be_arranged,
