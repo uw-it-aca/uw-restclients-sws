@@ -56,8 +56,11 @@ class SWSTestCurriculum(TestCase):
     def test_curricula_for_term(self):
         term = Term(quarter='winter', year=2013)
         curricula = get_curricula_by_term(term)
-
         self.assertEquals(len(curricula), 423)
+
+        curricula = get_curricula_by_term(term, view_unpublished=True)
+        self.assertEquals(len(curricula), 423)
+
         # Valid terms, no files for them
         self.assertRaises(DataFailureException,
                           get_curricula_by_term,
