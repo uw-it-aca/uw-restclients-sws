@@ -417,7 +417,8 @@ def _json_to_section(section_data,
             # in case of "18:00:00", only keep hh:mm
             if len(meeting.start_time) > 5:
                 meeting.start_time = meeting.start_time[:5]
-        if len(meeting_data["EndTime"])and\
+
+        if len(meeting_data["EndTime"]) and\
            meeting_data["EndTime"] != "00:00:00":
             meeting.end_time = meeting_data["EndTime"]
             if len(meeting.end_time) > 5:
