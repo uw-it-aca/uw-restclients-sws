@@ -576,8 +576,6 @@ class SWSTestSectionData(TestCase):
     def test_meetings(self):
         section = get_section_by_label('2013,autumn,MATH,120/ZZ')
         meeting = section.meetings[0]
-        meeting.start_time = '11:30:00'
-        meeting.end_time = '12:20:00'
         jd = section.meetings[0].json_data()
         self.assertFalse(jd['no_meeting'])
         self.assertEqual(jd['start_time'], '11:30')
@@ -613,3 +611,13 @@ class SWSTestSectionData(TestCase):
         self.assertIsNone(meetings[1].end_time)
         self.assertIsNone(meetings[2].start_time)
         self.assertIsNone(meetings[2].end_time)
+
+        json_data = section.json_data()
+        meetings = json_data["meetings"]
+        self.assertEqual(len(meetings), 3)
+        self.assertEqual(meetings[0]["start_time"], "18:00")
+        self.assertEqual(meetings[0]["end_time"], "21:00")
+        self.assertIsNone(meetings[1]["start_time"])
+        self.assertIsNone(meetings[1]["end_time"])
+        self.assertIsNone(meetings[2]["start_time"])
+        self.assertIsNone(meetings[2]["end_time"])
