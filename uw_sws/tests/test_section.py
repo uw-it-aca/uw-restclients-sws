@@ -602,3 +602,14 @@ class SWSTestSectionData(TestCase):
         self.assertTrue(section.for_credit())
 
         self.assertTrue('for_credit' in section.json_data())
+
+    def test_pce_meeting_time(self):
+        section = get_section_by_label('2013,winter,JAVA,125/A')
+        meetings = section.meetings
+        self.assertEqual(len(meetings), 3)
+        self.assertEqual(meetings[0].start_time, "18:00")
+        self.assertEqual(meetings[0].end_time, "21:00")
+        self.assertIsNone(meetings[1].start_time)
+        self.assertIsNone(meetings[1].end_time)
+        self.assertIsNone(meetings[2].start_time)
+        self.assertIsNone(meetings[2].end_time)
