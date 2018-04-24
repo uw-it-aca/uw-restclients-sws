@@ -557,9 +557,16 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2013,autumn,MATH,120/ZZ')
         self.assertFalse(section.is_inst_pce())
         self.assertFalse(section.is_independent_start)
+        self.assertIsNone(section.eos_cid)
+
         section = get_section_by_label('2013,winter,COM,201/A')
         self.assertTrue(section.is_inst_pce())
         self.assertTrue(section.is_independent_start)
+        self.assertIsNone(section.eos_cid)
+
+        section = get_section_by_label('2018,winter,INFX,543/A')
+        self.assertTrue(section.is_inst_pce())
+        self.assertEquals(section.eos_cid, '116878')
 
     def test_early_fall_start(self):
         section = get_section_by_label('2013,spring,EFS_FAILT,101/AQ')

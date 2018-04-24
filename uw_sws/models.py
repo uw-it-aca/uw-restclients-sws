@@ -494,6 +494,7 @@ class Section(models.Model):
     class_website_url = models.URLField(max_length=255,
                                         blank=True)
     sln = models.PositiveIntegerField()
+    eos_cid = models.CharField(max_length=10, null=True, default=None)
     summer_term = models.CharField(max_length=12, null=True)
     delete_flag = models.CharField(max_length=20, choices=DELETE_FLAG_CHOICES)
     primary_lms = models.CharField(max_length=12, choices=PRIMARY_LMS_CHOICES,
@@ -745,6 +746,7 @@ class Section(models.Model):
             'curriculum_abbr': self.curriculum_abbr,
             'course_number': self.course_number,
             'section_id': self.section_id,
+            'eos_cid': self.eos_cid,
             'is_primary_section': self.is_primary_section,
             'is_independent_study': self.is_ind_study(),
             'section_type': self.section_type,
@@ -871,6 +873,8 @@ class SectionMeeting(models.Model):
     room_to_be_arranged = models.NullBooleanField()
     room_number = models.CharField(max_length=5)
     days_to_be_arranged = models.NullBooleanField()
+    start_date = models.DateField(null=True, default=None)  # EOS
+    end_date = models.DateField(null=True, default=None)  # EOS
     start_time = models.TimeField(null=True, default=None)
     end_time = models.TimeField(null=True, default=None)
 
@@ -900,6 +904,8 @@ class SectionMeeting(models.Model):
             'index': self.meeting_index,
             'type': self.meeting_type,
             'days_tbd': self.days_to_be_arranged,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
             'meeting_days': {
                 'monday': self.meets_monday,
                 'tuesday': self.meets_tuesday,

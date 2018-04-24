@@ -26,6 +26,7 @@
     "DuplicateEnrollmentAllowed": false,
     "EndDate": "",
     "EnrollmentRestrictions": false,
+    "EOS_CID": null,
     "FeeAmount": "",
     "FeeBudget": "",
     "FeeType": "",
@@ -56,7 +57,7 @@
             "DelegateLevel": "department",
             "Person": {
                 "Href": "/student/v5/person/A9D2DDFA6A7D11D5A4AE0004AC494FFE.json",
-                "Name": "Felicia M Ishino",
+                "Name": "F M I",
                 "RegID": "A9D2DDFA6A7D11D5A4AE0004AC494FFE"
             }
         }
@@ -92,7 +93,7 @@
                     "PercentInvolve": "100",
                     "Person": {
                         "Href": "/student/v5/person/A9D2DDFA6A7D11D5A4AE0004AC494FFE.json",
-                        "Name": "Colin J Lingle",
+                        "Name": "C J L",
                         "RegID": "A9D2DDFA6A7D11D5A4AE0004AC494FFE"
                     },
                     "TSPrint": true
