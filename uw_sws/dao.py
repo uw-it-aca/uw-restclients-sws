@@ -43,8 +43,8 @@ class SWS_DAO(DAO):
             self._make_notice_date(response)
 
         # This is to enable mock data grading.
-        if (re.match("/student/v\d/term/current.json", url) or
-                re.match("/student/v\d/term/2013,spring.json", url)):
+        if (re.match(r'/student/v\d/term/current.json', url) or
+                re.match(r'/student/v\d/term/2013,spring.json', url)):
             now = datetime.now()
             tomorrow = now + timedelta(days=1)
             yesterday = now - timedelta(days=1)

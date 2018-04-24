@@ -113,13 +113,13 @@
                 {
                     "FacultySequenceNumber": "1",
                     "GradeRoster": {
-                        "Href": "/student/v5/graderoster/2013,winter,JAVA,125,A,CA4CC7946A7D11D5A4AE0004AC494FFE"
+                        "Href": "/student/v5/graderoster/2013,winter,JAVA,125,A,A9D2DDFA6A7D11D5A4AE0004AC494FFE"
                     },
                     "PercentInvolve": "",
                     "Person": {
-                        "Href": "/student/v5/person/CA4CC7946A7D11D5A4AE0004AC494FFE.json",
-                        "Name": "Russell G. Moul",
-                        "RegID": "CA4CC7946A7D11D5A4AE0004AC494FFE"
+                        "Href": "/student/v5/person/A9D2DDFA6A7D11D5A4AE0004AC494FFE.json",
+                        "Name": "R G M",
+                        "RegID": "A9D2DDFA6A7D11D5A4AE0004AC494FFE"
                     },
                     "TSPrint": false
                 }
@@ -150,13 +150,13 @@
                 {
                     "FacultySequenceNumber": "1",
                     "GradeRoster": {
-                        "Href": "/student/v5/graderoster/2013,winter,JAVA,125,A,CA4CC7946A7D11D5A4AE0004AC494FFE"
+                        "Href": "/student/v5/graderoster/2013,winter,JAVA,125,A,A9D2DDFA6A7D11D5A4AE0004AC494FFE"
                     },
                     "PercentInvolve": "",
                     "Person": {
-                        "Href": "/student/v5/person/CA4CC7946A7D11D5A4AE0004AC494FFE.json",
-                        "Name": "Russell G. Moul",
-                        "RegID": "CA4CC7946A7D11D5A4AE0004AC494FFE"
+                        "Href": "/student/v5/person/A9D2DDFA6A7D11D5A4AE0004AC494FFE.json",
+                        "Name": "R G M",
+                        "RegID": "A9D2DDFA6A7D11D5A4AE0004AC494FFE"
                     },
                     "TSPrint": false
                 }
