@@ -23,12 +23,12 @@ from uw_sws.models import (Section, SectionReference, FinalExam,
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
 course_res_url_prefix = "/student/v5/course"
 section_res_url_prefix = "/student/v5/section.json"
-sln_pattern = re.compile('^[1-9]\d{4}$')
+sln_pattern = re.compile(r'^[1-9]\d{4}$')
 section_label_pattern = re.compile(
-    '^[1-9]\d{3},'                      # year
+    r'^[1-9]\d{3},'                      # year
     '(?:winter|spring|summer|autumn),'  # quarter
-    '[\w& ]+,'                          # curriculum
-    '\d{3}\/'                           # course number
+    r'[\w& ]+,'                          # curriculum
+    r'\d{3}\/'                           # course number
     '[A-Z][A-Z0-9]?$',                  # section id
     re.VERBOSE
 )
@@ -302,6 +302,7 @@ def _json_to_section(section_data,
     section.course_title_long = section_data["CourseTitleLong"]
     section.course_campus = section_data["CourseCampus"]
     section.section_id = section_data["SectionID"]
+    section.eos_cid = section_data.get("EOS_CID", None)
     section.institute_name = section_data.get("InstituteName", "")
     section.metadata = section_data.get("Metadata", "")
     section.primary_lms = section_data.get("PrimaryLMS", None)
