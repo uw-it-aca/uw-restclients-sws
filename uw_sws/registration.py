@@ -16,10 +16,9 @@ from restclients_core.exceptions import DataFailureException
 from restclients_core.cache_manager import (enable_cache_entry_queueing,
                                             disable_cache_entry_queueing,
                                             save_all_queued_entries)
-from uw_pws import PWS
 from restclients_core.thread import (Thread, GenericPrefetchThread,
                                      generic_prefetch)
-from uw_sws import get_resource
+from uw_sws import get_resource, UWPWS
 from uw_sws.compat import deprecation
 from uw_sws.thread import SWSThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
@@ -38,7 +37,7 @@ class SWSPersonByRegIDThread(Thread):
         if self.regid is None:
             raise Exception("SWSPersonByRegIDThread must have a regid")
 
-        self.person = PWS().get_person_by_regid(self.regid)
+        self.person = UWPWS.get_person_by_regid(self.regid)
 
 
 def _registrations_for_section_with_active_flag(section, is_active,

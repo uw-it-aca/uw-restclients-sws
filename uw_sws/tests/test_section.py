@@ -628,3 +628,15 @@ class SWSTestSectionData(TestCase):
         self.assertIsNone(meetings[1]["end_time"])
         self.assertIsNone(meetings[2]["start_time"])
         self.assertIsNone(meetings[2]["end_time"])
+
+    def test_section_instructor(self):
+        section = get_section_by_label('2013,spring,ESS,107/A')
+        json_data = section.json_data()
+        meetings = json_data["meetings"]
+        instructors = meetings[0]["instructors"]
+        self.assertEqual(len(instructors), 1)
+        self.assertEqual(instructors[0]["addresses"], [])
+        self.assertEqual(instructors[0]["phones"], [])
+        self.assertEqual(instructors[0]["voice_mails"], [])
+        self.assertEqual(instructors[0]["positions"], [])
+        self.assertIsNone(instructors[0]["publish_in_emp_directory"])
