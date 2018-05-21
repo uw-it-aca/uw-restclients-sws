@@ -12,10 +12,8 @@ except ImportError:
 from restclients_core.thread import generic_prefetch
 from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
 from restclients_core.exceptions import DataFailureException
-from uw_sws import get_resource, encode_section_label
+from uw_sws import get_resource, encode_section_label, UWPWS
 from uw_sws.term import get_term_by_year_and_quarter
-
-from uw_pws import PWS
 from uw_sws.models import (Section, SectionReference, FinalExam,
                            SectionMeeting, GradeSubmissionDelegate, Person)
 
@@ -264,14 +262,13 @@ def get_prefetch_for_section_data(section_data):
     Each method is identified by a key, so they can be deduped if multiple
     sections want the same data, such as a common instructor.
     """
-    pws = PWS()
     prefetch = []
     for meeting_data in section_data["Meetings"]:
         for instructor_data in meeting_data["Instructors"]:
             pdata = instructor_data["Person"]
             if "RegID" in pdata and pdata["RegID"] is not None:
                 prefetch.append(["person-%s" % pdata["RegID"],
-                                 generic_prefetch(pws.get_person_by_regid,
+                                 generic_prefetch(UWPWS.get_person_by_regid,
                                                   [pdata["RegID"]])])
 
     return prefetch
@@ -283,9 +280,7 @@ def _json_to_section(section_data,
     """
     Returns a section model created from the passed json.
     """
-    pws = PWS()
     section = Section()
-
     if term is not None and (
             term.year == int(section_data["Course"]["Year"]) and
             term.quarter == section_data["Course"]["Quarter"]):
@@ -379,7 +374,7 @@ def _json_to_section(section_data,
     section.grade_submission_delegates = []
     for del_data in section_data["GradeSubmissionDelegates"]:
         delegate = GradeSubmissionDelegate(
-            person=pws.get_person_by_regid(del_data["Person"]["RegID"]),
+            person=UWPWS.get_person_by_regid(del_data["Person"]["RegID"]),
             delegate_level=del_data["DelegateLevel"])
         section.grade_submission_delegates.append(delegate)
 
@@ -435,7 +430,7 @@ def _json_to_section(section_data,
 
                 if "RegID" in pdata and pdata["RegID"] is not None:
                     try:
-                        instructor = pws.get_person_by_regid(pdata["RegID"])
+                        instructor = UWPWS.get_person_by_regid(pdata["RegID"])
                     except Exception:
                         instructor = Person(uwregid=pdata["RegID"],
                                             display_name=pdata["Name"])
