@@ -824,6 +824,7 @@ class SectionMeeting(models.Model):
                 'saturday': self.meets_saturday,
                 'sunday': self.meets_sunday,
             },
+            'meeting_type': self.meeting_type,
             'wont_meet': self.wont_meet(),
             'no_meeting': self.no_meeting(),
             'start_time': self.start_time,
