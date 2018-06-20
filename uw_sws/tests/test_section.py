@@ -587,16 +587,17 @@ class SWSTestSectionData(TestCase):
         self.assertFalse(jd['no_meeting'])
         self.assertEqual(jd['start_time'], '11:30')
         self.assertEqual(jd['end_time'], '12:20')
-        self.assertEqual(jd['meeting_type'], 'lecture')
+        self.assertEqual(jd['type'], 'lecture')
 
         section = get_section_by_label('2013,spring,BIGDATA,230/A')
         jd = section.meetings[0].json_data()
         self.assertEqual(jd['start_time'], '18:00')
         self.assertEqual(jd['end_time'], '21:00')
         self.assertFalse(jd['wont_meet'])
+
         jd = section.meetings[1].json_data()
         self.assertTrue(jd['wont_meet'])
-        self.assertEqual(jd['meeting_type'], 'NON')
+        self.assertEqual(jd['type'], 'NON')
 
     def test_for_credit_course(self):
         section = get_section_by_label('2013,spring,ESS,107/A')
