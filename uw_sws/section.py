@@ -142,10 +142,14 @@ def _json_to_sectionref(data):
     Returns a list of SectionReference object created from
     the passed json data.
     """
+    section_term = None
     sections = []
     for section_data in data.get("Sections", []):
-        section_term = get_term_by_year_and_quarter(section_data["Year"],
-                                                    section_data["Quarter"])
+        if (section_term is None or
+                section_data["Year"] != section_term.year or
+                section_data["Quarter"] != section_term.quarter):
+            section_term = get_term_by_year_and_quarter(
+                section_data["Year"], section_data["Quarter"])
         section = SectionReference(
             term=section_term,
             curriculum_abbr=section_data["CurriculumAbbreviation"],
