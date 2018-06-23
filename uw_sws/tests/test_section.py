@@ -366,10 +366,15 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(len(sections), 3)
             self.assertEquals(sections[1].curriculum_abbr, "BIGDATA")
 
+            term = Term(quarter="autumn", year=2012)
             sections = get_sections_by_instructor_and_term(
-                instructor, term, future_terms=2, include_secondaries=False,
+                instructor, term, future_terms=4, include_secondaries=False,
                 transcriptable_course="all")
             self.assertEquals(len(sections), 5)
+            self.assertEquals(sections[0].term.year, 2013)
+            self.assertEquals(sections[0].term.quarter, "spring")
+            self.assertEquals(sections[-1].term.year, 2013)
+            self.assertEquals(sections[-1].term.quarter, "summer")
 
     def test_sections_by_delegate_and_term(self):
             term = Term(quarter="summer", year=2013)
