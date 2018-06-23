@@ -160,13 +160,13 @@ def _json_to_sectionref(data):
     return sections
 
 
-def _get_sections_by_person_and_term(person,
-                                     term,
-                                     course_role,
-                                     include_secondaries,
-                                     future_terms,
-                                     transcriptable_course,
-                                     delete_flag):
+def __search_sections_by_instructor(person,
+                                    term,
+                                    course_role,
+                                    include_secondaries,
+                                    future_terms,
+                                    transcriptable_course,
+                                    delete_flag):
     """
     Returns a list of uw_sws.models.SectionReference object
     for the passed course_role and term (including secondaries).
@@ -190,8 +190,57 @@ def _get_sections_by_person_and_term(person,
         params.append(("delete_flag", ','.join(sorted(delete_flag)),))
 
     url = "%s?%s" % (section_res_url_prefix, urlencode(params))
+    return get_resource(url)
 
-    return _json_to_sectionref(get_resource(url))
+
+def get_last_section_by_instructor_and_terms(person,
+                                             term,
+                                             future_terms,
+                                             transcriptable_course='all',
+                                             delete_flag=['active']):
+    try:
+        raw_resp = __search_sections_by_instructor(person,
+                                                   term,
+                                                   "Instructor",
+                                                   False,
+                                                   future_terms,
+                                                   transcriptable_course,
+                                                   delete_flag)
+    except DataFailureException as ex:
+        if ex.status == 404:
+            return None
+        raise
+
+    data_sections = raw_resp.get("Sections", [])
+    if len(data_sections) == 0:
+        return None
+    section_data = data_sections[-1]
+    section_term = get_term_by_year_and_quarter(
+        section_data["Year"], section_data["Quarter"])
+    section = SectionReference(
+        term=section_term,
+        curriculum_abbr=section_data["CurriculumAbbreviation"],
+        course_number=section_data["CourseNumber"],
+        section_id=section_data["SectionID"],
+        url=section_data["Href"])
+    return section
+
+
+def _get_sections_by_person_and_term(person,
+                                     term,
+                                     course_role,
+                                     include_secondaries,
+                                     future_terms,
+                                     transcriptable_course,
+                                     delete_flag):
+    resp_data = __search_sections_by_instructor(person,
+                                                term,
+                                                course_role,
+                                                include_secondaries,
+                                                future_terms,
+                                                transcriptable_course,
+                                                delete_flag)
+    return _json_to_sectionref(resp_data)
 
 
 def get_section_by_url(url,

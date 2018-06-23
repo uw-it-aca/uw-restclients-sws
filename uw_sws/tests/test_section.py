@@ -13,6 +13,7 @@ from uw_sws.section import get_section_by_label,\
     get_sections_by_instructor_and_term,\
     get_sections_by_curriculum_and_term,\
     get_sections_by_building_and_term,\
+    get_last_section_by_instructor_and_terms,\
     get_changed_sections_by_term, validate_section_label,\
     get_sections_by_delegate_and_term,\
     is_a_term, is_b_term, is_full_summer_term, is_valid_sln
@@ -375,6 +376,18 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(sections[0].term.quarter, "spring")
             self.assertEquals(sections[-1].term.year, 2013)
             self.assertEquals(sections[-1].term.quarter, "summer")
+
+
+    def test_get_last_section_by_instructor_and_terms(self):
+        instructor = Person(uwregid="260A0DEC95CB11D78BAA000629C31437")
+        term = Term(quarter="autumn", year=2012)
+        section = get_last_section_by_instructor_and_terms(instructor, term, 4)
+        self.assertEquals(section.term.year, 2013)
+        self.assertEquals(section.term.quarter, "summer")
+
+        term = Term(quarter="autumn", year=2014)
+        section = get_last_section_by_instructor_and_terms(instructor, term, 2)
+        self.assertIsNone(section)
 
     def test_sections_by_delegate_and_term(self):
             term = Term(quarter="summer", year=2013)
