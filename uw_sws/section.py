@@ -96,7 +96,7 @@ def get_sections_by_curriculum_and_term(curriculum, term):
                                 ("quarter", term.quarter.lower(),),
                                 ("year", term.year,),
                                 ]))
-    return _json_to_sectionref(get_resource(url), term)
+    return _json_to_sectionref(get_resource(url))
 
 
 def get_sections_by_building_and_term(building, term):
@@ -110,7 +110,7 @@ def get_sections_by_building_and_term(building, term):
                                 ("facility_code", building,),
                                 ("year", term.year,),
                                 ]))
-    return _json_to_sectionref(get_resource(url), term)
+    return _json_to_sectionref(get_resource(url))
 
 
 def get_changed_sections_by_term(changed_since_date, term, **kwargs):
@@ -128,7 +128,7 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     sections = []
     while url is not None:
         data = get_resource(url)
-        sections.extend(_json_to_sectionref(data, term))
+        sections.extend(_json_to_sectionref(data))
 
         url = None
         if data.get("Next") is not None:
@@ -137,15 +137,17 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     return sections
 
 
-def _json_to_sectionref(data, aterm):
+def _json_to_sectionref(data):
     """
     Returns a list of SectionReference object created from
     the passed json data.
     """
     sections = []
     for section_data in data.get("Sections", []):
+        section_term = get_term_by_year_and_quarter(section_data["Year"],
+                                                    section_data["Quarter"])
         section = SectionReference(
-            term=aterm,
+            term=section_term,
             curriculum_abbr=section_data["CurriculumAbbreviation"],
             course_number=section_data["CourseNumber"],
             section_id=section_data["SectionID"],
@@ -185,7 +187,7 @@ def _get_sections_by_person_and_term(person,
 
     url = "%s?%s" % (section_res_url_prefix, urlencode(params))
 
-    return _json_to_sectionref(get_resource(url), term)
+    return _json_to_sectionref(get_resource(url))
 
 
 def get_section_by_url(url,
