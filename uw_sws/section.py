@@ -148,8 +148,8 @@ def _json_to_sectionref(data):
         if (section_term is None or
                 section_data["Year"] != section_term.year or
                 section_data["Quarter"] != section_term.quarter):
-            section_term = get_term_by_year_and_quarter(section_data["Year"],
-                                                        section_data["Quarter"])
+            section_term = get_term_by_year_and_quarter(
+                section_data["Year"], section_data["Quarter"])
         section = SectionReference(
             term=section_term,
             curriculum_abbr=section_data["CurriculumAbbreviation"],
