@@ -214,18 +214,12 @@ def get_last_section_by_instructor_and_terms(person,
         raise
 
     data_sections = raw_resp.get("Sections", [])
-    if len(data_sections) == 0:
-        return None
-    section_data = data_sections[-1]
-    section_term = get_term_by_year_and_quarter(
-        section_data["Year"], section_data["Quarter"])
-    section = SectionReference(
-        term=section_term,
-        curriculum_abbr=section_data["CurriculumAbbreviation"],
-        course_number=section_data["CourseNumber"],
-        section_id=section_data["SectionID"],
-        url=section_data["Href"])
-    return section
+
+    if len(data_sections):
+        raw_resp["Sections"] = data_sections[-1:]  # Keep the last section
+        return _json_to_sectionref(raw_resp)[0]
+
+    return None
 
 
 def get_section_by_url(url,
