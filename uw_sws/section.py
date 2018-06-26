@@ -55,13 +55,14 @@ def get_sections_by_instructor_and_term(person,
     @param: transcriptable_course: 'yes', 'no', 'all'
     @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
-    return _get_sections_by_person_and_term(person,
+    data = _get_sections_by_person_and_term(person,
                                             term,
                                             "Instructor",
                                             include_secondaries,
                                             future_terms,
                                             transcriptable_course,
                                             delete_flag)
+    return _json_to_sectionref(data)
 
 
 def get_sections_by_delegate_and_term(person,
@@ -77,13 +78,14 @@ def get_sections_by_delegate_and_term(person,
     @param: transcriptable_course: 'yes', 'no', 'all'
     @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
-    return _get_sections_by_person_and_term(person,
+    data = _get_sections_by_person_and_term(person,
                                             term,
                                             "GradeSubmissionDelegate",
                                             include_secondaries,
                                             future_terms,
                                             transcriptable_course,
                                             delete_flag)
+    return _json_to_sectionref(data)
 
 
 def get_sections_by_curriculum_and_term(curriculum, term):
@@ -168,8 +170,8 @@ def _get_sections_by_person_and_term(person,
                                      transcriptable_course,
                                      delete_flag):
     """
-    Returns a list of uw_sws.models.SectionReference object
-    for the passed course_role and term (including secondaries).
+    Returns the response data for a search request containing the
+    passed course_role and term (including secondaries).
     @param: future_terms: 0..400
     @param: transcriptable_course: 'yes', 'no', 'all'
     @param: delete_flag: ['active', 'suspended', 'withdrawn']
@@ -190,8 +192,34 @@ def _get_sections_by_person_and_term(person,
         params.append(("delete_flag", ','.join(sorted(delete_flag)),))
 
     url = "%s?%s" % (section_res_url_prefix, urlencode(params))
+    return get_resource(url)
 
-    return _json_to_sectionref(get_resource(url))
+
+def get_last_section_by_instructor_and_terms(person,
+                                             term,
+                                             future_terms,
+                                             transcriptable_course='all',
+                                             delete_flag=['active']):
+    try:
+        raw_resp = _get_sections_by_person_and_term(person,
+                                                    term,
+                                                    "Instructor",
+                                                    False,
+                                                    future_terms,
+                                                    transcriptable_course,
+                                                    delete_flag)
+    except DataFailureException as ex:
+        if ex.status == 404:
+            return None
+        raise
+
+    data_sections = raw_resp.get("Sections", [])
+
+    if len(data_sections):
+        raw_resp["Sections"] = data_sections[-1:]  # Keep the last section
+        return _json_to_sectionref(raw_resp)[0]
+
+    return None
 
 
 def get_section_by_url(url,
