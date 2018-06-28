@@ -782,8 +782,8 @@ class SectionMeeting(models.Model):
     room_to_be_arranged = models.NullBooleanField()
     room_number = models.CharField(max_length=5)
     days_to_be_arranged = models.NullBooleanField()
-    start_date = models.DateField(null=True, default=None)  # EOS
-    end_date = models.DateField(null=True, default=None)  # EOS
+    eos_start_date = models.DateField(null=True, default=None)
+    eos_end_date = models.DateField(null=True, default=None)
     start_time = models.TimeField(null=True, default=None)
     end_time = models.TimeField(null=True, default=None)
 
@@ -813,8 +813,8 @@ class SectionMeeting(models.Model):
             'index': self.meeting_index,
             'type': self.meeting_type,
             'days_tbd': self.days_to_be_arranged,
-            'start_date': self.start_date,
-            'end_date': self.end_date,
+            'eos_start_date': self.eos_start_date,
+            'eos_end_date': self.eos_end_date,
             'meeting_days': {
                 'monday': self.meets_monday,
                 'tuesday': self.meets_tuesday,

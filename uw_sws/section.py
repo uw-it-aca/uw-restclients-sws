@@ -454,6 +454,13 @@ def _json_to_section(section_data,
             if len(meeting.end_time) > 5:
                 meeting.end_time = meeting.end_time[:5]
 
+        if (meeting_data.get("EOS_StartDate", None) and
+                meeting_data.get("EOS_EndDate", None)):
+            meeting.eos_start_date = parse(
+                meeting_data["EOS_StartDate"]).date()
+            meeting.eos_end_date = parse(
+                meeting_data["EOS_EndDate"]).date()
+
         meeting.instructors = []
         for instructor_data in meeting_data["Instructors"]:
             # TSPrint: True

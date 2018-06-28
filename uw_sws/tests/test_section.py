@@ -37,6 +37,10 @@ class SWSTestSectionData(TestCase):
             self.assertTrue(section.is_clinic())
             section = get_section_by_label('2013,spring,BIGDATA,230/A')
             self.assertFalse(section.is_ind_study())
+            self.assertEqual(str(section.meetings[0].eos_start_date),
+                             '2013-04-02')
+            self.assertEqual(str(section.meetings[0].eos_end_date),
+                             '2013-06-04')
             section = get_section_by_label('2013,summer,PHIL,495/A')
             self.assertTrue(section.is_ind_study())
             section = get_section_by_label('2013,summer,PHYS,121/AK')
