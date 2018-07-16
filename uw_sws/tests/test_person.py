@@ -99,6 +99,8 @@ class PersonTest(TestCase):
             self.assertIsNone(data.student_number)
             self.assertIsNone(data.student_system_key)
             self.assertIsNone(data.visa_type)
+            self.assertFalse(data.is_J1())
+            self.assertFalse(data.is_F1())
             self.assertIsNone(data.local_phone)
             self.assertIsNone(data.local_address)
             self.assertIsNone(data.permanent_phone)

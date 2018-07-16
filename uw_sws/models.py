@@ -83,10 +83,10 @@ class SwsPerson(models.Model):
     visa_type = models.CharField(max_length=2, null=True, blank=True)
 
     def is_F1(self):
-        return self.visa_type.lower() == 'f1'
+        return self.visa_type and self.visa_type.lower() == 'f1'
 
     def is_J1(self):
-        return self.visa_type.lower() == 'j1'
+        return self.visa_type and self.visa_type.lower() == 'j1'
 
     def json_data(self):
         return {
