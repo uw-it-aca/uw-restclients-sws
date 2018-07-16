@@ -54,6 +54,7 @@ class SwsPerson(models.Model):
     uwnetid = models.SlugField(max_length=16,
                                db_index=True,
                                unique=True)
+    birth_date = models.DateField(null=True, default=None)
     directory_release = models.NullBooleanField(null=True)
     employee_id = models.SlugField(max_length=16, null=True, blank=True)
     email = models.CharField(max_length=255, null=True, blank=True)
@@ -81,10 +82,17 @@ class SwsPerson(models.Model):
     permanent_phone = models.CharField(max_length=64, null=True, blank=True)
     visa_type = models.CharField(max_length=2, null=True, blank=True)
 
+    def is_F1(self):
+        return self.visa_type.lower() == 'f1'
+
+    def is_J1(self):
+        return self.visa_type.lower() == 'j1'
+
     def json_data(self):
         return {
             'uwnetid': self.uwnetid,
             'uwregid': self.uwregid,
+            'birth_date': str(self.birth_date),
             'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,

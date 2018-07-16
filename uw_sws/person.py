@@ -2,6 +2,7 @@
 Interfacing with the Student Web Service, Person resource
 """
 import logging
+from dateutil.parser import parse
 from uw_sws.models import SwsPerson, StudentAddress, LastEnrolled
 from uw_sws import get_resource
 
@@ -23,51 +24,59 @@ def _process_json_data(jdata):
     """
     Returns a uw_sws.models.SwsPerson object
     """
-    person = SwsPerson()
-    person.directory_release = jdata["DirectoryRelease"]
-    person.email = jdata["Email"]
-    person.employee_id = jdata["EmployeeID"]
-    person.first_name = jdata["FirstName"]
-    person.gender = jdata["Gender"]
-    person.last_name = jdata["LastName"]
-    person.student_name = jdata["StudentName"]
+    if jdata["Persons"] is None or len(jdata["Persons"]) == 0:
+        return None
 
-    if jdata["LastEnrolled"] is not None:
+    person_data = jdata["Persons"][0]
+    person = SwsPerson()
+    if person_data["BirthDate"]:
+        person.birth_date = parse(person_data["BirthDate"]).date()
+    person.directory_release = person_data["DirectoryRelease"]
+    person.email = person_data["Email"]
+    person.employee_id = person_data["EmployeeID"]
+    person.first_name = person_data["FirstName"]
+    person.gender = person_data["Gender"]
+    person.last_name = person_data["LastName"]
+    person.student_name = person_data["StudentName"]
+
+    if person_data["LastEnrolled"] is not None:
         last_enrolled = LastEnrolled()
-        last_enrolled.href = jdata["LastEnrolled"]["Href"]
-        last_enrolled.quarter = jdata["LastEnrolled"]["Quarter"]
-        last_enrolled.year = jdata["LastEnrolled"]["Year"]
+        last_enrolled.href = person_data["LastEnrolled"]["Href"]
+        last_enrolled.quarter = person_data["LastEnrolled"]["Quarter"]
+        last_enrolled.year = person_data["LastEnrolled"]["Year"]
         person.last_enrolled = last_enrolled
 
-    if jdata["LocalAddress"] is not None:
+    if person_data["LocalAddress"] is not None:
+        address_data = person_data["LocalAddress"]
         local_address = StudentAddress()
-        local_address.city = jdata["LocalAddress"]["City"]
-        local_address.country = jdata["LocalAddress"]["Country"]
-        local_address.street_line1 = jdata["LocalAddress"]["Line1"]
-        local_address.street_line2 = jdata["LocalAddress"]["Line2"]
-        local_address.postal_code = jdata["LocalAddress"]["PostalCode"]
-        local_address.state = jdata["LocalAddress"]["State"]
-        local_address.zip_code = jdata["LocalAddress"]["Zip"]
+        local_address.city = address_data["City"]
+        local_address.country = address_data["Country"]
+        local_address.street_line1 = address_data["Line1"]
+        local_address.street_line2 = address_data["Line2"]
+        local_address.postal_code = address_data["PostalCode"]
+        local_address.state = address_data["State"]
+        local_address.zip_code = address_data["Zip"]
         person.local_address = local_address
 
-    person.local_phone = jdata["LocalPhone"]
+    person.local_phone = person_data["LocalPhone"]
 
-    if jdata["PermanentAddress"] is not None:
+    if person_data["PermanentAddress"] is not None:
+        perm_address_data = person_data["PermanentAddress"]
         permanent_address = StudentAddress()
-        permanent_address.city = jdata["PermanentAddress"]["City"]
-        permanent_address.country = jdata["PermanentAddress"]["Country"]
-        permanent_address.street_line1 = jdata["PermanentAddress"]["Line1"]
-        permanent_address.street_line2 = jdata["PermanentAddress"]["Line2"]
-        permanent_address.postal_code = jdata["PermanentAddress"]["PostalCode"]
-        permanent_address.state = jdata["PermanentAddress"]["State"]
-        permanent_address.zip_code = jdata["PermanentAddress"]["Zip"]
+        permanent_address.city = perm_address_data["City"]
+        permanent_address.country = perm_address_data["Country"]
+        permanent_address.street_line1 = perm_address_data["Line1"]
+        permanent_address.street_line2 = perm_address_data["Line2"]
+        permanent_address.postal_code = perm_address_data["PostalCode"]
+        permanent_address.state = perm_address_data["State"]
+        permanent_address.zip_code = perm_address_data["Zip"]
         person.permanent_address = permanent_address
 
-    person.permanent_phone = jdata["PermanentPhone"]
-    person.uwregid = jdata["RegID"]
-    person.student_number = jdata["StudentNumber"]
-    person.student_system_key = jdata["StudentSystemKey"]
-    person.uwnetid = jdata["UWNetID"]
-    person.visa_type = jdata["VisaType"]
+    person.permanent_phone = person_data["PermanentPhone"]
+    person.uwregid = person_data["RegID"]
+    person.student_number = person_data["StudentNumber"]
+    person.student_system_key = person_data["StudentSystemKey"]
+    person.uwnetid = person_data["UWNetID"]
+    person.visa_type = person_data["VisaType"]
 
     return person
