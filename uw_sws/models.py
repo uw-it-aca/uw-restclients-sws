@@ -81,6 +81,12 @@ class SwsPerson(models.Model):
     permanent_phone = models.CharField(max_length=64, null=True, blank=True)
     visa_type = models.CharField(max_length=2, null=True, blank=True)
 
+    def is_F1(self):
+        return self.visa_type.lower() == 'f1'
+
+    def is_J1(self):
+        return self.visa_type.lower() == 'j1'
+
     def json_data(self):
         return {
             'uwnetid': self.uwnetid,

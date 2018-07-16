@@ -60,6 +60,8 @@ class PersonTest(TestCase):
             self.assertEquals(data.student_number, "1233334")
             self.assertEquals(data.student_system_key, "000018235")
             self.assertEquals(data.visa_type, "F1")
+            self.assertTrue(data.is_F1())
+            self.assertFalse(data.is_J1())
             self.assertEquals(data.local_phone, "2065554567")
             self.assertEquals(data.local_address.city, "Seattle")
             self.assertEquals(data.local_address.country, "")
@@ -77,6 +79,9 @@ class PersonTest(TestCase):
             self.assertEquals(data.permanent_address.postal_code, "400001")
             self.assertEquals(data.permanent_address.state, "Mumbai")
             self.assertEquals(data.permanent_address.zip_code, "")
+
+            data = get_person_by_regid("12345678901234567890123456789012")
+            self.assertTrue(data.is_J1())
 
     def test_person_none(self):
             data = get_person_by_regid("00000000000000000000000000000001")
