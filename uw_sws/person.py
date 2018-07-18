@@ -20,14 +20,10 @@ def get_person_by_regid(regid):
     return _process_json_data(get_resource(url))
 
 
-def _process_json_data(jdata):
+def _process_json_data(person_data):
     """
     Returns a uw_sws.models.SwsPerson object
     """
-    if jdata["Persons"] is None or len(jdata["Persons"]) == 0:
-        return None
-
-    person_data = jdata["Persons"][0]
     person = SwsPerson()
     if person_data["BirthDate"]:
         person.birth_date = parse(person_data["BirthDate"]).date()
