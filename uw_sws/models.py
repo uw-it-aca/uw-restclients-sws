@@ -1,103 +1,12 @@
 import os
 from datetime import datetime
 from time import strftime
+from uw_pws.models import Person, Entity
 from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
 from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
                          convert_to_end_of_day)
 from restclients_core import models
-
-
-# PWS Person
-class Person(models.Model):
-    uwregid = models.CharField(max_length=32,
-                               db_index=True,
-                               unique=True)
-
-    uwnetid = models.SlugField(max_length=16,
-                               db_index=True,
-                               unique=True)
-
-    whitepages_publish = models.NullBooleanField()
-
-    first_name = models.CharField(max_length=100)
-    surname = models.CharField(max_length=100)
-    full_name = models.CharField(max_length=250)
-    display_name = models.CharField(max_length=250)
-
-    student_number = models.CharField(max_length=9)
-    student_system_key = models.SlugField(max_length=10)
-    employee_id = models.CharField(max_length=9)
-
-    is_student = models.NullBooleanField()
-    is_staff = models.NullBooleanField()
-    is_employee = models.NullBooleanField()
-    is_alum = models.NullBooleanField()
-    is_faculty = models.NullBooleanField()
-
-    email1 = models.CharField(max_length=255)
-    email2 = models.CharField(max_length=255)
-    phone1 = models.CharField(max_length=255)
-    phone2 = models.CharField(max_length=255)
-    voicemail = models.CharField(max_length=255)
-    fax = models.CharField(max_length=255)
-    touchdial = models.CharField(max_length=255)
-    address1 = models.CharField(max_length=255)
-    address2 = models.CharField(max_length=255)
-    mailstop = models.CharField(max_length=255)
-    title1 = models.CharField(max_length=255)
-    title2 = models.CharField(max_length=255)
-    home_department = models.CharField(max_length=255)
-
-    student_class = models.CharField(max_length=255)
-    student_department1 = models.CharField(max_length=255)
-    student_department2 = models.CharField(max_length=255)
-    student_department3 = models.CharField(max_length=255)
-
-    def json_data(self):
-        return {'uwnetid': self.uwnetid,
-                'uwregid': self.uwregid,
-                'first_name': self.first_name,
-                'surname': self.surname,
-                'full_name': self.full_name,
-                'whitepages_publish': self.whitepages_publish,
-                'email1': self.email1,
-                'email2': self.email2,
-                'phone1': self.phone1,
-                'phone2': self.phone2,
-                'title1': self.title1,
-                'title2': self.title2,
-                'voicemail': self.voicemail,
-                'fax': self.fax,
-                'touchdial': self.touchdial,
-                'address1': self.address1,
-                'address2': self.address2,
-                'mailstop': self.mailstop,
-                'home_department': self.home_department,
-                }
-
-    def __eq__(self, other):
-        return self.uwregid == other.uwregid
-
-
-# PWS Person
-class Entity(models.Model):
-    uwregid = models.CharField(max_length=32,
-                               db_index=True,
-                               unique=True)
-    uwnetid = models.CharField(max_length=128,
-                               db_index=True,
-                               unique=True)
-    display_name = models.CharField(max_length=250)
-
-    def json_data(self):
-        return {'uwnetid': self.uwnetid,
-                'uwregid': self.uwregid,
-                'display_name': self.display_name,
-                }
-
-    def __eq__(self, other):
-        return self.uwregid == other.uwregid
 
 
 class LastEnrolled(models.Model):
@@ -145,6 +54,7 @@ class SwsPerson(models.Model):
     uwnetid = models.SlugField(max_length=16,
                                db_index=True,
                                unique=True)
+    birth_date = models.DateField(null=True, default=None)
     directory_release = models.NullBooleanField(null=True)
     employee_id = models.SlugField(max_length=16, null=True, blank=True)
     email = models.CharField(max_length=255, null=True, blank=True)
@@ -172,10 +82,18 @@ class SwsPerson(models.Model):
     permanent_phone = models.CharField(max_length=64, null=True, blank=True)
     visa_type = models.CharField(max_length=2, null=True, blank=True)
 
+    def is_F1(self):
+        return self.visa_type is not None and self.visa_type.lower() == 'f1'
+
+    def is_J1(self):
+        return self.visa_type is not None and self.visa_type.lower() == 'j1'
+
     def json_data(self):
         return {
             'uwnetid': self.uwnetid,
             'uwregid': self.uwregid,
+            'birth_date': str(self.birth_date),
+            'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
             'student_name': self.student_name,
@@ -229,10 +147,40 @@ class Term(models.Model):
     registration_period3_start = models.DateTimeField(blank=True)
     registration_period3_end = models.DateTimeField(blank=True)
 
+    @staticmethod
+    def _quarter_to_int(quarter):
+        if quarter.lower() == Term.WINTER:
+            return 1
+        if quarter.lower() == Term.SPRING:
+            return 2
+        if quarter.lower() == Term.SUMMER:
+            return 3
+        return 4
+
+    def int_key(self):
+        return int(self.year) * 10 + self._quarter_to_int(self.quarter)
+
     def __eq__(self, other):
         return (other is not None and
                 type(self) == type(other) and
-                self.__key() == other.__key())
+                self.int_key() == other.int_key())
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        return (type(self) == type(other) and
+                self.int_key() < other.int_key())
+
+    def __le__(self, other):
+        return self.__lt__(other) or self.__eq__(other)
+
+    def __gt__(self, other):
+        return (type(self) == type(other) and
+                self.int_key() > other.int_key())
+
+    def __ge__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
 
     def __hash__(self):
         return hash(self.__key())
@@ -241,7 +189,7 @@ class Term(models.Model):
         return (str(self.year), self.quarter)
 
     def is_grading_period_open(self):
-        if self.quarter == self.SUMMER:
+        if self.is_summer_quarter():
             open_date = self.aterm_grading_period_open
         else:
             open_date = self.grading_period_open
@@ -261,9 +209,6 @@ class Term(models.Model):
 
         return (days // 7)
 
-    def is_summer_quarter(self):
-        return self.quarter.lower() == "summer"
-
     def get_bod_first_day(self):
         # returns a datetime object of the midnight at begining of day
         return convert_to_begin_of_day(self.first_day_quarter)
@@ -280,6 +225,9 @@ class Term(models.Model):
     def get_eod_grade_submission(self):
         # returns a datetime object of the midnight at end of day
         return convert_to_end_of_day(self.grade_submission_deadline)
+
+    def get_end_of_the_term(self):
+        return self.get_eod_grade_submission()
 
     def get_eod_aterm_last_day_add(self):
         if not self.is_summer_quarter():
@@ -311,6 +259,19 @@ class Term(models.Model):
             return None
         return convert_to_end_of_day(self.aterm_last_date)
 
+    def is_current(self, comparison_datetime):
+        return self.get_bod_first_day() < comparison_datetime and\
+            comparison_datetime < self.get_end_of_the_term()
+
+    def is_past(self, comparison_datetime):
+        return comparison_datetime > self.get_end_of_the_term()
+
+    def is_future(self, comparison_datetime):
+        return comparison_datetime < self.get_bod_first_day()
+
+    def is_summer_quarter(self):
+        return self.quarter.lower() == Term.SUMMER
+
     def term_label(self):
         return "%s,%s" % (self.year, self.quarter)
 
@@ -318,7 +279,28 @@ class Term(models.Model):
         return "%s-%s" % (self.year, self.quarter.lower())
 
     def json_data(self):
-        return {
+        registration_period = []
+        if self.registration_period1_start:
+            registration_period.append({
+                'start': str(self.registration_period1_start.date()),
+                'end': str(self.registration_period1_end.date())
+            })
+        if self.registration_period2_start:
+            registration_period.append({
+                'start': str(self.registration_period2_start.date()),
+                'end': str(self.registration_period2_end.date())
+            })
+        if self.registration_period3_start:
+            registration_period.append({
+                'start': str(self.registration_period3_start.date()),
+                'end': str(self.registration_period3_end.date())
+            })
+
+        time_schedule_published = {}
+        for key in self.time_schedule_published:
+            time_schedule_published[key] = self.time_schedule_published[key]
+
+        data = {
             'quarter': self.get_quarter_display(),
             'year': self.year,
             'label': self.term_label(),
@@ -327,22 +309,16 @@ class Term(models.Model):
             'first_day_quarter': str(self.first_day_quarter),
             'census_day': str(self.census_day),
             'last_day_instruction': str(self.last_day_instruction),
-            'last_final_exam_date': self.last_final_exam_date.strftime(
-                "%Y-%m-%d 23:59:59"),  # Datetime for backwards compatibility
             'grading_period_open': str(self.grading_period_open),
             'aterm_grading_period_open': str(self.aterm_grading_period_open),
             'grade_submission_deadline': str(self.grade_submission_deadline),
-            'registration_periods': [{
-                    'start': str(self.registration_period1_start.date()),
-                    'end': str(self.registration_period1_end.date())
-                }, {
-                    'start': str(self.registration_period2_start.date()),
-                    'end': str(self.registration_period2_end.date())
-                }, {
-                    'start': str(self.registration_period3_start.date()),
-                    'end': str(self.registration_period3_end.date())
-                }]
+            'registration_periods': registration_period,
+            'time_schedule_published': time_schedule_published
         }
+        if self.last_final_exam_date:
+            data['last_final_exam_date'] = self.last_final_exam_date.strftime(
+                "%Y-%m-%d 23:59:59")  # Datetime for backwards compatibility
+        return data
 
 
 class FinalExam(models.Model):
@@ -362,9 +338,11 @@ class FinalExam(models.Model):
         if self.start_date:
             data["start_date"] = self.start_date.strftime("%Y-%m-%d %H:%M")
             data["end_date"] = self.end_date.strftime("%Y-%m-%d %H:%M")
+        if self.building:
             data["building"] = self.building
+        if self.room_number:
             data["room_number"] = self.room_number
-
+            data["room"] = self.room_number
         return data
 
 
@@ -399,6 +377,16 @@ class Section(models.Model):
         (LMS_OWNER_OL, LMS_OWNER_OL),
     )
 
+    DELETE_FLAG_ACTIVE = 'active'
+    DELETE_FLAG_SUSPENDED = 'suspended'
+    DELETE_FLAG_WITHDRAWN = 'withdrawn'
+
+    DELETE_FLAG_CHOICES = (
+        (DELETE_FLAG_ACTIVE, DELETE_FLAG_ACTIVE),
+        (DELETE_FLAG_SUSPENDED, DELETE_FLAG_SUSPENDED),
+        (DELETE_FLAG_WITHDRAWN, DELETE_FLAG_WITHDRAWN),
+    )
+
     term = models.ForeignKey(Term,
                              on_delete=models.PROTECT)
     final_exam = models.ForeignKey(FinalExam,
@@ -413,17 +401,19 @@ class Section(models.Model):
     course_title = models.CharField(max_length=20)
     course_title_long = models.CharField(max_length=50)
     course_campus = models.CharField(max_length=7)
-    section_type = models.CharField(max_length=30)
-    is_independent_study = models.NullBooleanField()
+    credit_control = models.CharField(max_length=32, null=True)
+    section_type = models.CharField(max_length=30, null=True)
+    is_independent_study = models.NullBooleanField(default=False)
     independent_study_instructor_regid = models.CharField(max_length=32,
                                                           null=True)
     institute_name = models.CharField(max_length=200, null=True)
+    metadata = models.CharField(max_length=100, null=True)
     class_website_url = models.URLField(max_length=255,
                                         blank=True)
     sln = models.PositiveIntegerField()
+    eos_cid = models.CharField(max_length=10, null=True, default=None)
     summer_term = models.CharField(max_length=12, null=True)
-    delete_flag = models.CharField(max_length=20)
-    is_withdrawn = models.NullBooleanField()
+    delete_flag = models.CharField(max_length=20, choices=DELETE_FLAG_CHOICES)
     primary_lms = models.CharField(max_length=12, choices=PRIMARY_LMS_CHOICES,
                                    null=True)
     lms_ownership = models.CharField(max_length=12, choices=LMS_OWNER_CHOICES)
@@ -489,6 +479,15 @@ class Section(models.Model):
     def is_early_fall_start(self):
         return self.institute_name == Section.EARLY_FALL_START
 
+    def is_active(self):
+        return self.delete_flag == Section.DELETE_FLAG_ACTIVE
+
+    def is_suspended(self):
+        return self.delete_flag == Section.DELETE_FLAG_SUSPENDED
+
+    def is_withdrawn(self):
+        return self.delete_flag == Section.DELETE_FLAG_WITHDRAWN
+
     def section_label(self):
         return "%s,%s,%s,%s/%s" % (
             self.term.year,
@@ -541,7 +540,7 @@ class Section(models.Model):
                 self.course_number,
                 self.section_id.upper())
 
-            if self.is_independent_study:
+            if self.is_ind_study():
                 if self.independent_study_instructor_regid is None:
                     raise InvalidCanvasIndependentStudyCourse(
                         "Undefined " +
@@ -561,7 +560,7 @@ class Section(models.Model):
         if self.is_primary_section:
             sis_id = self.canvas_course_sis_id()
 
-            if not self.is_independent_study and len(self.linked_section_urls):
+            if not self.is_ind_study() and len(self.linked_section_urls):
                 raise InvalidCanvasSection(sis_id)
 
             sis_id += "--"
@@ -582,6 +581,9 @@ class Section(models.Model):
         if self.grade_date is not None:
             return str(self.grade_date)
         return None
+
+    def for_credit(self):
+        return self.credit_control is not None
 
     def is_summer_a_term(self):
         return self.summer_term is not None and\
@@ -608,12 +610,65 @@ class Section(models.Model):
             self.summer_term is not None and summer_term is not None and\
             self.summer_term.lower() == summer_term.lower()
 
+    def is_clerkship(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "clerkship" or
+             self.section_type.lower() == "ck")
+
+    def is_clinic(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "clinic" or
+             self.section_type.lower() == "cl")
+
+    def is_conference(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "conference" or
+             self.section_type.lower() == "co")
+
+    def is_lab(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "laboratory" or
+             self.section_type.lower() == "lb")
+
+    def is_lecture(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "lecture" or
+             self.section_type.lower() == "lc")
+
+    def is_ind_study(self):
+        return self.is_independent_study
+
+    def is_practicum(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "practicum" or
+             self.section_type.lower() == "pr")
+
+    def is_quiz(self):
+        return self.section_type is not None and\
+            (self.section_type == "quiz" or
+             self.section_type.lower() == "qz")
+
+    def is_seminar(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "seminar" or
+             self.section_type.lower() == "sm")
+
+    def is_studio(self):
+        return self.section_type is not None and\
+            (self.section_type.lower() == "studio" or
+             self.section_type.lower() == "st")
+
     def json_data(self):
         data = {
             'curriculum_abbr': self.curriculum_abbr,
             'course_number': self.course_number,
             'section_id': self.section_id,
+            'eos_cid': self.eos_cid,
             'is_primary_section': self.is_primary_section,
+            'is_independent_study': self.is_ind_study(),
+            'section_type': self.section_type,
+            'independent_study_instructor_regid':
+                self.independent_study_instructor_regid,
             'course_title': self.course_title,
             'course_campus': self.course_campus,
             'class_website_url': self.class_website_url,
@@ -627,6 +682,7 @@ class Section(models.Model):
                 self.limit_estimate_enrollment_indicator,
             'auditors': self.auditors,
             'meetings': [],
+            'for_credit': self.for_credit(),
             'credits': str(self.student_credits),
             'is_auditor':  self.is_auditor,
             'grade': self.student_grade,
@@ -715,11 +771,14 @@ class Registration(models.Model):
     request_date = models.DateField(blank=True)
     request_status = models.CharField(max_length=50)
     duplicate_code = models.CharField(max_length=3)
+    repeat_course = models.NullBooleanField()
     credits = models.CharField(max_length=5, null=True)
     repository_timestamp = models.DateTimeField()
+    grade = models.CharField(max_length=5, null=True)
 
 
 class SectionMeeting(models.Model):
+    NON_MEETING = "NON"
     term = models.ForeignKey(Term,
                              on_delete=models.PROTECT)
     section = models.ForeignKey(Section,
@@ -731,8 +790,10 @@ class SectionMeeting(models.Model):
     room_to_be_arranged = models.NullBooleanField()
     room_number = models.CharField(max_length=5)
     days_to_be_arranged = models.NullBooleanField()
-    start_time = models.TimeField(blank=True)
-    end_time = models.TimeField(blank=True)
+    eos_start_date = models.DateField(null=True, default=None)
+    eos_end_date = models.DateField(null=True, default=None)
+    start_time = models.TimeField(null=True, default=None)
+    end_time = models.TimeField(null=True, default=None)
 
     meets_monday = models.NullBooleanField()
     meets_tuesday = models.NullBooleanField()
@@ -743,13 +804,8 @@ class SectionMeeting(models.Model):
     meets_sunday = models.NullBooleanField()
     # instructor = models.ForeignKey(Instructor, on_delete=models.PROTECT)
 
-    def normalized_time(self, meeting_time):
-        # truncates :seconds from meeting start/end time
-        mt = str(meeting_time)
-        if len(mt) > 5:
-            return mt[:5]
-        else:
-            return mt
+    def wont_meet(self):
+        return self.meeting_type == SectionMeeting.NON_MEETING
 
     def no_meeting(self):
         return not(self.meets_monday or
@@ -765,6 +821,8 @@ class SectionMeeting(models.Model):
             'index': self.meeting_index,
             'type': self.meeting_type,
             'days_tbd': self.days_to_be_arranged,
+            'eos_start_date': self.eos_start_date,
+            'eos_end_date': self.eos_end_date,
             'meeting_days': {
                 'monday': self.meets_monday,
                 'tuesday': self.meets_tuesday,
@@ -774,13 +832,15 @@ class SectionMeeting(models.Model):
                 'saturday': self.meets_saturday,
                 'sunday': self.meets_sunday,
             },
+            'wont_meet': self.wont_meet(),
             'no_meeting': self.no_meeting(),
-            'start_time': self.normalized_time(self.start_time),
-            'end_time': self.normalized_time(self.end_time),
+            'start_time': self.start_time,
+            'end_time': self.end_time,
             'building_tbd': self.building_to_be_arranged,
             'building': self.building,
             'room_tbd': self.room_to_be_arranged,
             'room': self.room_number,
+            'room_number': self.room_number,
             'instructors': [],
         }
 

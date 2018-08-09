@@ -1,0 +1,26 @@
+{
+"Current":{"Href":"/student/v5/section.json?year=2013&quarter=spring&curriculum_abbreviation=&course_number=®_id=260A0DEC95CB11D78BAA000629C31437&search_by=Instructor&include_secondaries=&delete_flag=&page_size=10&page_start=1","CourseNumber":null,"CurriculumAbbreviation":null,"DeleteFlag":null,"IncludeSecondaries":null,"PageSize":"10","PageStart":"1","Quarter":"spring","RegID":"260A0DEC95CB11D78BAA000629C31437","SearchBy":"Instructor","Year":"2013"},"Next":null,"PageSize":"10","PageStart":"1","Previous":null,
+"Sections":[
+       {"Href":"/student/v5/course/2013,spring,TRAIN,100/A.json",
+        "CurriculumAbbreviation":"TRAIN",
+        "CourseNumber":"100",
+        "Quarter":"spring",
+        "SectionID":"A",
+        "Year":"2013"
+       },
+       {"Href":"/student/v5/course/2013,spring,BIGDATA,230/A.json",
+        "CurriculumAbbreviation":"BIGDATA",
+        "CourseNumber":"230",
+        "Quarter":"spring",
+        "SectionID":"A",
+        "Year":"2013"
+       },
+       {"Href":"/student/v5/course/2013,spring,PHYS,121/A.json",
+        "CurriculumAbbreviation":"PHYS",
+        "CourseNumber":"121",
+        "Quarter":"spring",
+        "SectionID":"A",
+        "Year":"2013"
+       }
+],
+"TotalCount":3}

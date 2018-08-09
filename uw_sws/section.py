@@ -13,10 +13,8 @@ from restclients_core.thread import generic_prefetch
 from restclients_core.util.local_cache import get_cache_value, set_cache_value
 from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
 from restclients_core.exceptions import DataFailureException
-from uw_sws import get_resource, encode_section_label
+from uw_sws import get_resource, encode_section_label, UWPWS
 from uw_sws.term import get_term_by_year_and_quarter
-
-from uw_pws import PWS
 from uw_sws.models import (Section, SectionReference, FinalExam,
                            SectionMeeting, GradeSubmissionDelegate, Person)
 
@@ -24,12 +22,12 @@ from uw_sws.models import (Section, SectionReference, FinalExam,
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
 course_res_url_prefix = "/student/v5/course"
 section_res_url_prefix = "/student/v5/section.json"
-sln_pattern = re.compile('^[1-9]\d{4}$')
+sln_pattern = re.compile(r'^[1-9]\d{4}$')
 section_label_pattern = re.compile(
-    '^[1-9]\d{3},'                           # year
+    r'^[1-9]\d{3},'                      # year
     '(?:winter|spring|summer|autumn),'  # quarter
-    '[\w& ]+,'                          # curriculum
-    '\d{3}\/'                           # course number
+    r'[\w& ]+,'                          # curriculum
+    r'\d{3}\/'                           # course number
     '[A-Z][A-Z0-9]?$',                  # section id
     re.VERBOSE
 )
@@ -45,22 +43,50 @@ def is_valid_sln(sln_str):
     return not (sln_str is None or sln_pattern.match(sln_str) is None)
 
 
-def get_sections_by_instructor_and_term(person, term):
+def get_sections_by_instructor_and_term(person,
+                                        term,
+                                        future_terms=0,
+                                        include_secondaries=True,
+                                        transcriptable_course='yes',
+                                        delete_flag=['active']):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed instructor and term.
+    @param: future_terms: 0..400
+    @param: transcriptable_course: 'yes', 'no', 'all'
+    @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
-    return _get_sections_by_person_and_term(
-        person, term, course_role="Instructor")
+    data = _get_sections_by_person_and_term(person,
+                                            term,
+                                            "Instructor",
+                                            include_secondaries,
+                                            future_terms,
+                                            transcriptable_course,
+                                            delete_flag)
+    return _json_to_sectionref(data)
 
 
-def get_sections_by_delegate_and_term(person, term):
+def get_sections_by_delegate_and_term(person,
+                                      term,
+                                      future_terms=0,
+                                      include_secondaries=True,
+                                      transcriptable_course='yes',
+                                      delete_flag=['active']):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed grade submission delegate and term.
+    @param: future_terms: 0..400
+    @param: transcriptable_course: 'yes', 'no', 'all'
+    @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
-    return _get_sections_by_person_and_term(
-        person, term, course_role="GradeSubmissionDelegate")
+    data = _get_sections_by_person_and_term(person,
+                                            term,
+                                            "GradeSubmissionDelegate",
+                                            include_secondaries,
+                                            future_terms,
+                                            transcriptable_course,
+                                            delete_flag)
+    return _json_to_sectionref(data)
 
 
 def get_sections_by_curriculum_and_term(curriculum, term):
@@ -73,7 +99,7 @@ def get_sections_by_curriculum_and_term(curriculum, term):
                                 ("quarter", term.quarter.lower(),),
                                 ("year", term.year,),
                                 ]))
-    return _json_to_sectionref(get_resource(url), term)
+    return _json_to_sectionref(get_resource(url))
 
 
 def get_sections_by_building_and_term(building, term):
@@ -87,7 +113,7 @@ def get_sections_by_building_and_term(building, term):
                                 ("facility_code", building,),
                                 ("year", term.year,),
                                 ]))
-    return _json_to_sectionref(get_resource(url), term)
+    return _json_to_sectionref(get_resource(url))
 
 
 def get_changed_sections_by_term(changed_since_date, term, **kwargs):
@@ -105,7 +131,7 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     sections = []
     while url is not None:
         data = get_resource(url)
-        sections.extend(_json_to_sectionref(data, term))
+        sections.extend(_json_to_sectionref(data))
 
         url = None
         if data.get("Next") is not None:
@@ -114,15 +140,21 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     return sections
 
 
-def _json_to_sectionref(data, aterm):
+def _json_to_sectionref(data):
     """
     Returns a list of SectionReference object created from
     the passed json data.
     """
+    section_term = None
     sections = []
     for section_data in data.get("Sections", []):
+        if (section_term is None or
+                section_data["Year"] != section_term.year or
+                section_data["Quarter"] != section_term.quarter):
+            section_term = get_term_by_year_and_quarter(
+                section_data["Year"], section_data["Quarter"])
         section = SectionReference(
-            term=aterm,
+            term=section_term,
             curriculum_abbr=section_data["CurriculumAbbreviation"],
             course_number=section_data["CourseNumber"],
             section_id=section_data["SectionID"],
@@ -131,23 +163,64 @@ def _json_to_sectionref(data, aterm):
     return sections
 
 
-def _get_sections_by_person_and_term(person, term, course_role,
-                                     include_secondaries="on"):
+def _get_sections_by_person_and_term(person,
+                                     term,
+                                     course_role,
+                                     include_secondaries,
+                                     future_terms,
+                                     transcriptable_course,
+                                     delete_flag):
     """
-    Returns a list of uw_sws.models.SectionReference object
-    for the passed course_role and term (including secondaries).
+    Returns the response data for a search request containing the
+    passed course_role and term (including secondaries).
+    @param: future_terms: 0..400
+    @param: transcriptable_course: 'yes', 'no', 'all'
+    @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
-    url = "%s?%s" % (
-        section_res_url_prefix,
-        urlencode([
-                   ("reg_id", person.uwregid,),
-                   ("search_by", course_role,),
-                   ("quarter", term.quarter.lower(),),
-                   ("include_secondaries", include_secondaries),
-                   ("year", term.year,),
-                   ]))
+    params = [
+        ("reg_id", person.uwregid,),
+        ("search_by", course_role,),
+        ("quarter", term.quarter.lower(),),
+        ("include_secondaries", 'on' if include_secondaries else ''),
+        ("year", term.year,),
+        ("future_terms", future_terms,),
+        ("transcriptable_course", transcriptable_course,),
+    ]
 
-    return _json_to_sectionref(get_resource(url), term)
+    if delete_flag is not None:
+        if not isinstance(delete_flag, list):
+            raise ValueError("delete_flag must be a list")
+        params.append(("delete_flag", ','.join(sorted(delete_flag)),))
+
+    url = "%s?%s" % (section_res_url_prefix, urlencode(params))
+    return get_resource(url)
+
+
+def get_last_section_by_instructor_and_terms(person,
+                                             term,
+                                             future_terms,
+                                             transcriptable_course='all',
+                                             delete_flag=['active']):
+    try:
+        raw_resp = _get_sections_by_person_and_term(person,
+                                                    term,
+                                                    "Instructor",
+                                                    False,
+                                                    future_terms,
+                                                    transcriptable_course,
+                                                    delete_flag)
+    except DataFailureException as ex:
+        if ex.status == 404:
+            return None
+        raise
+
+    data_sections = raw_resp.get("Sections", [])
+
+    if len(data_sections):
+        raw_resp["Sections"] = data_sections[-1:]  # Keep the last section
+        return _json_to_sectionref(raw_resp)[0]
+
+    return None
 
 
 def get_section_by_url(url,
@@ -233,14 +306,13 @@ def get_prefetch_for_section_data(section_data):
     Each method is identified by a key, so they can be deduped if multiple
     sections want the same data, such as a common instructor.
     """
-    pws = PWS()
     prefetch = []
     for meeting_data in section_data["Meetings"]:
         for instructor_data in meeting_data["Instructors"]:
             pdata = instructor_data["Person"]
             if "RegID" in pdata and pdata["RegID"] is not None:
                 prefetch.append(["person-%s" % pdata["RegID"],
-                                 generic_prefetch(pws.get_person_by_regid,
+                                 generic_prefetch(UWPWS.get_person_by_regid,
                                                   [pdata["RegID"]])])
 
     return prefetch
@@ -252,9 +324,7 @@ def _json_to_section(section_data,
     """
     Returns a section model created from the passed json.
     """
-    pws = PWS()
     section = Section()
-
     if term is not None and (
             term.year == int(section_data["Course"]["Year"]) and
             term.quarter == section_data["Course"]["Quarter"]):
@@ -271,11 +341,24 @@ def _json_to_section(section_data,
     section.course_title_long = section_data["CourseTitleLong"]
     section.course_campus = section_data["CourseCampus"]
     section.section_id = section_data["SectionID"]
+    section.eos_cid = section_data.get("EOS_CID", None)
     section.institute_name = section_data.get("InstituteName", "")
+    section.metadata = section_data.get("Metadata", "")
     section.primary_lms = section_data.get("PrimaryLMS", None)
     section.lms_ownership = section_data.get("LMSOwnership", None)
     section.is_independent_start = section_data.get("IsIndependentStart",
                                                     False)
+    section.section_type = section_data["SectionType"]
+    if "independent study" == section.section_type or\
+       "IS" == section.section_type:
+        is_independent_study = True
+    else:
+        is_independent_study = False
+
+    section.is_independent_study = section_data.get(
+        "IndependentStudy", is_independent_study)
+
+    section.credit_control = section_data.get("CreditControl", "")
 
     if "StartDate" in section_data and\
        len(section_data["StartDate"]) > 0:
@@ -285,25 +368,19 @@ def _json_to_section(section_data,
        len(section_data["EndDate"]) > 0:
         section.end_date = parse(section_data["EndDate"]).date()
 
-    section.section_type = section_data["SectionType"]
-    if "independent study" == section.section_type:
-        section.is_independent_study = True
-    else:
-        section.is_independent_study = False
-
     section.class_website_url = section_data["ClassWebsiteUrl"]
-    section.sln = section_data["SLN"]
+
+    if is_valid_sln(section_data["SLN"]):
+        section.sln = int(section_data["SLN"])
+    else:
+        section.sln = 0
+
     if "SummerTerm" in section_data:
         section.summer_term = section_data["SummerTerm"]
     else:
         section.summer_term = ""
 
     section.delete_flag = section_data["DeleteFlag"]
-    if "withdrawn" == section.delete_flag:
-        section.is_withdrawn = True
-    else:
-        section.is_withdrawn = False
-
     section.current_enrollment = int(section_data['CurrentEnrollment'])
     section.limit_estimate_enrollment = int(
         section_data['LimitEstimateEnrollment'])
@@ -341,7 +418,7 @@ def _json_to_section(section_data,
     section.grade_submission_delegates = []
     for del_data in section_data["GradeSubmissionDelegates"]:
         delegate = GradeSubmissionDelegate(
-            person=pws.get_person_by_regid(del_data["Person"]["RegID"]),
+            person=UWPWS.get_person_by_regid(del_data["Person"]["RegID"]),
             delegate_level=del_data["DelegateLevel"])
         section.grade_submission_delegates.append(delegate)
 
@@ -374,8 +451,25 @@ def _json_to_section(section_data,
             attribute = "meets_%s" % day_data["Name"].lower()
             setattr(meeting, attribute, True)
 
-        meeting.start_time = meeting_data["StartTime"]
-        meeting.end_time = meeting_data["EndTime"]
+        if (len(meeting_data["StartTime"]) and
+                meeting_data["StartTime"] != "00:00:00"):
+            meeting.start_time = meeting_data["StartTime"]
+            # in case of "18:00:00", only keep hh:mm
+            if len(meeting.start_time) > 5:
+                meeting.start_time = meeting.start_time[:5]
+
+        if (len(meeting_data["EndTime"]) and
+                meeting_data["EndTime"] != "00:00:00"):
+            meeting.end_time = meeting_data["EndTime"]
+            if len(meeting.end_time) > 5:
+                meeting.end_time = meeting.end_time[:5]
+
+        if (meeting_data.get("EOS_StartDate", None) and
+                meeting_data.get("EOS_EndDate", None)):
+            meeting.eos_start_date = parse(
+                meeting_data["EOS_StartDate"]).date()
+            meeting.eos_end_date = parse(
+                meeting_data["EOS_EndDate"]).date()
 
         meeting.instructors = []
         for instructor_data in meeting_data["Instructors"]:
@@ -387,8 +481,8 @@ def _json_to_section(section_data,
 
                 if "RegID" in pdata and pdata["RegID"] is not None:
                     try:
-                        instructor = pws.get_person_by_regid(pdata["RegID"])
-                    except:
+                        instructor = UWPWS.get_person_by_regid(pdata["RegID"])
+                    except Exception:
                         instructor = Person(uwregid=pdata["RegID"],
                                             display_name=pdata["Name"])
                     instructor.TSPrint = instructor_data["TSPrint"]
@@ -402,8 +496,15 @@ def _json_to_section(section_data,
             final_exam = FinalExam()
             final_data = section_data["FinalExam"]
             status = final_data["MeetingStatus"]
+            # MeetingStatus values:
+            # 0 - default final exam meeting date/time has not been confirmed
+            # 1 - no final exam or no traditional final exam
+            # 2 - confirmed, at the default final exam date/time/location
+            # 3 - confirmed, but at a different date/time/location
+
             final_exam.no_exam_or_nontraditional = False
             final_exam.is_confirmed = False
+
             if (status == "2") or (status == "3"):
                 final_exam.is_confirmed = True
             elif status == "1":
@@ -425,7 +526,12 @@ def _json_to_section(section_data,
                 if final_data["EndTime"]:
                     end_string = "%s : %s" % (final_data["Date"],
                                               final_data["EndTime"])
-                    final_exam.end_date = strptime(end_string, final_format)
+                    try:
+                        final_exam.end_date = strptime(
+                            end_string, final_format)
+                    except ValueError:
+                        logger.info('bad final EndTime: %s' % end_string)
+                        final_exam.end_date = None
 
             final_exam.clean_fields()
             section.final_exam = final_exam

@@ -3,12 +3,15 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
+from uw_pws import PWS
 from uw_sws.dao import SWS_DAO
 from restclients_core.exceptions import DataFailureException
 import json
 
 
 QUARTER_SEQ = ["winter", "spring", "summer", "autumn"]
+DAO = SWS_DAO()
+UWPWS = PWS()
 
 
 def use_v5_resources():
@@ -23,6 +26,8 @@ def parse_sws_date(date_string):
     :param date_string:
     :return: date object
     """
+    if date_string is None:
+        return None
     date_formats = ["%m/%d/%Y", "%Y-%m-%d", "%Y%m%d"]
     datetime_obj = None
     for fmt in date_formats:
@@ -46,8 +51,8 @@ def get_resource(url):
     and return a response in json format.
     :returns: http response with content in json
     """
-    response = SWS_DAO().getURL(url, {'Accept': 'application/json',
-                                      'Connection': 'keep-alive'})
+    response = DAO.getURL(url, {'Accept': 'application/json',
+                                'Connection': 'keep-alive'})
     if response.status != 200:
         raise DataFailureException(url, response.status, response.data)
     return json.loads(response.data)

@@ -4,11 +4,10 @@ Interfacing with the Student Web Service, Enrollment resource.
 import logging
 from dateutil.parser import parse
 import re
-from uw_pws import PWS
 from uw_sws.models import (StudentGrades, StudentCourseGrade, Enrollment,
                            Major, Minor, SectionReference, Term,
                            UnfinishedPceCourse)
-from uw_sws import get_resource
+from uw_sws import get_resource, UWPWS
 from uw_sws.section import get_section_by_url
 from uw_sws.term import get_term_by_year_and_quarter
 
@@ -32,7 +31,7 @@ def get_grades_by_regid_and_term(regid, term):
 def _json_to_grades(data, regid, term):
     grades = StudentGrades()
     grades.term = term
-    grades.user = PWS().get_person_by_regid(regid)
+    grades.user = UWPWS.get_person_by_regid(regid)
 
     grades.grade_points = data["QtrGradePoints"]
     grades.credits_attempted = data["QtrGradedAttmp"]
@@ -49,25 +48,34 @@ def _json_to_grades(data, regid, term):
     return grades
 
 
-def enrollment_search_by_regid(regid,
-                               verbose='true',
-                               transcriptable_course='all',
-                               changed_since_date=''):
+def _enrollment_search(regid, verbose, transcriptable, changed_since_date):
     """
     See SWS Enrollment search resource spec at:
     https://wiki.cac.washington.edu/x/_qjeAw
-    :return: a dictionary of {Term: Enrollment}
+    :return: search result json data
     """
     url = "%s%s&verbose=%s&transcriptable_course=%s&changed_since_date=%s" %\
         (enrollment_search_url_prefix,
-         regid,
-         verbose,
-         transcriptable_course,
-         changed_since_date)
-    return _json_to_term_enrollment_dict(get_resource(url))
+         regid, verbose, transcriptable, changed_since_date)
+    return get_resource(url)
 
 
-def _json_to_term_enrollment_dict(json_data):
+def enrollment_search_by_regid(regid,
+                               verbose='true',
+                               transcriptable_course='all',
+                               changed_since_date='',
+                               include_unfinished_pce_course_reg=True):
+    """
+    :return: a dictionary of {Term: Enrollment}
+    """
+    return _json_to_term_enrollment_dict(
+        _enrollment_search(regid, verbose, transcriptable_course,
+                           changed_since_date),
+        include_unfinished_pce_course_reg)
+
+
+def _json_to_term_enrollment_dict(json_data,
+                                  include_unfinished_pce_course_reg):
     term_enrollment_dict = {}
     if "Enrollments" not in json_data:
         return term_enrollment_dict
@@ -75,9 +83,11 @@ def _json_to_term_enrollment_dict(json_data):
         if "Term" in term_enro and\
                 "Year" in term_enro["Term"] and\
                 "Quarter" in term_enro["Term"]:
-            term = Term(year=term_enro["Term"]["Year"],
-                        quarter=term_enro["Term"]["Quarter"].lower())
-            enrollment = _json_to_enrollment(term_enro, term)
+            term = get_term_by_year_and_quarter(term_enro["Term"]["Year"],
+                                                term_enro["Term"]["Quarter"])
+            enrollment = _json_to_enrollment(term_enro,
+                                             term,
+                                             include_unfinished_pce_course_reg)
             term_enrollment_dict[term] = enrollment
     return term_enrollment_dict
 
@@ -90,7 +100,9 @@ def get_enrollment_by_regid_and_term(regid, term):
     return _json_to_enrollment(get_resource(url), term)
 
 
-def _json_to_enrollment(json_data, term):
+def _json_to_enrollment(json_data,
+                        term,
+                        include_unfinished_pce_course_reg=True):
     enrollment = Enrollment()
     enrollment.regid = json_data['RegID']
     enrollment.class_level = json_data['ClassLevel']
@@ -101,14 +113,15 @@ def _json_to_enrollment(json_data, term):
 
     enrollment.is_enroll_src_pce = is_src_location_pce(json_data,
                                                        ENROLLMENT_SOURCE_PCE)
-    enrollment.unf_pce_courses = {}
-    # dictionary {section_label: UnfinishedPceCourse}
-    for registration in json_data.get('Registrations', []):
-        if is_unfinished_pce_course(registration):
-            unf_pce_course = _json_to_unfinished_pce_course(registration,
-                                                            term)
-            key = unf_pce_course.section_ref.section_label()
-            enrollment.unf_pce_courses[key] = unf_pce_course
+    if include_unfinished_pce_course_reg:
+        enrollment.unf_pce_courses = {}
+        # dictionary {section_label: UnfinishedPceCourse}
+        for registration in json_data.get('Registrations', []):
+            if is_unfinished_pce_course(registration):
+                unf_pce_course = _json_to_unfinished_pce_course(registration,
+                                                                term)
+                key = unf_pce_course.section_ref.section_label()
+                enrollment.unf_pce_courses[key] = unf_pce_course
 
     enrollment.majors = []
     if json_data.get('Majors') is not None and len(json_data['Majors']) > 0:
@@ -194,3 +207,37 @@ def is_src_location_pce(json_data, pattern):
                 "EOS" in json_data['Metadata'])
     except KeyError:
         return False
+
+
+def get_enrollment_history_by_regid(regid,
+                                    verbose='true',
+                                    transcriptable_course='all',
+                                    changed_since_date='',
+                                    include_unfinished_pce_course_reg=False):
+    """
+    :return: a complete chronological list of all the enrollemnts
+    [Enrollment], where the Enrollment object has a term element.
+    """
+    return _json_to_enrollment_list(
+        _enrollment_search(regid, verbose, transcriptable_course,
+                           changed_since_date),
+        include_unfinished_pce_course_reg)
+
+
+def _json_to_enrollment_list(json_data,
+                             include_unfinished_pce_course_reg):
+    term_enrollment_list = []
+    if "Enrollments" not in json_data:
+        return term_enrollment_list
+    for term_enro in json_data["Enrollments"]:
+        if "Term" in term_enro and\
+           "Year" in term_enro["Term"] and\
+           "Quarter" in term_enro["Term"]:
+            term = get_term_by_year_and_quarter(term_enro["Term"]["Year"],
+                                                term_enro["Term"]["Quarter"])
+            enrlmt = _json_to_enrollment(term_enro,
+                                         term,
+                                         include_unfinished_pce_course_reg)
+            enrlmt.term = term
+            term_enrollment_list.append(enrlmt)
+    return term_enrollment_list

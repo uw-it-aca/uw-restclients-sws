@@ -13,6 +13,7 @@ from uw_sws.section import get_section_by_label,\
     get_sections_by_instructor_and_term,\
     get_sections_by_curriculum_and_term,\
     get_sections_by_building_and_term,\
+    get_last_section_by_instructor_and_terms,\
     get_changed_sections_by_term, validate_section_label,\
     get_sections_by_delegate_and_term,\
     is_a_term, is_b_term, is_full_summer_term, is_valid_sln
@@ -25,22 +26,47 @@ class SWSTestSectionData(TestCase):
     def test_section(self):
             section = get_section_by_label('2012,autumn,B BIO,180/A')
             self.assertTrue(section.is_campus_bothell())
+            self.assertTrue(section.is_lecture())
             section = get_section_by_label('2013,summer,MATH,125/G')
             self.assertTrue(section.is_campus_seattle())
+            self.assertTrue(section.is_lecture())
             section = get_section_by_label('2013,autumn,T BUS,310/A')
             self.assertTrue(section.is_campus_tacoma())
+            self.assertFalse(section.is_lab())
+            section = get_section_by_label('2013,winter,RES D,630/A')
+            self.assertTrue(section.is_clinic())
+            section = get_section_by_label('2013,spring,BIGDATA,230/A')
+            self.assertFalse(section.is_ind_study())
+            self.assertEqual(str(section.meetings[0].eos_start_date),
+                             '2013-04-02')
+            self.assertEqual(str(section.meetings[0].eos_end_date),
+                             '2013-06-04')
+            section = get_section_by_label('2013,summer,PHIL,495/A')
+            self.assertTrue(section.is_ind_study())
+            section = get_section_by_label('2013,summer,PHYS,121/AK')
+            self.assertTrue(section.is_quiz())
+            section = get_section_by_label('2013,summer,PHYS,121/AQ')
+            self.assertTrue(section.is_lab())
+            self.assertIsNotNone(section.json_data())
 
     def test_non_credit_certificate_couse_section(self):
             section = get_section_by_label('2013,winter,BIGDATA,220/A')
             self.assertTrue(section.is_campus_pce())
             self.assertEquals(str(section.start_date), "2013-01-16")
             self.assertEquals(str(section.end_date), "2013-03-20")
+            self.assertEquals(section.metadata, "SectionSourceKey=EOS;")
+            self.assertEquals(section.is_active(), False)
+            self.assertEquals(section.is_withdrawn(), False)
+            self.assertEquals(section.is_suspended(), True)
 
             section = get_section_by_label('2013,spring,BIGDATA,230/A')
             self.assertTrue(section.is_campus_pce())
             self.assertEquals(str(section.start_date), "2013-04-03")
             self.assertEquals(str(section.end_date), "2013-06-12")
             self.assertIsNotNone(section.json_data())
+            self.assertEquals(section.is_active(), True)
+            self.assertEquals(section.is_withdrawn(), False)
+            self.assertEquals(section.is_suspended(), False)
 
     def test_final_exams(self):
             section = get_section_by_label('2013,summer,B BIO,180/A')
@@ -80,6 +106,12 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(end.day, 2)
             self.assertEquals(end.hour, 16)
             self.assertEquals(end.minute, 20)
+
+            section = get_section_by_label('2013,spring,MATH,125/H')
+            final_exam = section.final_exam
+
+            self.assertEquals(final_exam.end_date, None,
+                              "Bad final exam time for MATH 125 H")
 
     def test_is_valid_sln(self):
         self.assertFalse(is_valid_sln(None))
@@ -319,13 +351,47 @@ class SWSTestSectionData(TestCase):
             self.assertRaises(DataFailureException,
                               get_linked_sections, section)
 
-
     def test_sections_by_instructor_and_term(self):
             term = Term(quarter="summer", year=2013)
             instructor = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
-
             sections = get_sections_by_instructor_and_term(instructor, term)
             self.assertEquals(len(sections), 1)
+
+            # test delete_flag
+            term = Term(quarter="spring", year=2013)
+            sections = get_sections_by_instructor_and_term(
+                instructor, term, delete_flag=['active','suspended'])
+            self.assertEquals(len(sections), 2)
+
+            # test different setting for transcriptable_course
+            term = Term(quarter="spring", year=2013)
+            instructor = Person(uwregid="260A0DEC95CB11D78BAA000629C31437")
+            sections = get_sections_by_instructor_and_term(
+                instructor, term, transcriptable_course="all")
+            self.assertEquals(len(sections), 3)
+            self.assertEquals(sections[1].curriculum_abbr, "BIGDATA")
+
+            term = Term(quarter="autumn", year=2012)
+            sections = get_sections_by_instructor_and_term(
+                instructor, term, future_terms=4, include_secondaries=False,
+                transcriptable_course="all")
+            self.assertEquals(len(sections), 5)
+            self.assertEquals(sections[0].term.year, 2013)
+            self.assertEquals(sections[0].term.quarter, "spring")
+            self.assertEquals(sections[-1].term.year, 2013)
+            self.assertEquals(sections[-1].term.quarter, "summer")
+
+
+    def test_get_last_section_by_instructor_and_terms(self):
+        instructor = Person(uwregid="260A0DEC95CB11D78BAA000629C31437")
+        term = Term(quarter="autumn", year=2012)
+        section = get_last_section_by_instructor_and_terms(instructor, term, 4)
+        self.assertEquals(section.term.year, 2013)
+        self.assertEquals(section.term.quarter, "summer")
+
+        term = Term(quarter="autumn", year=2014)
+        section = get_last_section_by_instructor_and_terms(instructor, term, 2)
+        self.assertIsNone(section)
 
     def test_sections_by_delegate_and_term(self):
             term = Term(quarter="summer", year=2013)
@@ -333,6 +399,20 @@ class SWSTestSectionData(TestCase):
 
             sections = get_sections_by_delegate_and_term(delegate, term)
             self.assertEquals(len(sections), 2)
+
+            # with delete_flag
+            sections = get_sections_by_delegate_and_term(
+                delegate, term, delete_flag=['active','suspended'])
+            self.assertEquals(len(sections), 2)
+
+            # test delete_flag ordering
+            sections = get_sections_by_delegate_and_term(
+                delegate, term, delete_flag=['suspended', 'active'])
+            self.assertEquals(len(sections), 2)
+
+            # incorrect delete_flag
+            self.assertRaises(ValueError, get_sections_by_delegate_and_term,
+                              delegate, term, delete_flag='active')
 
     def test_sections_by_curriculum_and_term(self):
             term = Term(quarter="winter", year=2013)
@@ -499,9 +579,16 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2013,autumn,MATH,120/ZZ')
         self.assertFalse(section.is_inst_pce())
         self.assertFalse(section.is_independent_start)
+        self.assertIsNone(section.eos_cid)
+
         section = get_section_by_label('2013,winter,COM,201/A')
         self.assertTrue(section.is_inst_pce())
         self.assertTrue(section.is_independent_start)
+        self.assertIsNone(section.eos_cid)
+
+        section = get_section_by_label('2018,winter,INFX,543/A')
+        self.assertTrue(section.is_inst_pce())
+        self.assertEquals(section.eos_cid, '116878')
 
     def test_early_fall_start(self):
         section = get_section_by_label('2013,spring,EFS_FAILT,101/AQ')
@@ -515,18 +602,66 @@ class SWSTestSectionData(TestCase):
         self.assertFalse(section.is_early_fall_start())
         self.assertFalse(section.end_date)
 
-    def test_normalized_meeting_time(self):
+    def test_meetings(self):
         section = get_section_by_label('2013,autumn,MATH,120/ZZ')
         meeting = section.meetings[0]
-        meeting.start_time = '11:30:00'
-        meeting.end_time = '12:20:00'
         jd = section.meetings[0].json_data()
         self.assertFalse(jd['no_meeting'])
         self.assertEqual(jd['start_time'], '11:30')
         self.assertEqual(jd['end_time'], '12:20')
+        self.assertEqual(jd['type'], 'lecture')
 
-        section = get_section_by_label('2013,winter,BIGDATA,220/A')
-        meeting = section.meetings[0]
+        section = get_section_by_label('2013,spring,BIGDATA,230/A')
         jd = section.meetings[0].json_data()
         self.assertEqual(jd['start_time'], '18:00')
         self.assertEqual(jd['end_time'], '21:00')
+        self.assertFalse(jd['wont_meet'])
+
+        jd = section.meetings[1].json_data()
+        self.assertTrue(jd['wont_meet'])
+        self.assertEqual(jd['type'], 'NON')
+
+    def test_for_credit_course(self):
+        section = get_section_by_label('2013,spring,ESS,107/A')
+        self.assertFalse(section.for_credit())
+        section = get_section_by_label('2013,winter,COM,201/A')
+        self.assertTrue(section.for_credit())
+        section = get_section_by_label('2013,spring,ELCBUS,451/A')
+        self.assertTrue(section.for_credit())
+        section = get_section_by_label('2013,spring,TRAIN,100/A')
+        self.assertTrue(section.for_credit())
+
+        self.assertTrue('for_credit' in section.json_data())
+
+    def test_pce_meeting_time(self):
+        section = get_section_by_label('2013,winter,JAVA,125/A')
+        meetings = section.meetings
+        self.assertEqual(len(meetings), 3)
+        self.assertEqual(meetings[0].start_time, "18:00")
+        self.assertEqual(meetings[0].end_time, "21:00")
+        self.assertIsNone(meetings[1].start_time)
+        self.assertIsNone(meetings[1].end_time)
+        self.assertIsNone(meetings[2].start_time)
+        self.assertIsNone(meetings[2].end_time)
+
+        json_data = section.json_data()
+        meetings = json_data["meetings"]
+        self.assertEqual(len(meetings), 3)
+        self.assertEqual(meetings[0]["start_time"], "18:00")
+        self.assertEqual(meetings[0]["end_time"], "21:00")
+        self.assertIsNone(meetings[1]["start_time"])
+        self.assertIsNone(meetings[1]["end_time"])
+        self.assertIsNone(meetings[2]["start_time"])
+        self.assertIsNone(meetings[2]["end_time"])
+
+    def test_section_instructor(self):
+        section = get_section_by_label('2013,spring,ESS,107/A')
+        json_data = section.json_data()
+        meetings = json_data["meetings"]
+        instructors = meetings[0]["instructors"]
+        self.assertEqual(len(instructors), 1)
+        self.assertEqual(instructors[0]["addresses"], [])
+        self.assertEqual(instructors[0]["phones"], [])
+        self.assertEqual(instructors[0]["voice_mails"], [])
+        self.assertEqual(instructors[0]["positions"], [])
+        self.assertIsNone(instructors[0]["publish_in_emp_directory"])
