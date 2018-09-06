@@ -4,10 +4,7 @@ Interfacing with the Student Web Service, Registration_Search query.
 import logging
 import json
 import re
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from dateutil.parser import parse

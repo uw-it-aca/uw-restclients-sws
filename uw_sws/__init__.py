@@ -1,12 +1,9 @@
 from datetime import datetime
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+import json
+from urllib.parse import quote
+from restclients_core.exceptions import DataFailureException
 from uw_pws import PWS
 from uw_sws.dao import SWS_DAO
-from restclients_core.exceptions import DataFailureException
-import json
 
 
 QUARTER_SEQ = ["winter", "spring", "summer", "autumn"]

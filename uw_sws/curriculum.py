@@ -2,10 +2,7 @@
 Interfacing with the Student Web Service, Curriculum Search Resource.
 """
 import logging
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 from uw_sws.models import Curriculum
 from uw_sws import get_resource
 
