@@ -3,13 +3,13 @@ from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.models import Department, Term
 from restclients_core.exceptions import DataFailureException
-from uw_sws.curriculum import get_curricula_by_department, get_curricula_by_term
+from uw_sws.curriculum import (
+    get_curricula_by_department, get_curricula_by_term)
 
 
 @fdao_pws_override
 @fdao_sws_override
 class SWSTestCurriculum(TestCase):
-
     def test_curricula_for_department(self):
         department = Department(label="EDUC")
         curricula = get_curricula_by_department(department)
@@ -34,7 +34,7 @@ class SWSTestCurriculum(TestCase):
 
         # Valid future_terms value
         curricula = get_curricula_by_department(department,
-                                                     future_terms=0)
+                                                future_terms=0)
         self.assertEquals(len(curricula), 7)
 
         # Invalid future_terms values

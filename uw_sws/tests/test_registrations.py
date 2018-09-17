@@ -51,7 +51,8 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(str(javerage_reg.request_date.date()), '2015-11-18')
         self.assertEquals(javerage_reg.request_status, 'DROPPED FROM CLASS')
         self.assertEquals(javerage_reg.duplicate_code, '')
-        self.assertEquals(javerage_reg.repository_timestamp.isoformat(), '2016-01-05T02:45:15')
+        self.assertEquals(javerage_reg.repository_timestamp.isoformat(),
+                          '2016-01-05T02:45:15')
         self.assertEquals(javerage_reg.repeat_course, False)
         self.assertEquals(javerage_reg.grade, 'X')
 
@@ -68,32 +69,46 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(str(javerage_reg.request_date.date()), '2015-11-18')
         self.assertEquals(javerage_reg.request_status, 'ADDED TO CLASS')
         self.assertEquals(javerage_reg.duplicate_code, 'A')
-        self.assertEquals(javerage_reg.repository_timestamp.isoformat(), '2016-01-05T02:45:15')
+        self.assertEquals(javerage_reg.repository_timestamp.isoformat(),
+                          '2016-01-05T02:45:15')
         self.assertEquals(javerage_reg.repeat_course, False)
         self.assertEquals(javerage_reg.grade, 'X')
 
     @mock.patch('uw_sws.registration.get_resource')
-    def test_all_registrations_with_transcriptable_course(self, mock_get_resource):
+    def test_all_registrations_with_transcriptable_course(self,
+                                                          mock_get_resource):
         section = get_section_by_label('2013,winter,DROP_T,100/B')
 
         # Test for default resource, i.e. transcriptable_course=yes
         registrations = get_all_registrations_by_section(section)
-        mock_get_resource.assert_called_with('/student/v5/registration.json?curriculum_abbreviation=DROP_T&instructor_reg_id=&course_number=100&verbose=true&year=2013&quarter=winter&is_active=&section_id=B')
+        mock_get_resource.assert_called_with(
+            '/student/v5/registration.json?curriculum_abbreviation=DROP_T&'
+            'instructor_reg_id=&course_number=100&verbose=true&year=2013&'
+            'quarter=winter&is_active=&section_id=B')
 
         # Test for transcriptable_course=yes explicitly
         registrations = get_all_registrations_by_section(
             section, transcriptable_course='yes')
-        mock_get_resource.assert_called_with('/student/v5/registration.json?curriculum_abbreviation=DROP_T&instructor_reg_id=&course_number=100&verbose=true&year=2013&quarter=winter&is_active=&section_id=B&transcriptable_course=yes')
+        mock_get_resource.assert_called_with(
+            '/student/v5/registration.json?curriculum_abbreviation=DROP_T&'
+            'instructor_reg_id=&course_number=100&verbose=true&year=2013&'
+            'quarter=winter&is_active=&section_id=B&transcriptable_course=yes')
 
         # Test for transcriptable_course=all resource
         registrations = get_all_registrations_by_section(
             section, transcriptable_course='all')
-        mock_get_resource.assert_called_with('/student/v5/registration.json?curriculum_abbreviation=DROP_T&instructor_reg_id=&course_number=100&verbose=true&year=2013&quarter=winter&is_active=&section_id=B&transcriptable_course=all')
+        mock_get_resource.assert_called_with(
+            '/student/v5/registration.json?curriculum_abbreviation=DROP_T&'
+            'instructor_reg_id=&course_number=100&verbose=true&year=2013&'
+            'quarter=winter&is_active=&section_id=B&transcriptable_course=all')
 
         # Test for transcriptable_course=no
         registrations = get_all_registrations_by_section(
             section, transcriptable_course='no')
-        mock_get_resource.assert_called_with('/student/v5/registration.json?curriculum_abbreviation=DROP_T&instructor_reg_id=&course_number=100&verbose=true&year=2013&quarter=winter&is_active=&section_id=B&transcriptable_course=no')
+        mock_get_resource.assert_called_with(
+            '/student/v5/registration.json?curriculum_abbreviation=DROP_T&'
+            'instructor_reg_id=&course_number=100&verbose=true&year=2013&'
+            'quarter=winter&is_active=&section_id=B&transcriptable_course=no')
 
     def test_get_schedule_by_regid_and_term(self):
         term = Term(quarter="spring", year=2013)
