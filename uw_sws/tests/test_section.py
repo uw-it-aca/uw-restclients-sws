@@ -19,7 +19,6 @@ from uw_sws.section import get_section_by_label,\
     is_a_term, is_b_term, is_full_summer_term, is_valid_sln
 
 
-
 @fdao_pws_override
 @fdao_sws_override
 class SWSTestSectionData(TestCase):
@@ -123,10 +122,10 @@ class SWSTestSectionData(TestCase):
         self.assertTrue(is_valid_sln('10000'))
 
     def test_validate_section_label(self):
-            #Valid data, shouldn't throw any exceptions
+            # Valid data, shouldn't throw any exceptions
             validate_section_label('2013,summer,TRAIN,100/A')
 
-            #Invalid data, should throw exceptions
+            # Invalid data, should throw exceptions
             self.assertRaises(InvalidSectionID,
                               validate_section_label,
                               None)
@@ -176,7 +175,7 @@ class SWSTestSectionData(TestCase):
                               get_section_by_label,
                               '9999,summer,TRAIN,100/A')
 
-            #Valid section labels, no files for them
+            # Valid section labels, no files for them
             self.assertRaises(DataFailureException,
                               get_section_by_label,
                               '2012,summer,TRAIN,110/A')
@@ -238,7 +237,8 @@ class SWSTestSectionData(TestCase):
     def test_delegates_in_section(self):
             section = get_section_by_label('2013,winter,ASIAN,203/A')
 
-            self.assertEquals(len(section.grade_submission_delegates), 3,
+            self.assertEquals(
+                len(section.grade_submission_delegates), 3,
                 "Correct number of delegates")
 
             person1 = Person(uwregid="6DF0A9206A7D11D5A4AE0004AC494FFE")
@@ -263,11 +263,11 @@ class SWSTestSectionData(TestCase):
     # Failing because linked section json files haven't been made
     # (Train 100 AA/AB)
     def test_linked_sections(self):
-            #Valid data, shouldn't throw any exceptions
+            # Valid data, shouldn't throw any exceptions
             section = get_section_by_label('2013,summer,TRAIN,100/A')
             get_linked_sections(section)
 
-            #Invalid data, should throw exceptions
+            # Invalid data, should throw exceptions
             section.linked_section_urls = ['']
             self.assertRaises(InvalidSectionURL,
                               get_linked_sections, section)
@@ -291,7 +291,7 @@ class SWSTestSectionData(TestCase):
 
             if use_v5_resources():
                 section.linked_section_urls =\
-                ['/student/v5/course/2010,autumn,CS&SS,221/A.json']
+                    ['/student/v5/course/2010,autumn,CS&SS,221/A.json']
             else:
                 section.linked_section_urls =\
                     ['/student/v4/course/2010,autumn,CS&SS,221/A.json']
@@ -309,7 +309,7 @@ class SWSTestSectionData(TestCase):
 
             if use_v5_resources():
                 section.linked_section_urls =\
-                ['/student/v5/course/2010,autumn,G H,201/A.json']
+                    ['/student/v5/course/2010,autumn,G H,201/A.json']
             else:
                 section.linked_section_urls =\
                     ['/student/v4/course/2010,autumn,G H,201/A.json']
@@ -360,7 +360,7 @@ class SWSTestSectionData(TestCase):
             # test delete_flag
             term = Term(quarter="spring", year=2013)
             sections = get_sections_by_instructor_and_term(
-                instructor, term, delete_flag=['active','suspended'])
+                instructor, term, delete_flag=['active', 'suspended'])
             self.assertEquals(len(sections), 2)
 
             # test different setting for transcriptable_course
@@ -380,7 +380,6 @@ class SWSTestSectionData(TestCase):
             self.assertEquals(sections[0].term.quarter, "spring")
             self.assertEquals(sections[-1].term.year, 2013)
             self.assertEquals(sections[-1].term.quarter, "summer")
-
 
     def test_get_last_section_by_instructor_and_terms(self):
         instructor = Person(uwregid="260A0DEC95CB11D78BAA000629C31437")
@@ -402,7 +401,7 @@ class SWSTestSectionData(TestCase):
 
             # with delete_flag
             sections = get_sections_by_delegate_and_term(
-                delegate, term, delete_flag=['active','suspended'])
+                delegate, term, delete_flag=['active', 'suspended'])
             self.assertEquals(len(sections), 2)
 
             # test delete_flag ordering
@@ -450,8 +449,9 @@ class SWSTestSectionData(TestCase):
     def test_changed_sections_by_term_and_kwargs(self):
             changed_date = datetime(2013, 12, 12).date()
             term = Term(quarter="winter", year=2013)
-            sections = get_changed_sections_by_term(changed_date, term,
-                curriculum_abbreviation="ENDO", transcriptable_course="all")
+            sections = get_changed_sections_by_term(
+                changed_date, term, curriculum_abbreviation="ENDO",
+                transcriptable_course="all")
 
             self.assertEquals(len(sections), 3)
 
@@ -500,24 +500,34 @@ class SWSTestSectionData(TestCase):
     def test_canvas_sis_ids(self):
             # Primary section containing linked secondary sections
             section = get_section_by_label('2012,summer,PHYS,121/A')
-            self.assertEquals(section.canvas_course_sis_id(),
-                '2012-summer-PHYS-121-A', 'Canvas course SIS ID')
+            self.assertEquals(
+                section.canvas_course_sis_id(),
+                '2012-summer-PHYS-121-A',
+                'Canvas course SIS ID')
             self.assertRaises(InvalidCanvasSection,
                               section.canvas_section_sis_id)
 
             # Primary section with no linked sections
             section = get_section_by_label('2013,autumn,REHAB,585/A')
-            self.assertEquals(section.canvas_course_sis_id(),
-                '2013-autumn-REHAB-585-A', 'Canvas course SIS ID')
-            self.assertEquals(section.canvas_section_sis_id(),
-                '2013-autumn-REHAB-585-A--', 'Canvas section SIS ID')
+            self.assertEquals(
+                section.canvas_course_sis_id(),
+                '2013-autumn-REHAB-585-A',
+                'Canvas course SIS ID')
+            self.assertEquals(
+                section.canvas_section_sis_id(),
+                '2013-autumn-REHAB-585-A--',
+                'Canvas section SIS ID')
 
             # Secondary (linked) section
             section = get_section_by_label('2013,autumn,PHYS,121/AB')
-            self.assertEquals(section.canvas_course_sis_id(),
-                '2013-autumn-PHYS-121-A', 'Canvas course SIS ID')
-            self.assertEquals(section.canvas_section_sis_id(),
-                '2013-autumn-PHYS-121-AB', 'Canvas section SIS ID')
+            self.assertEquals(
+                section.canvas_course_sis_id(),
+                '2013-autumn-PHYS-121-A',
+                'Canvas course SIS ID')
+            self.assertEquals(
+                section.canvas_section_sis_id(),
+                '2013-autumn-PHYS-121-AB',
+                'Canvas section SIS ID')
 
             # Independent study section
             section = get_section_by_label('2013,summer,PHIL,600/A')
@@ -526,12 +536,14 @@ class SWSTestSectionData(TestCase):
             self.assertRaises(InvalidCanvasIndependentStudyCourse,
                               section.canvas_course_sis_id)
 
-            section.independent_study_instructor_regid =\
-                'A9D2DDFA6A7D11D5A4AE0004AC494FFE'
-            self.assertEquals(section.canvas_course_sis_id(),
+            section.independent_study_instructor_regid = (
+                'A9D2DDFA6A7D11D5A4AE0004AC494FFE')
+            self.assertEquals(
+                section.canvas_course_sis_id(),
                 '2013-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE',
                 'Canvas course SIS ID')
-            self.assertEquals(section.canvas_section_sis_id(),
+            self.assertEquals(
+                section.canvas_section_sis_id(),
                 '2013-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE--',
                 'Canvas section SIS ID')
 

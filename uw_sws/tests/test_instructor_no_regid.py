@@ -9,9 +9,10 @@ from uw_sws.term import get_current_term
 @fdao_sws_override
 class SWSMissingRegid(TestCase):
     def test_instructor_list(self):
-            term = get_current_term()
-            schedule = get_schedule_by_regid_and_term("BB000000000000000000000000009994", term)
+        term = get_current_term()
+        schedule = get_schedule_by_regid_and_term(
+            "BB000000000000000000000000009994", term)
 
-            self.assertEquals(len(schedule.sections), 1, "Has 1 section")
+        self.assertEquals(len(schedule.sections), 1, "Has 1 section")
 
-            instructors = schedule.sections[0].meetings[0].instructors
+        instructors = schedule.sections[0].meetings[0].instructors
