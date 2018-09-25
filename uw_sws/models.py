@@ -776,6 +776,14 @@ class Registration(models.Model):
     repository_timestamp = models.DateTimeField()
     grade = models.CharField(max_length=5, null=True)
 
+    def is_pending_status(self):
+        return (len(self.request_status) and
+                self.request_status.lower() == "pending added to class")
+
+    def is_dropped_status(self):
+        return (len(self.request_status) and
+                self.request_status.lower() == "dropped from class")
+
 
 class SectionMeeting(models.Model):
     NON_MEETING = "NON"
