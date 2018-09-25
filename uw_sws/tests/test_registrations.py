@@ -56,6 +56,7 @@ class SWSTestRegistrations(TestCase):
                           '2016-01-05T02:45:15')
         self.assertEquals(javerage_reg.repeat_course, False)
         self.assertEquals(javerage_reg.grade, 'X')
+        self.assertFalse(javerage_reg.is_withdrew())
 
     def test_active_registration_status_after_drop_and_add(self):
         section = get_section_by_label('2013,winter,DROP_T,100/B')
