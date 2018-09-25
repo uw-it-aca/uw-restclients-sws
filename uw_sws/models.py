@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 from time import strftime
 from uw_pws.models import Person, Entity
@@ -757,6 +758,9 @@ class SectionStatus(models.Model):
         return data
 
 
+WITHDREW_GRADE_PATTERN = re.compile(r'^W')
+
+
 class Registration(models.Model):
     section = models.ForeignKey(Section,
                                 on_delete=models.PROTECT)
@@ -775,6 +779,17 @@ class Registration(models.Model):
     credits = models.CharField(max_length=5, null=True)
     repository_timestamp = models.DateTimeField()
     grade = models.CharField(max_length=5, null=True)
+
+    def is_pending_status(self):
+        return (len(self.request_status) and
+                self.request_status.lower() == "pending added to class")
+
+    def is_dropped_status(self):
+        return (len(self.request_status) and
+                self.request_status.lower() == "dropped from class")
+
+    def is_withdrew(self):
+        return (WITHDREW_GRADE_PATTERN.match(self.grade) is not None)
 
 
 class SectionMeeting(models.Model):

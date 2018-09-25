@@ -164,7 +164,7 @@ class SWSTestTerm(TestCase):
 
             self.assertFalse(term.is_summer_quarter())
 
-    #Expected values will have to change when the json files are updated
+    # Expected values will have to change when the json files are updated
     def test_previous_quarter(self):
             term = get_previous_term()
 
@@ -223,7 +223,8 @@ class SWSTestTerm(TestCase):
             self.assertEquals(term.aterm_grading_period_open, None)
 
             self.assertEquals(len(term.time_schedule_construction), 3)
-            self.assertEquals(term.time_schedule_construction['seattle'], False)
+            self.assertEquals(
+                term.time_schedule_construction['seattle'], False)
 
             self.assertEquals(len(term.time_schedule_published), 3)
             self.assertEquals(term.time_schedule_published['seattle'], True)
@@ -234,7 +235,7 @@ class SWSTestTerm(TestCase):
                               "Grading period is past")
             self.assertEquals(term.term_label(), "2013,winter", "Term label")
 
-    #Expected values will have to change when the json files are updated
+    # Expected values will have to change when the json files are updated
     def test_next_quarter(self):
             term = get_next_term()
             self.assertTrue(term.is_summer_quarter())
@@ -372,7 +373,7 @@ class SWSTestTerm(TestCase):
             self.assertEquals(next2.quarter, 'winter')
 
     def test_specific_quarters(self):
-        #testing bad data - get_by_year_and_quarter
+        # Testing bad data - get_by_year_and_quarter
             self.assertRaises(DataFailureException,
                               get_term_by_year_and_quarter,
                               -2012, 'summer')

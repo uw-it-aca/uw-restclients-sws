@@ -150,7 +150,7 @@ class SWSTestEnrollments(TestCase):
         enrollment0 = result_dict.get(term0)
         self.assertEquals(enrollment.majors[0], enrollment0.majors[0])
         self.assertEqual(len(enrollment0.unf_pce_courses), 1)
-        
+
         # regular course
         result_dict = enrollment_search_by_regid(
             '9136CCB8F66711D5BE060004AC494FFE')
@@ -227,7 +227,7 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(has_start_end_dates(json_data))
         json_data = {"FeeBaseType": ""}
         self.assertFalse(has_start_end_dates(json_data))
-        json_data = {"FeeBaseType": "", "StartDate":"", "EndDate":""}
+        json_data = {"FeeBaseType": "", "StartDate": "", "EndDate": ""}
         self.assertFalse(has_start_end_dates(json_data))
 
     def test_comparing_majors_minors(self):

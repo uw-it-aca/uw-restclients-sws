@@ -19,18 +19,22 @@ class SWSTestScheduleData(TestCase):
                               term)
 
     def test_sws_schedule_data(self):
-            #Valid data, shouldn't throw exceptions
+            # Valid data, shouldn't throw exceptions
             term = get_previous_term()
-            get_schedule_by_regid_and_term('9136CCB8F66711D5BE060004AC494FFE', term)
+            get_schedule_by_regid_and_term(
+                '9136CCB8F66711D5BE060004AC494FFE', term)
             term = get_current_term()
-            get_schedule_by_regid_and_term('9136CCB8F66711D5BE060004AC494FFE', term)
+            get_schedule_by_regid_and_term(
+                '9136CCB8F66711D5BE060004AC494FFE', term)
             term = get_next_term()
-            get_schedule_by_regid_and_term('9136CCB8F66711D5BE060004AC494FFE', term)
+            get_schedule_by_regid_and_term(
+                '9136CCB8F66711D5BE060004AC494FFE', term)
             term = get_term_by_year_and_quarter(2012, 'summer')
-            get_schedule_by_regid_and_term('9136CCB8F66711D5BE060004AC494FFE', term)
+            get_schedule_by_regid_and_term(
+                '9136CCB8F66711D5BE060004AC494FFE', term)
             term = get_current_term()
 
-            #Bad data, should throw exceptions
+            # Bad data, should throw exceptions
             self.assertRaises(DataFailureException,
                               get_schedule_by_regid_and_term,
                               "9136CCB8F66711D5BE060004AC494FFF",

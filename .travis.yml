@@ -10,7 +10,7 @@ before_script:
 - pip install commonconf
 - pip install python-coveralls
 script:
-- pycodestyle --exclude=uw_sws/tests uw_sws
+- pycodestyle uw_sws/
 - coverage run uw_sws/test.py -v
 after_script:
 - coveralls
