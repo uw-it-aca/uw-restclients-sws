@@ -510,7 +510,7 @@ class Section(models.Model):
         for meeting in self.meetings:
             for instructor in meeting.instructors:
                 instructors[instructor.uwregid] = instructor
-        return instructors.values()
+        return list(instructors.values())
 
     def is_instructor(self, person):
         for meeting in self.meetings:
