@@ -121,14 +121,16 @@ class SWSTestRegistrations(TestCase):
         for section in class_schedule.sections:
             if section.section_label() == '2013,spring,TRAIN,100/A':
                 self.assertEquals(len(section.get_instructors()), 1)
-                self.assertEquals(section.student_credits, Decimal("%s" % 1.0))
+                self.assertEquals(section.student_credits,
+                                  Decimal("{:f}".format(1.0)))
                 self.assertEquals(section.student_grade, "X")
                 self.assertEquals(section.get_grade_date_str(), None)
                 self.assertTrue(section.is_primary_section)
                 self.assertEquals(section.is_auditor, False)
 
             if section.section_label() == '2013,spring,PHYS,121/AC':
-                self.assertEquals(section.student_credits, Decimal("%s" % 3.0))
+                self.assertEquals(section.student_credits,
+                                  Decimal("{:f}".format(3.0)))
                 self.assertEquals(section.student_grade, "4.0")
                 self.assertEquals(section.get_grade_date_str(), "2013-06-11")
                 self.assertFalse(section.is_primary_section)
@@ -145,7 +147,8 @@ class SWSTestRegistrations(TestCase):
             '12345678901234567890123456789012', term)
         for section in class_schedule.sections:
             if section.section_label() == '2013,spring,,MATH,125/G':
-                self.assertEquals(section.student_credits, Decimal("%s" % 5.0))
+                self.assertEquals(section.student_credits,
+                                  Decimal("{:f}".format(5.0)))
                 self.assertEquals(section.student_grade, "3.5")
                 self.assertEquals(section.is_auditor, True)
                 self.assertTrue(section.is_primary_section)
@@ -159,7 +162,8 @@ class SWSTestRegistrations(TestCase):
         for section in class_schedule.sections:
             if section.section_label() == '2013,spring,ESS,107/A':
                 self.assertEquals(len(section.get_instructors()), 1)
-                self.assertEquals(section.student_credits, Decimal("%s" % 3.0))
+                self.assertEquals(section.student_credits,
+                                  Decimal("{:f}".format(3.0)))
                 self.assertEquals(section.student_grade, "X")
                 self.assertEquals(section.get_grade_date_str(), None)
                 self.assertTrue(section.is_primary_section)

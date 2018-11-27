@@ -4,6 +4,7 @@ Interfacing with the Student Web Service, Enrollment resource.
 import logging
 from dateutil.parser import parse
 import re
+from urllib.parse import urlencode
 from uw_sws.models import (StudentGrades, StudentCourseGrade, Enrollment,
                            Major, Minor, SectionReference, Term,
                            UnfinishedPceCourse)
@@ -21,10 +22,10 @@ def get_grades_by_regid_and_term(regid, term):
     """
     Returns a StudentGrades model for the regid and term.
     """
-    url = "%s/%s,%s,%s.json" % (enrollment_res_url_prefix,
-                                term.year,
-                                term.quarter,
-                                regid)
+    url = "{}/{},{},{}.json".format(enrollment_res_url_prefix,
+                                    term.year,
+                                    term.quarter,
+                                    regid)
     return _json_to_grades(get_resource(url), regid, term)
 
 
@@ -54,9 +55,12 @@ def _enrollment_search(regid, verbose, transcriptable, changed_since_date):
     https://wiki.cac.washington.edu/x/_qjeAw
     :return: search result json data
     """
-    url = "%s%s&verbose=%s&transcriptable_course=%s&changed_since_date=%s" %\
-        (enrollment_search_url_prefix,
-         regid, verbose, transcriptable, changed_since_date)
+    url = "{}{}&{}".format(enrollment_search_url_prefix,
+                           regid,
+                           urlencode(
+                               {"verbose": verbose,
+                                "transcriptable_course": transcriptable,
+                                "changed_since_date": changed_since_date}))
     return get_resource(url)
 
 
@@ -93,10 +97,10 @@ def _json_to_term_enrollment_dict(json_data,
 
 
 def get_enrollment_by_regid_and_term(regid, term):
-    url = "%s/%s,%s,%s.json" % (enrollment_res_url_prefix,
-                                term.year,
-                                term.quarter,
-                                regid)
+    url = "{}/{},{},{}.json".format(enrollment_res_url_prefix,
+                                    term.year,
+                                    term.quarter,
+                                    regid)
     return _json_to_enrollment(get_resource(url), term)
 
 

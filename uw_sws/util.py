@@ -13,7 +13,7 @@ def abbr_week_month_day_str(adatetime):
     e.g., Mon, Jun 2. No punctuation is shown for
     the abbreviated weekday and month.
     """
-    return "%s %d" % (adatetime.strftime("%a, %b"), adatetime.day)
+    return "{} {:d}".format(adatetime.strftime("%a, %b"), adatetime.day)
 
 
 def convert_to_begin_of_day(a_date):

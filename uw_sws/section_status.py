@@ -10,8 +10,8 @@ def get_section_status_by_label(label):
     if not section_label_pattern.match(label):
         raise InvalidSectionID(label)
 
-    url = "%s/%s/status.json" % (course_res_url_prefix,
-                                 encode_section_label(label))
+    url = "{}/{}/status.json".format(course_res_url_prefix,
+                                     encode_section_label(label))
 
     return _json_to_sectionstatus(get_resource(url))
 

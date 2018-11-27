@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 def validate_section_label(label):
     if label is None or section_label_pattern.match(label) is None:
-        raise InvalidSectionID("Invalid section label: %s" % label)
+        raise InvalidSectionID("Invalid section label: {}".format(label))
 
 
 def is_valid_sln(sln_str):
@@ -90,11 +90,11 @@ def get_sections_by_curriculum_and_term(curriculum, term):
     Returns a list of uw_sws.models.SectionReference objects
     for the passed curriculum and term.
     """
-    url = "%s?%s" % (section_res_url_prefix,
-                     urlencode([("curriculum_abbreviation", curriculum.label,),
-                                ("quarter", term.quarter.lower(),),
-                                ("year", term.year,),
-                                ]))
+    url = "{}?{}".format(
+        section_res_url_prefix,
+        urlencode([("curriculum_abbreviation", curriculum.label,),
+                   ("quarter", term.quarter.lower(),),
+                   ("year", term.year,), ]))
     return _json_to_sectionref(get_resource(url))
 
 
@@ -103,12 +103,11 @@ def get_sections_by_building_and_term(building, term):
     Returns a list of uw_sws.models.SectionReference objects
     for the passed building and term.
     """
-    url = "%s?%s" % (section_res_url_prefix,
-                     urlencode([
-                                ("quarter", term.quarter.lower(),),
-                                ("facility_code", building,),
-                                ("year", term.year,),
-                                ]))
+    url = "{}?{}".format(
+        section_res_url_prefix,
+        urlencode([("quarter", term.quarter.lower(),),
+                   ("facility_code", building,),
+                   ("year", term.year,), ]))
     return _json_to_sectionref(get_resource(url))
 
 
@@ -122,7 +121,7 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
                    ("page_size", 1000,),
                    ("year", term.year,),
                    ])
-    url = "%s?%s" % (section_res_url_prefix, urlencode(params))
+    url = "{}?{}".format(section_res_url_prefix, urlencode(params))
 
     sections = []
     while url is not None:
@@ -188,7 +187,7 @@ def _get_sections_by_person_and_term(person,
             raise ValueError("delete_flag must be a list")
         params.append(("delete_flag", ','.join(sorted(delete_flag)),))
 
-    url = "%s?%s" % (section_res_url_prefix, urlencode(params))
+    url = "{}?{}".format(section_res_url_prefix, urlencode(params))
     return get_resource(url)
 
 
@@ -242,9 +241,8 @@ def get_section_by_label(label,
     """
     validate_section_label(label)
 
-    url = "%s/%s.json" % (
-        course_res_url_prefix,
-        encode_section_label(label))
+    url = "{}/{}.json".format(course_res_url_prefix,
+                              encode_section_label(label))
 
     return get_section_by_url(url,
                               include_instructor_not_on_time_schedule)
@@ -298,7 +296,7 @@ def get_prefetch_for_section_data(section_data):
         for instructor_data in meeting_data["Instructors"]:
             pdata = instructor_data["Person"]
             if "RegID" in pdata and pdata["RegID"] is not None:
-                prefetch.append(["person-%s" % pdata["RegID"],
+                prefetch.append(["person-{}".format(pdata["RegID"]),
                                  generic_prefetch(UWPWS.get_person_by_regid,
                                                   [pdata["RegID"]])])
 
@@ -435,7 +433,7 @@ def _json_to_section(section_data,
             meeting.days_to_be_arranged = False
 
         for day_data in meeting_data["DaysOfWeek"]["Days"]:
-            attribute = "meets_%s" % day_data["Name"].lower()
+            attribute = "meets_{}".format(day_data["Name"].lower())
             setattr(meeting, attribute, True)
 
         if (len(meeting_data["StartTime"]) and
@@ -505,19 +503,19 @@ def _json_to_section(section_data,
             strptime = datetime.strptime
             if final_data["Date"] and final_data["Date"] != "0000-00-00":
                 if final_data["StartTime"]:
-                    start_string = "%s : %s" % (final_data["Date"],
-                                                final_data["StartTime"])
+                    start_string = "{} : {}".format(final_data["Date"],
+                                                    final_data["StartTime"])
                     final_exam.start_date = strptime(start_string,
                                                      final_format)
 
                 if final_data["EndTime"]:
-                    end_string = "%s : %s" % (final_data["Date"],
-                                              final_data["EndTime"])
+                    end_string = "{} : {}".format(final_data["Date"],
+                                                  final_data["EndTime"])
                     try:
                         final_exam.end_date = strptime(
                             end_string, final_format)
                     except ValueError:
-                        logger.info('bad final EndTime: %s' % end_string)
+                        logger.info('bad final EndTime: {}'.format(end_string))
                         final_exam.end_date = None
 
             final_exam.clean_fields()
