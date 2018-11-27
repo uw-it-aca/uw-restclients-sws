@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from datetime import datetime
@@ -21,6 +22,9 @@ class LastEnrolled(models.Model):
                 'year': self.year
                 }
 
+    def __str__(self):
+        return json.dumps(self.json_data())
+
 
 class StudentAddress(models.Model):
     city = models.CharField(max_length=255)
@@ -40,6 +44,9 @@ class StudentAddress(models.Model):
                 'state': self.state,
                 'zip_code': self.zip_code
                 }
+
+    def __str__(self):
+        return json.dumps(self.json_data())
 
 
 def get_student_address_json(address):
@@ -108,6 +115,9 @@ class SwsPerson(models.Model):
             'permanent_phone': self.permanent_phone,
             'visa_type': self.visa_type
                 }
+
+    def __str__(self):
+        return json.dumps(self.json_data())
 
 
 class Term(models.Model):
@@ -274,10 +284,10 @@ class Term(models.Model):
         return self.quarter.lower() == Term.SUMMER
 
     def term_label(self):
-        return "%s,%s" % (self.year, self.quarter)
+        return "{},{}".format(self.year, self.quarter)
 
     def canvas_sis_id(self):
-        return "%s-%s" % (self.year, self.quarter.lower())
+        return "{}-{}".format(self.year, self.quarter.lower())
 
     def json_data(self):
         registration_period = []
@@ -321,6 +331,9 @@ class Term(models.Model):
                 "%Y-%m-%d 23:59:59")  # Datetime for backwards compatibility
         return data
 
+    def __str__(self):
+        return json.dumps(self.json_data())
+
 
 class FinalExam(models.Model):
     is_confirmed = models.NullBooleanField()
@@ -345,6 +358,9 @@ class FinalExam(models.Model):
             data["room_number"] = self.room_number
             data["room"] = self.room_number
         return data
+
+    def __str__(self):
+        return json.dumps(self.json_data())
 
 
 class Section(models.Model):
@@ -490,7 +506,7 @@ class Section(models.Model):
         return self.delete_flag == Section.DELETE_FLAG_WITHDRAWN
 
     def section_label(self):
-        return "%s,%s,%s,%s/%s" % (
+        return "{},{},{},{}/{}".format(
             self.term.year,
             self.term.quarter,
             self.curriculum_abbr,
@@ -498,7 +514,7 @@ class Section(models.Model):
             self.section_id)
 
     def primary_section_label(self):
-        return "%s,%s,%s,%s/%s" % (
+        return "{},{},{},{}/{}".format(
             self.term.year,
             self.term.quarter,
             self.primary_section_curriculum_abbr,
@@ -535,7 +551,7 @@ class Section(models.Model):
 
     def canvas_course_sis_id(self):
         if self.is_primary_section:
-            sis_id = "%s-%s-%s-%s" % (
+            sis_id = "{}-{}-{}-{}".format(
                 self.term.canvas_sis_id(),
                 self.curriculum_abbr.upper(),
                 self.course_number,
@@ -544,12 +560,12 @@ class Section(models.Model):
             if self.is_ind_study():
                 if self.independent_study_instructor_regid is None:
                     raise InvalidCanvasIndependentStudyCourse(
-                        "Undefined " +
-                        ("instructor for independent study section: %s" %
-                         sis_id))
-                sis_id += "-%s" % self.independent_study_instructor_regid
+                        "Undefined instructor {}: {}".format(
+                            "for independent study section",
+                            sis_id))
+                sis_id += "-{}".format(self.independent_study_instructor_regid)
         else:
-            sis_id = "%s-%s-%s-%s" % (
+            sis_id = "{}-{}-{}-{}".format(
                 self.term.canvas_sis_id(),
                 self.primary_section_curriculum_abbr.upper(),
                 self.primary_section_course_number,
@@ -566,7 +582,7 @@ class Section(models.Model):
 
             sis_id += "--"
         else:
-            sis_id = "%s-%s-%s-%s" % (
+            sis_id = "{}-{}-{}-{}".format(
                 self.term.canvas_sis_id(),
                 self.curriculum_abbr.upper(),
                 self.course_number,
@@ -699,6 +715,9 @@ class Section(models.Model):
 
         return data
 
+    def __str__(self):
+        return json.dumps(self.json_data())
+
 
 class SectionReference(models.Model):
     term = models.ForeignKey(Term,
@@ -715,7 +734,7 @@ class SectionReference(models.Model):
                 self.section_label() == other.section_label())
 
     def section_label(self):
-        return "%s,%s,%s,%s/%s" % (
+        return "{},{},{},{}/{}".format(
             self.term.year, self.term.quarter, self.curriculum_abbr,
             self.course_number, self.section_id)
 
@@ -727,6 +746,9 @@ class SectionReference(models.Model):
                 'section_id': self.section_id,
                 'url': self.url,
                 'section_label': self.section_label()}
+
+    def __str__(self):
+        return json.dumps(self.json_data())
 
 
 class SectionStatus(models.Model):
@@ -756,6 +778,9 @@ class SectionStatus(models.Model):
             'is_open': self.status,
         }
         return data
+
+    def __str__(self):
+        return json.dumps(self.json_data())
 
 
 WITHDREW_GRADE_PATTERN = re.compile(r'^W')
@@ -863,6 +888,9 @@ class SectionMeeting(models.Model):
             data["instructors"].append(instructor.json_data())
 
         return data
+
+    def __str__(self):
+        return json.dumps(self.json_data())
 
 
 class StudentGrades(models.Model):
@@ -990,6 +1018,9 @@ class Notice(models.Model):
         }
         return data
 
+    def __str__(self):
+        return json.dumps(self.json_data())
+
 
 class Finance(models.Model):
     tuition_accbalance = models.FloatField()
@@ -1001,8 +1032,7 @@ class Finance(models.Model):
                 }
 
     def __str__(self):
-        return "{tuition_accbalance: %s, pce_accbalance: %s}" % (
-            self.tuition_accbalance, self.pce_accbalance)
+        return json.dumps(self.json_data())
 
 
 class Enrollment(models.Model):
@@ -1060,6 +1090,9 @@ class Major(models.Model):
                 'short_name': self.short_name
                 }
 
+    def __str__(self):
+        return json.dumps(self.json_data())
+
 
 class Minor(models.Model):
     abbr = models.CharField(max_length=50)
@@ -1086,6 +1119,9 @@ class Minor(models.Model):
                 'full_name': self.full_name,
                 'short_name': self.short_name
                 }
+
+    def __str__(self):
+        return json.dumps(self.json_data())
 
 
 class UnfinishedPceCourse(models.Model):
@@ -1130,3 +1166,6 @@ class UnfinishedPceCourse(models.Model):
         if include_section_ref:
             data['section_ref'] = self.section_ref.json_data()
         return data
+
+    def __str__(self):
+        return json.dumps(self.json_data())

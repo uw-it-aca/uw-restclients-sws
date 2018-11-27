@@ -56,9 +56,10 @@ def _notices_from_json(notice_data):
                 elif attribute.data_type == "string":
                     attribute._string_value = notice_attrib.get("Value")
                 else:
-                    logger.warn("Unkown attribute type: %s\nWith Value:%s" %
-                                (attribute.data_type,
-                                 notice_attrib.get("value")))
+                    logger.warn(
+                        "Unkown attribute type: {}\nWith Value:{}".format(
+                            attribute.data_type,
+                            notice_attrib.get("value")))
                     continue
                 notice_attribs.append(attribute)
         except TypeError:

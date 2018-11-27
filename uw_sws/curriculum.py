@@ -25,7 +25,7 @@ def get_curricula_by_department(
 
     view_unpublished = "true" if view_unpublished else "false"
 
-    url = "%s?%s" % (
+    url = "{}?{}".format(
         curriculum_search_url_prefix,
         urlencode([("department_abbreviation", department.label,),
                    ("future_terms", future_terms,),
@@ -39,7 +39,7 @@ def get_curricula_by_term(term, view_unpublished=False):
     Term model.
     """
     view_unpublished = "true" if view_unpublished else "false"
-    url = "%s?%s" % (
+    url = "{}?{}".format(
         curriculum_search_url_prefix,
         urlencode([
                    ("quarter", term.quarter.lower(),),

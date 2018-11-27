@@ -111,12 +111,12 @@ class SWSTestTerm(TestCase):
             expected_year = 2013
 
             self.assertEquals(term.year, expected_year,
-                              "Return %s for the current year" %
-                              expected_year)
+                              "Return {} for the current year".format(
+                                  expected_year))
 
             self.assertEquals(term.quarter, expected_quarter,
-                              "Return %s for the current quarter" %
-                              expected_quarter)
+                              "Return {} for the current quarter".format(
+                                  expected_quarter))
 
             self.assertEquals(term.first_day_quarter.year, 2013)
             self.assertEquals(term.first_day_quarter.month, 4)
@@ -175,12 +175,12 @@ class SWSTestTerm(TestCase):
             self.assertTrue(term.is_past(comparison_datetime))
 
             self.assertEquals(term.year, expected_year,
-                              "Return %s for the previous year" %
-                              expected_year)
+                              "Return {} for the previous year".format(
+                                  expected_year))
 
             self.assertEquals(term.quarter, expected_quarter,
-                              "Return %s for the previous quarter" %
-                              expected_quarter)
+                              "Return {} for the previous quarter".format(
+                                  expected_quarter))
 
             self.assertEquals(term.get_bod_first_day(),
                               datetime(2013, 1, 7, 0, 0, 0))
@@ -246,12 +246,12 @@ class SWSTestTerm(TestCase):
             self.assertTrue(term.is_future(comparison_datetime))
 
             self.assertEquals(term.year, expected_year,
-                              "Return %s for the next year" %
-                              expected_year)
+                              "Return {} for the next year".format(
+                                  expected_year))
 
             self.assertEquals(term.quarter, expected_quarter,
-                              "Return %s for the next quarter" %
-                              expected_quarter)
+                              "Return {} for the next quarter".format(
+                                  expected_quarter))
 
             self.assertEquals(term.census_day.year, 2013)
             self.assertEquals(term.census_day.month, 7)

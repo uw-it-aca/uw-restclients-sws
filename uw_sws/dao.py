@@ -25,7 +25,7 @@ class SWS_DAO(DAO):
 
         bearer_key = self.get_service_setting('OAUTH_BEARER')
         if bearer_key is not None:
-            custom_headers["Authorization"] = "Bearer %s" % bearer_key
+            custom_headers["Authorization"] = "Bearer {}".format(bearer_key)
 
         return custom_headers
 

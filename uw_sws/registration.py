@@ -64,7 +64,7 @@ def _registrations_for_section_with_active_flag(section, is_active,
     if transcriptable_course != "":
         params.append(("transcriptable_course", transcriptable_course,))
 
-    url = "%s?%s" % (registration_res_url_prefix, urlencode(params))
+    url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
 
     return _json_to_registrations(get_resource(url), section)
 
@@ -145,7 +145,7 @@ def get_credits_by_section_and_regid(section, regid):
     """
     deprecation("Use get_credits_by_reg_url")
     # note trailing comma in URL, it's required for the optional dup_code param
-    url = "%s%s,%s,%s,%s,%s,%s,.json" % (
+    url = "{}{},{},{},{},{},{},.json".format(
         reg_credits_url_prefix,
         section.term.year,
         section.term.quarter,
@@ -200,7 +200,7 @@ def get_schedule_by_regid_and_term(regid, term,
         ('year', term.year),
     ])
 
-    url = "%s?%s" % (registration_res_url_prefix, urlencode(params))
+    url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
 
     return _json_to_schedule(get_resource(url), term, regid,
                              non_time_schedule_instructors,

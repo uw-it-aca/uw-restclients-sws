@@ -17,7 +17,8 @@ def get_term_by_year_and_quarter(year, quarter):
     Returns a uw_sws.models.Term object,
     for the passed year and quarter.
     """
-    url = "%s/%s,%s.json" % (term_res_url_prefix, str(year), quarter.lower())
+    url = "{}/{},{}.json".format(
+        term_res_url_prefix, year, quarter.lower())
     return _json_to_term_model(get_resource(url))
 
 
@@ -26,7 +27,7 @@ def get_current_term():
     Returns a uw_sws.models.Term object,
     for the current term.
     """
-    url = "%s/current.json" % term_res_url_prefix
+    url = "{}/current.json".format(term_res_url_prefix)
     term = _json_to_term_model(get_resource(url))
 
     # A term doesn't become "current" until 2 days before the start of
@@ -43,7 +44,7 @@ def get_next_term():
     Returns a uw_sws.models.Term object,
     for the next term.
     """
-    url = "%s/next.json" % term_res_url_prefix
+    url = "{}/next.json".format(term_res_url_prefix)
     return _json_to_term_model(get_resource(url))
 
 
@@ -52,7 +53,7 @@ def get_previous_term():
     Returns a uw_sws.models.Term object,
     for the previous term.
     """
-    url = "%s/previous.json" % term_res_url_prefix
+    url = "{}/previous.json".format(term_res_url_prefix)
     return _json_to_term_model(get_resource(url))
 
 
@@ -159,10 +160,10 @@ def _json_to_term_model(term_data):
         term.grading_period_open = strptime(
             term_data["GradingPeriodOpen"], datetime_format)
     except (TypeError, ValueError):
-        logger.warn('Malformed term_data["GradingPeriodOpen"] : %s' % (
+        logger.warn('Malformed term_data["GradingPeriodOpen"]: {}'.format(
             term_data["GradingPeriodOpen"]))
         term.grading_period_open = strptime(
-            '%sT08:00:00' % term_data['LastFinalExamDay'],
+            '{}T08:00:00'.format(term_data['LastFinalExamDay']),
             datetime_format)
 
     if term_data["GradingPeriodOpenATerm"] is not None:
@@ -173,20 +174,21 @@ def _json_to_term_model(term_data):
         term.grading_period_close = strptime(
             term_data["GradingPeriodClose"], datetime_format)
     except (TypeError, ValueError):
-        logger.warn('Malformed term_data["GradingPeriodClose"] : %s' % (
+        logger.warn('Malformed term_data["GradingPeriodClose"]: {}'.format(
             term_data["GradingPeriodClose"]))
         term.grading_period_close = strptime(
-            '%sT17:00:00' % term_data['LastFinalExamDay'],
+            '{}T17:00:00'.format(term_data['LastFinalExamDay']),
             datetime_format)
 
     try:
         term.grade_submission_deadline = strptime(
             term_data["GradeSubmissionDeadline"], datetime_format)
     except (TypeError, ValueError):
-        logger.warn('Malformed term_data["GradeSubmissionDeadline"] : %s' % (
-            term_data["GradeSubmissionDeadline"]))
+        logger.warn(
+            'Malformed term_data["GradeSubmissionDeadline"]: {}'.format(
+                term_data["GradeSubmissionDeadline"]))
         term.grade_submission_deadline = strptime(
-            '%sT17:00:00' % term_data['LastFinalExamDay'],
+            '{}T17:00:00'.format(term_data['LastFinalExamDay']),
             datetime_format)
 
     if term_data["RegistrationServicesStart"] is not None:
