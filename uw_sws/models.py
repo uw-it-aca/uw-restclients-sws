@@ -10,6 +10,14 @@ from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
                          convert_to_end_of_day)
 from restclients_core import models
 
+SWS_TERM_LABEL = "{year},{quarter}"
+SWS_SECTION_LABEL = "{year},{quarter},{curr_abbr},{course_num}/{section_id}"
+
+CANVAS_TERM_ID = "{year}-{quarter}"
+CANVAS_COURSE_ID = "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}"
+CANVAS_IND_STUDY_COURSE_ID = (
+    "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
+
 
 class LastEnrolled(models.Model):
     href = models.CharField(max_length=200)
@@ -284,10 +292,11 @@ class Term(models.Model):
         return self.quarter.lower() == Term.SUMMER
 
     def term_label(self):
-        return "{},{}".format(self.year, self.quarter)
+        return SWS_TERM_LABEL.format(year=self.year, quarter=self.quarter)
 
     def canvas_sis_id(self):
-        return "{}-{}".format(self.year, self.quarter.lower())
+        return CANVAS_TERM_ID.format(
+            year=self.year, quarter=self.quarter.lower())
 
     def json_data(self):
         registration_period = []
@@ -475,20 +484,20 @@ class Section(models.Model):
     grading_system = models.CharField(max_length=32, null=True, blank=True)
 
     def is_campus_seattle(self):
-        return self.course_campus is not None and\
-            self.course_campus.lower() == 'seattle'
+        return (self.course_campus is not None and
+                self.course_campus.lower() == 'seattle')
 
     def is_campus_bothell(self):
-        return self.course_campus is not None and\
-            self.course_campus.lower() == 'bothell'
+        return (self.course_campus is not None and
+                self.course_campus.lower() == 'bothell')
 
     def is_campus_tacoma(self):
-        return self.course_campus is not None and\
-            self.course_campus.lower() == 'tacoma'
+        return (self.course_campus is not None and
+                self.course_campus.lower() == 'tacoma')
 
     def is_campus_pce(self):
-        return self.course_campus is not None and\
-            self.course_campus.lower() == 'pce'
+        return (self.course_campus is not None and
+                self.course_campus.lower() == 'pce')
 
     def is_inst_pce(self):
         return self.institute_name == Section.INSTITUTE_NAME_PCE
@@ -506,20 +515,17 @@ class Section(models.Model):
         return self.delete_flag == Section.DELETE_FLAG_WITHDRAWN
 
     def section_label(self):
-        return "{},{},{},{}/{}".format(
-            self.term.year,
-            self.term.quarter,
-            self.curriculum_abbr,
-            self.course_number,
-            self.section_id)
+        return SWS_SECTION_LABEL.format(
+            year=self.term.year, quarter=self.term.quarter,
+            curr_abbr=self.curriculum_abbr, course_num=self.course_number,
+            section_id=self.section_id)
 
     def primary_section_label(self):
-        return "{},{},{},{}/{}".format(
-            self.term.year,
-            self.term.quarter,
-            self.primary_section_curriculum_abbr,
-            self.primary_section_course_number,
-            self.primary_section_id)
+        return SWS_SECTION_LABEL.format(
+            year=self.term.year, quarter=self.term.quarter,
+            curr_abbr=self.primary_section_curriculum_abbr,
+            course_num=self.primary_section_course_number,
+            section_id=self.primary_section_id)
 
     def get_instructors(self):
         instructors = {}
@@ -551,25 +557,29 @@ class Section(models.Model):
 
     def canvas_course_sis_id(self):
         if self.is_primary_section:
-            sis_id = "{}-{}-{}-{}".format(
-                self.term.canvas_sis_id(),
-                self.curriculum_abbr.upper(),
-                self.course_number,
-                self.section_id.upper())
-
             if self.is_ind_study():
                 if self.independent_study_instructor_regid is None:
-                    raise InvalidCanvasIndependentStudyCourse(
-                        "Undefined instructor {}: {}".format(
-                            "for independent study section",
-                            sis_id))
-                sis_id += "-{}".format(self.independent_study_instructor_regid)
+                    raise InvalidCanvasIndependentStudyCourse((
+                        "Undefined instructor for independent study "
+                        "section: {}").format(self.section_label()))
+                sis_id = CANVAS_IND_STUDY_COURSE_ID.format(
+                    year=self.term.year, quarter=self.term.quarter,
+                    curr_abbr=self.curriculum_abbr.upper(),
+                    course_num=self.course_number,
+                    section_id=self.section_id.upper(),
+                    inst_regid=self.independent_study_instructor_regid)
+            else:
+                sis_id = CANVAS_COURSE_ID.format(
+                    year=self.term.year, quarter=self.term.quarter,
+                    curr_abbr=self.curriculum_abbr.upper(),
+                    course_num=self.course_number,
+                    section_id=self.section_id.upper())
         else:
-            sis_id = "{}-{}-{}-{}".format(
-                self.term.canvas_sis_id(),
-                self.primary_section_curriculum_abbr.upper(),
-                self.primary_section_course_number,
-                self.primary_section_id.upper())
+            sis_id = CANVAS_COURSE_ID.format(
+                year=self.term.year, quarter=self.term.quarter,
+                curr_abbr=self.primary_section_curriculum_abbr.upper(),
+                course_num=self.primary_section_course_number,
+                section_id=self.primary_section_id.upper())
 
         return sis_id
 
@@ -582,11 +592,11 @@ class Section(models.Model):
 
             sis_id += "--"
         else:
-            sis_id = "{}-{}-{}-{}".format(
-                self.term.canvas_sis_id(),
-                self.curriculum_abbr.upper(),
-                self.course_number,
-                self.section_id.upper())
+            sis_id = CANVAS_COURSE_ID.format(
+                year=self.term.year, quarter=self.term.quarter,
+                curr_abbr=self.curriculum_abbr.upper(),
+                course_num=self.course_number,
+                section_id=self.section_id.upper())
 
         return sis_id
 
@@ -734,9 +744,11 @@ class SectionReference(models.Model):
                 self.section_label() == other.section_label())
 
     def section_label(self):
-        return "{},{},{},{}/{}".format(
-            self.term.year, self.term.quarter, self.curriculum_abbr,
-            self.course_number, self.section_id)
+        return SWS_SECTION_LABEL.format(
+            year=self.term.year, quarter=self.term.quarter,
+            curr_abbr=self.curriculum_abbr,
+            course_num=self.course_number,
+            section_id=self.section_id)
 
     def json_data(self):
         return {'year': self.term.year,
@@ -997,8 +1009,8 @@ class Notice(models.Model):
         attrib_data = []
 
         for attrib in self.attributes:
-            if attrib.data_type == "date" and\
-                    include_abbr_week_month_day_format:
+            if (attrib.data_type == "date" and
+                    include_abbr_week_month_day_format):
                 attrib_data.append(
                     {'name': attrib.name,
                      'data_type': attrib.data_type,
