@@ -11,12 +11,12 @@ from uw_sws.department import get_departments_by_college
 class SWSTestDepartment(TestCase):
 
     def test_departments_for_college(self):
-            college = College(label="MED")
-            depts = get_departments_by_college(college)
+        college = College(label="MED")
+        depts = get_departments_by_college(college)
 
-            self.assertEquals(len(depts), 30)
+        self.assertEquals(len(depts), 30)
 
-            # Valid department labels, no files for them
-            self.assertRaises(DataFailureException,
-                              get_departments_by_college,
-                              College(label="NURS"))
+        # Valid department labels, no files for them
+        self.assertRaises(DataFailureException,
+                          get_departments_by_college,
+                          College(label="NURS"))

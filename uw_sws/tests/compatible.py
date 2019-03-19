@@ -33,97 +33,97 @@ class UtilFunctionTest(TestCase):
 
 class SWSTest(TestCase):
     def test_mock_data_fake_grading_window(self):
-            sws = SWS()
+        sws = SWS()
 
-            # backwards compatible for term
-            term = sws.get_term_by_year_and_quarter(2013, 'spring')
-            self.assertEquals(term.year, 2013)
-            self.assertEquals(term.quarter, 'spring')
+        # backwards compatible for term
+        term = sws.get_term_by_year_and_quarter(2013, 'spring')
+        self.assertEquals(term.year, 2013)
+        self.assertEquals(term.quarter, 'spring')
 
-            term = sws.get_current_term()
-            self.assertEquals(term.year, 2013)
-            self.assertEquals(term.quarter, 'spring')
+        term = sws.get_current_term()
+        self.assertEquals(term.year, 2013)
+        self.assertEquals(term.quarter, 'spring')
 
-            prev_term = sws.get_previous_term()
-            self.assertEquals(prev_term.year, 2013)
-            self.assertEquals(prev_term.quarter, 'winter')
+        prev_term = sws.get_previous_term()
+        self.assertEquals(prev_term.year, 2013)
+        self.assertEquals(prev_term.quarter, 'winter')
 
-            next_term = sws.get_next_term()
-            self.assertEquals(next_term.year, 2013)
-            self.assertEquals(next_term.quarter, 'summer')
+        next_term = sws.get_next_term()
+        self.assertEquals(next_term.year, 2013)
+        self.assertEquals(next_term.quarter, 'summer')
 
-            term_before = sws.get_term_before(next_term)
-            self.assertEquals(term_before.year, 2013)
-            self.assertEquals(term_before.quarter, 'spring')
+        term_before = sws.get_term_before(next_term)
+        self.assertEquals(term_before.year, 2013)
+        self.assertEquals(term_before.quarter, 'spring')
 
-            term_after = sws.get_term_after(prev_term)
-            self.assertEquals(term_after.year, 2013)
-            self.assertEquals(term_after.quarter, 'spring')
+        term_after = sws.get_term_after(prev_term)
+        self.assertEquals(term_after.year, 2013)
+        self.assertEquals(term_after.quarter, 'spring')
 
-            # backwards compatible for section
-            section = sws.get_section_by_label('2013,winter,ASIAN,203/A')
-            joint_sections = sws.get_joint_sections(section)
-            self.assertEquals(len(joint_sections), 1)
+        # backwards compatible for section
+        section = sws.get_section_by_label('2013,winter,ASIAN,203/A')
+        joint_sections = sws.get_joint_sections(section)
+        self.assertEquals(len(joint_sections), 1)
 
-            section = sws.get_section_by_url(
-                '/student/v5/course/2013,summer,TRAIN,100/A.json')
-            sws.get_linked_sections(section)
-            section.linked_section_urls = ['2012,summer,TRAIN,100/A']
-            self.assertRaises(InvalidSectionURL,
-                              sws.get_linked_sections, section)
+        section = sws.get_section_by_url(
+            '/student/v5/course/2013,summer,TRAIN,100/A.json')
+        sws.get_linked_sections(section)
+        section.linked_section_urls = ['2012,summer,TRAIN,100/A']
+        self.assertRaises(InvalidSectionURL,
+                          sws.get_linked_sections, section)
 
-            term = Term(quarter="summer", year=2013)
-            person = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
-            sections = sws.get_sections_by_instructor_and_term(person, term)
-            self.assertEquals(len(sections), 1)
+        term = Term(quarter="summer", year=2013)
+        person = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
+        sections = sws.get_sections_by_instructor_and_term(person, term)
+        self.assertEquals(len(sections), 1)
 
-            sections = sws.get_sections_by_delegate_and_term(person, term)
-            self.assertEquals(len(sections), 2)
+        sections = sws.get_sections_by_delegate_and_term(person, term)
+        self.assertEquals(len(sections), 2)
 
-            term = Term(quarter="winter", year=2013)
-            curriculum = Curriculum(label="ENDO")
-            sections = sws.get_sections_by_curriculum_and_term(
-                curriculum, term)
-            self.assertEquals(len(sections), 2)
+        term = Term(quarter="winter", year=2013)
+        curriculum = Curriculum(label="ENDO")
+        sections = sws.get_sections_by_curriculum_and_term(
+            curriculum, term)
+        self.assertEquals(len(sections), 2)
 
-            # backwards compatible for section_status
-            section_status = sws.get_section_status_by_label(
-                '2012,autumn,CSE,100/W')
-            self.assertEquals(section_status.sln, 12588)
+        # backwards compatible for section_status
+        section_status = sws.get_section_status_by_label(
+            '2012,autumn,CSE,100/W')
+        self.assertEquals(section_status.sln, 12588)
 
-            # backwards compatible for registration
-            section = sws.get_section_by_label('2013,winter,DROP_T,100/A')
-            registrations = sws.get_active_registrations_for_section(section)
-            self.assertEquals(len(registrations), 0)
-            registrations = sws.get_all_registrations_for_section(section)
-            self.assertEquals(len(registrations), 1)
+        # backwards compatible for registration
+        section = sws.get_section_by_label('2013,winter,DROP_T,100/A')
+        registrations = sws.get_active_registrations_for_section(section)
+        self.assertEquals(len(registrations), 0)
+        registrations = sws.get_all_registrations_for_section(section)
+        self.assertEquals(len(registrations), 1)
 
-            term = sws.get_current_term()
-            sws.schedule_for_regid_and_term(
-                '9136CCB8F66711D5BE060004AC494FFE', term)
-            # backwards compatible for enrollment
-            grades = sws.grades_for_regid_and_term(
-                '9136CCB8F66711D5BE060004AC494FFE', term)
-            self.assertEquals(grades.user.uwnetid, "javerage")
+        term = sws.get_current_term()
+        sws.schedule_for_regid_and_term(
+            '9136CCB8F66711D5BE060004AC494FFE', term)
+        # backwards compatible for enrollment
+        grades = sws.grades_for_regid_and_term(
+            '9136CCB8F66711D5BE060004AC494FFE', term)
+        self.assertEquals(grades.user.uwnetid, "javerage")
 
-            # backwards compatible for campus
-            campuses = sws.get_all_campuses()
-            self.assertEquals(len(campuses), 3)
+        # backwards compatible for campus
+        campuses = sws.get_all_campuses()
+        self.assertEquals(len(campuses), 3)
 
-            # backwards compatible for college
-            colleges = sws.get_all_colleges()
-            self.assertEquals(len(colleges), 20)
+        # backwards compatible for college
+        colleges = sws.get_all_colleges()
+        self.assertEquals(len(colleges), 20)
 
-            # backwards compatible for department
-            college = College(label="MED")
-            depts = sws.get_departments_for_college(college)
-            self.assertEquals(len(depts), 30)
+        # backwards compatible for department
+        college = College(label="MED")
+        depts = sws.get_departments_for_college(college)
+        self.assertEquals(len(depts), 30)
 
-            # backwards compatible for curriculum
-            department = Department(label="EDUC")
-            curricula = sws.get_curricula_for_department(department)
-            self.assertEquals(len(curricula), 7)
+        # backwards compatible for curriculum
+        department = Department(label="EDUC")
+        curricula = sws.get_curricula_for_department(department)
+        self.assertEquals(len(curricula), 7)
 
-            term = Term(quarter='winter', year=2013)
-            curricula = sws.get_curricula_for_term(term)
-            self.assertEquals(len(curricula), 423)
+        term = Term(quarter='winter', year=2013)
+        curricula = sws.get_curricula_for_term(term)
+        self.assertEquals(len(curricula), 423)

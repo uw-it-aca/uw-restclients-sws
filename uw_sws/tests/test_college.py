@@ -10,5 +10,5 @@ from restclients_core.exceptions import DataFailureException
 class SWSTestCollege(TestCase):
 
     def test_all_colleges(self):
-            colleges = get_all_colleges()
-            self.assertEquals(len(colleges), 20)
+        colleges = get_all_colleges()
+        self.assertEquals(len(colleges), 20)

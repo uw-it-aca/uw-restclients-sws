@@ -325,6 +325,7 @@ def _json_to_section(section_data,
     section.course_title = section_data["CourseTitle"]
     section.course_title_long = section_data["CourseTitleLong"]
     section.course_campus = section_data["CourseCampus"]
+    section.course_description = section_data["CourseDescription"]
     section.section_id = section_data["SectionID"]
     section.eos_cid = section_data.get("EOS_CID", None)
     section.institute_name = section_data.get("InstituteName", "")
