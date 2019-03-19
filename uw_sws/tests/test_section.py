@@ -677,3 +677,19 @@ class SWSTestSectionData(TestCase):
         self.assertEqual(instructors[0]["voice_mails"], [])
         self.assertEqual(instructors[0]["positions"], [])
         self.assertIsNone(instructors[0]["publish_in_emp_directory"])
+
+    def test_course_description(self):
+        section = get_section_by_label('2012,autumn,CSE,100/W')
+        json_data = section.json_data()
+        course_description = "Introduction to programming concepts within " \
+                             "social, cultural, scientific, mathematical, " \
+                             "and technological context. Topics include " \
+                             "programming fundamentals (control structures" \
+                             ", data types and representation, operations," \
+                             " functions and parameters), computer " \
+                             "organization, algorithmic thinking, " \
+                             "introductory software engineering concepts " \
+                             "(specifications, design, testing), and social" \
+                             " and professional issues (history, ethics," \
+                             " applications). "
+        self.assertEqual(course_description, json_data["course_description"])
