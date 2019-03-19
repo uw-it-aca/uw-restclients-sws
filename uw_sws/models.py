@@ -482,6 +482,7 @@ class Section(models.Model):
     student_grade = models.CharField(max_length=6, null=True, blank=True)
     grade_date = models.DateField(null=True, blank=True, default=None)
     grading_system = models.CharField(max_length=32, null=True, blank=True)
+    course_description = models.TextField()
 
     def is_campus_seattle(self):
         return (self.course_campus is not None and
@@ -698,6 +699,7 @@ class Section(models.Model):
                 self.independent_study_instructor_regid,
             'course_title': self.course_title,
             'course_campus': self.course_campus,
+            'course_description': self.course_description,
             'class_website_url': self.class_website_url,
             'sln': self.sln,
             'summer_term': self.summer_term,

@@ -10,6 +10,6 @@ from restclients_core.exceptions import DataFailureException
 class SWSTestCampus(TestCase):
 
     def test_all_campuses(self):
-            campuses = get_all_campuses()
+        campuses = get_all_campuses()
 
-            self.assertEquals(len(campuses), 3)
+        self.assertEquals(len(campuses), 3)
