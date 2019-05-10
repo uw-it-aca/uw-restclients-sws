@@ -403,9 +403,15 @@ def _json_to_section(section_data,
     section.grading_system = section_data['GradingSystem']
     section.grade_submission_delegates = []
     for del_data in section_data["GradeSubmissionDelegates"]:
-        delegate = GradeSubmissionDelegate(
-            person=UWPWS.get_person_by_regid(del_data["Person"]["RegID"]),
-            delegate_level=del_data["DelegateLevel"])
+        try:
+            delegate = GradeSubmissionDelegate(
+                person=UWPWS.get_person_by_regid(del_data["Person"]["RegID"]),
+                delegate_level=del_data["DelegateLevel"])
+        except DataFailureException:
+            delegate = GradeSubmissionDelegate(
+                person=Person(uwregid=del_data["Person"]["RegID"],
+                              display_name=del_data["Person"]["Name"])
+            )
         section.grade_submission_delegates.append(delegate)
 
     section.meetings = []

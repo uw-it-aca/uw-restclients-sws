@@ -693,3 +693,10 @@ class SWSTestSectionData(TestCase):
                              " and professional issues (history, ethics," \
                              " applications). "
         self.assertEqual(course_description, json_data["course_description"])
+
+    def test_section_no_pws(self):
+        # Ensure no hard dependency on the PWS
+        section = get_section_by_label('2012,autumn,CSE,199/W')
+        person = section.grade_submission_delegates[0].person
+        self.assertEqual(person.uwregid, '1230A9206A7D11D5A4AE0004AC494123')
+        self.assertEqual(person.display_name, 'PWS, FOUR OH FOUR')
