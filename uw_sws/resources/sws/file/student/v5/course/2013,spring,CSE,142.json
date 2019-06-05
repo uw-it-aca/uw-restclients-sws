@@ -1,0 +1,41 @@
+{
+    "CourseCampus": "Seattle",
+    "CourseCollege": "Engineering",
+    "CourseComment": "CHG DESC",
+    "CourseDescription": "Basic programming-in-the-small abilities and concepts including procedural programming (methods, parameters, return, values), basic control structures (sequence, if/else, for loop, while loop), file processing, arrays, and an introduction to defining objects. Intended for students without prior programming experience. Offered: AWSpS.",
+    "CourseNumber": "142",
+    "CourseTitle": "COMPUTER PRGRMNG I",
+    "CourseTitleLong": "Computer Programming I",
+    "CreditControl": "fixed credit",
+    "Curriculum": {
+        "CurriculumAbbreviation": "CSE",
+        "Href": "/student/v5/curriculum/2013,spring,CSE.json",
+        "Quarter": "spring",
+        "Year": 2013
+    },
+    "FirstEffectiveTerm": {
+        "Href": "/student/v5/term/2012,spring.json",
+        "Quarter": "spring",
+        "Year": 2012
+    },
+    "GeneralEducationRequirements": {
+        "Diversity": false,
+        "EnglishComposition": false,
+        "IndividualsAndSocieties": false,
+        "NaturalWorld": true,
+        "QuantitativeAndSymbolicReasoning": true,
+        "VisualLiteraryAndPerformingArts": false,
+        "Writing": false
+    },
+    "GradingSystem": "credit/no credit or standard",
+    "LastEffectiveTerm": {
+        "Href": "/student/v5/term/9999,autumn.json",
+        "Quarter": "autumn",
+        "Year": 9999
+    },
+    "MaximumCredit": 0,
+    "MaximumTermCredit": 0,
+    "Metadata": "CourseSourceKey=SDB;",
+    "MinimumTermCredit": 4,
+    "RepositoryTimeStamp": "10/13/2018 8:05:41 AM"
+}
