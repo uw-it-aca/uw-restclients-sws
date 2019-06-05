@@ -1183,3 +1183,27 @@ class UnfinishedPceCourse(models.Model):
 
     def __str__(self):
         return json.dumps(self.json_data())
+
+
+class Course(models.Model):
+    curriculum_abbr = models.CharField(max_length=6,
+                                       db_index=True)
+    course_number = models.PositiveSmallIntegerField(db_index=True)
+    course_title = models.CharField(max_length=20)
+    course_title_long = models.CharField(max_length=50)
+    course_campus = models.CharField(max_length=7)
+    course_description = models.TextField()
+
+    def json_data(self):
+        data = {
+            'curriculum_abbr': self.curriculum_abbr,
+            'course_number': self.course_number,
+            'course_title': self.course_title,
+            'course_title_long': self.course_title_long,
+            'course_campus': self.course_campus,
+            'course_description': self.course_description
+        }
+        return data
+
+    def __str__(self):
+        return json.dumps(self.json_data())
