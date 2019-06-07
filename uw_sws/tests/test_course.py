@@ -37,3 +37,5 @@ class SWSTestCourseData(TestCase):
         self.assertEqual(course.json_data(), course_resp)
 
         self.assertIsNone(get_course_by_label("2013,spring,FOO,123"))
+
+        self.assertIsNotNone(get_course_by_label("2013,spring,ATMO S,142"))
