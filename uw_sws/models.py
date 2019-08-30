@@ -809,15 +809,25 @@ class Registration(models.Model):
     is_credit = models.NullBooleanField()
     is_auditor = models.NullBooleanField()
     is_independent_start = models.NullBooleanField()
-    start_date = models.DateField(blank=True)
-    end_date = models.DateField(blank=True)
-    request_date = models.DateField(blank=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    request_date = models.DateField(blank=True, null=True)
     request_status = models.CharField(max_length=50)
+    credits = models.CharField(max_length=5, null=True)
     duplicate_code = models.CharField(max_length=3)
     repeat_course = models.NullBooleanField()
-    credits = models.CharField(max_length=5, null=True)
     repository_timestamp = models.DateTimeField()
     grade = models.CharField(max_length=5, null=True)
+    grade_date = models.DateField(blank=True, null=True)
+    feebase_type = models.CharField(max_length=64, blank=True)
+    meta_data = models.CharField(max_length=96, blank=True, null=True)
+
+    def eos_only(self):
+        return (self.meta_data is not None and
+                "RegistrationSourceLocation=EOS;" in self.meta_data)
+
+    def is_fee_based(self):
+        return self.feebase_type.lower() == "fee based course"
 
     def is_pending_status(self):
         return (len(self.request_status) and
@@ -826,6 +836,10 @@ class Registration(models.Model):
     def is_dropped_status(self):
         return (len(self.request_status) and
                 self.request_status.lower() == "dropped from class")
+
+    def is_standby_status(self):
+        return (len(self.request_status) and
+                self.request_status.lower() == "added to standby")
 
     def is_withdrew(self):
         return (WITHDREW_GRADE_PATTERN.match(self.grade) is not None)

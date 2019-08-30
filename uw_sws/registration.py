@@ -10,11 +10,11 @@ from datetime import datetime
 from dateutil.parser import parse
 from uw_sws.models import Registration, ClassSchedule
 from restclients_core.exceptions import DataFailureException
-from restclients_core.cache_manager import (enable_cache_entry_queueing,
-                                            disable_cache_entry_queueing,
-                                            save_all_queued_entries)
-from restclients_core.thread import (Thread, GenericPrefetchThread,
-                                     generic_prefetch)
+from restclients_core.cache_manager import (
+    enable_cache_entry_queueing, disable_cache_entry_queueing,
+    save_all_queued_entries)
+from restclients_core.thread import (
+    Thread, GenericPrefetchThread, generic_prefetch)
 from uw_sws import get_resource, UWPWS
 from uw_sws.compat import deprecation
 from uw_sws.thread import SWSThread
@@ -76,42 +76,55 @@ def _json_to_registrations(data, section):
     registrations = []
     person_threads = {}
     for reg_data in data.get("Registrations", []):
-        registration = Registration()
-        registration.section = section
-        registration.is_active = reg_data["IsActive"]
-        registration.is_credit = reg_data["IsCredit"]
-        registration.is_auditor = reg_data["Auditor"]
-        registration.is_independent_start = reg_data["IsIndependentStart"]
-        if len(reg_data["StartDate"]):
-            registration.start_date = parse(reg_data["StartDate"])
-        if len(reg_data["EndDate"]):
-            registration.end_date = parse(reg_data["EndDate"])
-        if len(reg_data["RequestDate"]):
-            registration.request_date = parse(reg_data["RequestDate"])
-        registration.request_status = reg_data["RequestStatus"]
-        registration.duplicate_code = reg_data["DuplicateCode"]
-        registration.credits = reg_data["Credits"]
-        registration.repository_timestamp = datetime.strptime(
-            reg_data["RepositoryTimeStamp"], "%m/%d/%Y %H:%M:%S %p")
-        registration.repeat_course = reg_data["RepeatCourse"]
-        registration.grade = reg_data["Grade"]
+        registrations.append(_json_to_a_registration(
+            reg_data, section, person_threads))
 
-        registration._uwregid = reg_data["Person"]["RegID"]
-        if registration._uwregid not in person_threads:
-            thread = SWSPersonByRegIDThread()
-            thread.regid = registration._uwregid
-            thread.start()
-            person_threads[registration._uwregid] = thread
+    _set_person_in_registrations(registrations, person_threads)
+    return registrations
 
-        registrations.append(registration)
+def _json_to_a_registration(reg_data, section, person_threads):
+    registration = Registration()
+    registration.section = section
+    registration.is_active = reg_data["IsActive"]
+    registration.is_credit = reg_data["IsCredit"]
+    registration.is_auditor = reg_data["Auditor"]
+    registration.is_independent_start = reg_data["IsIndependentStart"]
+    if len(reg_data["StartDate"]) > 0:
+        registration.start_date = parse(reg_data["StartDate"])
+    if len(reg_data["EndDate"]) > 0:
+        registration.end_date = parse(reg_data["EndDate"])
+    if len(reg_data["RequestDate"]) > 0:
+        registration.request_date = parse(reg_data["RequestDate"])
 
+    registration.request_status = reg_data["RequestStatus"]
+    registration.duplicate_code = reg_data["DuplicateCode"]
+    registration.credits = reg_data["Credits"]
+    registration.repository_timestamp = datetime.strptime(
+        reg_data["RepositoryTimeStamp"], "%m/%d/%Y %H:%M:%S %p")
+    registration.repeat_course = reg_data["RepeatCourse"]
+
+    registration.grade = reg_data["Grade"]
+    if len(reg_data["GradeDate"]) > 0:
+        registration.grade_date = parse(reg_data["GradeDate"])
+
+    registration.feebase_type = reg_data.get("FeeBaseType")
+    registration.meta_data = reg_data.get("Metadata")
+
+    registration._uwregid = reg_data["Person"]["RegID"]
+    if registration._uwregid not in person_threads:
+        thread = SWSPersonByRegIDThread()
+        thread.regid = registration._uwregid
+        thread.start()
+        person_threads[registration._uwregid] = thread
+    return registration
+
+
+def _set_person_in_registrations(registrations, person_threads):
     for registration in registrations:
         thread = person_threads[registration._uwregid]
         thread.join()
         registration.person = thread.person
         del registration._uwregid
-
-    return registrations
 
 
 def get_active_registrations_by_section(section, transcriptable_course=""):
@@ -178,10 +191,16 @@ def get_credits_by_reg_url(url):
 def get_schedule_by_regid_and_term(regid, term,
                                    non_time_schedule_instructors=True,
                                    per_section_prefetch_callback=None,
-                                   transcriptable_course="", **kwargs):
+                                   transcriptable_course="",
+                                   verbose=False,
+                                   **kwargs):
     """
     Returns a uw_sws.models.ClassSchedule object
     for the regid and term passed in.
+    Valid kwargs are:
+      transcriptable_course="{|yes|no|all}",
+      instructor_reg_id="{instructor regid}"
+      (to search the registration with an independent study instructor).
     """
 
     if "include_instructor_not_on_time_schedule" in kwargs:
@@ -190,6 +209,9 @@ def get_schedule_by_regid_and_term(regid, term,
     params = [
         ('reg_id', regid),
     ]
+
+    if verbose:
+        params.append(('verbose', "on"))
 
     if transcriptable_course != "":
         params.append(("transcriptable_course", transcriptable_course,))
@@ -202,12 +224,19 @@ def get_schedule_by_regid_and_term(regid, term,
 
     url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
 
-    return _json_to_schedule(get_resource(url), term, regid,
+    return _json_to_schedule(get_resource(url), verbose, term, regid,
                              non_time_schedule_instructors,
                              per_section_prefetch_callback)
 
 
-def _json_to_schedule(term_data, term, regid,
+def to_course_url(reg_url):
+    course_url = re.sub('registration', 'course', reg_url)
+    course_url = re.sub('^(.*?,.*?,.*?,.*?,.*?),.*', '\\1.json', course_url)
+    course_url = re.sub(',([^,]*).json', '/\\1.json', course_url)
+    return course_url
+
+
+def _json_to_schedule(json_data, reg_in_payload, term, regid,
                       include_instructor_not_on_time_schedule=True,
                       per_section_prefetch_callback=None):
     sections = []
@@ -216,23 +245,23 @@ def _json_to_schedule(term_data, term, regid,
 
     enable_cache_entry_queueing()
     try:
-        for registration in term_data["Registrations"]:
-            reg_url = registration["Href"]
-
-            # Skip a step here, and go right to the course section resource
-            course_url = re.sub('registration', 'course', reg_url)
-            course_url = re.sub('^(.*?,.*?,.*?,.*?,.*?),.*',
-                                '\\1.json',
-                                course_url)
-            course_url = re.sub(',([^,]*).json', '/\\1.json', course_url)
+        for registration in json_data["Registrations"]:
 
             thread = SWSThread()
-            thread.url = course_url
-            thread.reg_url = reg_url
+            if reg_in_payload:
+                thread.reg_json = registration
+                thread.reg_url  = None
+                thread.url = registration["Section"]["Href"]
+            else:
+                thread.reg_json = None
+                thread.reg_url = registration["Href"]
+                thread.url = to_course_url(thread.reg_url)
+                              
             thread.headers = {"Accept": "application/json"}
             thread.start()
             sws_threads.append(thread)
 
+        # Get the course section resource
         for thread in sws_threads:
             thread.join()
 
@@ -249,10 +278,11 @@ def _json_to_schedule(term_data, term, regid,
                         client_callbacks = per_section_prefetch_callback(data)
                         section_prefetch.extend(client_callbacks)
 
-                url = thread.reg_url
-                section_prefetch.append([url,
-                                         generic_prefetch(get_resource,
-                                                          [url])])
+                if thread.reg_url is not None:
+                    url = thread.reg_url
+                    section_prefetch.append([url,
+                                             generic_prefetch(get_resource,
+                                                              [url])])
 
             prefetch_threads = []
             for entry in section_prefetch:
@@ -286,26 +316,17 @@ def _json_to_schedule(term_data, term, regid,
 
             section = _json_to_section(json.loads(response.data), term,
                                        include_instructor_not_on_time_schedule)
-            _add_credits_grade_to_section(thread.reg_url, section)
+
+            _add_credits_grade_to_section(thread, section)
+
             if section.student_credits is not None:
                 term_credit_hours += section.student_credits
+
             # For independent study courses, only include the one relevant
             # instructor
-            if registration["Instructor"]:
-                actual_instructor = None
-                instructor_regid = registration["Instructor"]["RegID"]
+            if registration.get("Instructor") is not None:
+                _set_actual_instructor(registration["Instructor"], section)
 
-                for instructor in section.meetings[0].instructors:
-                    if instructor.uwregid == instructor_regid:
-                        actual_instructor = instructor
-
-                if actual_instructor:
-                    section.meetings[0].instructors = [actual_instructor]
-                else:
-                    section.meetings[0].instructors = []
-
-                instructor_regid = registration["Instructor"]
-                section.independent_study_instructor_regid = instructor_regid
             sections.append(section)
 
         term.credits = term_credit_hours
@@ -323,12 +344,16 @@ def _json_to_schedule(term_data, term, regid,
     return schedule
 
 
-def _add_credits_grade_to_section(url, section):
+def _add_credits_grade_to_section(thread, section):
     """
     Given the registration url passed in,
     add credits, grade, grade date in the section object
     """
-    section_reg_data = get_resource(url)
+    if thread.reg_url is None:
+        section_reg_data = thread.reg_json
+    else:
+        section_reg_data = get_resource(thread.reg_url)
+
     if section_reg_data is not None:
         section.student_grade = section_reg_data['Grade']
         section.is_auditor = section_reg_data['Auditor']
@@ -339,3 +364,18 @@ def _add_credits_grade_to_section(url, section):
             section.student_credits = Decimal(raw_credits)
         except InvalidOperation:
             pass
+
+
+def _set_actual_instructor(instructor_json, section):
+    actual_instructor = None
+    instructor_regid = instructor_json["RegID"]
+    for instructor in section.meetings[0].instructors:
+        if instructor.uwregid == instructor_regid:
+            actual_instructor = instructor
+
+    if actual_instructor:
+        section.meetings[0].instructors = [actual_instructor]
+    else:
+        section.meetings[0].instructors = []
+
+    section.independent_study_instructor_regid = instructor_json

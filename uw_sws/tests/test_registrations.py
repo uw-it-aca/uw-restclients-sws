@@ -1,9 +1,9 @@
 from unittest import TestCase
 from uw_sws.models import Term
 from uw_sws.section import get_section_by_label
-from uw_sws.registration import (get_active_registrations_by_section,
-                                 get_all_registrations_by_section,
-                                 get_schedule_by_regid_and_term)
+from uw_sws.registration import (
+    get_active_registrations_by_section, get_all_registrations_by_section,
+    get_schedule_by_regid_and_term)
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from restclients_core.exceptions import DataFailureException
@@ -43,6 +43,7 @@ class SWSTestRegistrations(TestCase):
         registrations = get_all_registrations_by_section(section)
 
         self.assertEquals(len(registrations), 2)
+
         javerage_reg = registrations[0]
         self.assertEquals(javerage_reg.person.uwnetid, 'javerage')
         self.assertEquals(javerage_reg.is_active, False)
@@ -56,7 +57,12 @@ class SWSTestRegistrations(TestCase):
                           '2016-01-05T02:45:15')
         self.assertEquals(javerage_reg.repeat_course, False)
         self.assertEquals(javerage_reg.grade, 'X')
+        self.assertIsNone(javerage_reg.grade_date)
         self.assertFalse(javerage_reg.is_withdrew())
+        self.assertFalse(javerage_reg.eos_only())
+        self.assertFalse(javerage_reg.is_fee_based())
+        self.assertFalse(javerage_reg.is_standby_status())
+        self.assertFalse(javerage_reg.is_pending_status())
 
     def test_active_registration_status_after_drop_and_add(self):
         section = get_section_by_label('2013,winter,DROP_T,100/B')
@@ -113,62 +119,85 @@ class SWSTestRegistrations(TestCase):
             'instructor_reg_id=&course_number=100&verbose=true&year=2013&'
             'quarter=winter&is_active=&section_id=B&transcriptable_course=no')
 
-    def test_get_schedule_by_regid_and_term(self):
+    def _get_section_from_schedule(self, class_schedule, section_label):
+        for section in class_schedule.sections:
+            if section.section_label() == section_label:
+                return section
+
+    def test_get_active_schedule_by_regid_and_term(self):
         term = Term(quarter="spring", year=2013)
         class_schedule = get_schedule_by_regid_and_term(
-            '9136CCB8F66711D5BE060004AC494FFE',
-            term)
-        for section in class_schedule.sections:
-            if section.section_label() == '2013,spring,TRAIN,100/A':
-                self.assertEquals(len(section.get_instructors()), 1)
-                self.assertEquals(section.student_credits,
-                                  Decimal("{:f}".format(1.0)))
-                self.assertEquals(section.student_grade, "X")
-                self.assertEquals(section.get_grade_date_str(), None)
-                self.assertTrue(section.is_primary_section)
-                self.assertEquals(section.is_auditor, False)
+            '9136CCB8F66711D5BE060004AC494FFE', term, verbose=True)
+        self.assertEquals(len(class_schedule.sections), 5)
+        section = self._get_section_from_schedule(
+            class_schedule, '2013,spring,TRAIN,100/A')
+        self.assertEquals(len(section.get_instructors()), 1)
+        self.assertEquals(section.student_credits,
+                          Decimal("{:f}".format(1.0)))
+        self.assertEquals(section.student_grade, "X")
+        self.assertEquals(section.get_grade_date_str(), None)
+        self.assertTrue(section.is_primary_section)
+        self.assertEquals(section.is_auditor, False)
 
-            if section.section_label() == '2013,spring,PHYS,121/AC':
-                self.assertEquals(section.student_credits,
-                                  Decimal("{:f}".format(3.0)))
-                self.assertEquals(section.student_grade, "4.0")
-                self.assertEquals(section.get_grade_date_str(), "2013-06-11")
-                self.assertFalse(section.is_primary_section)
-                self.assertEquals(section.is_auditor, False)
-
-        class_schedule = get_schedule_by_regid_and_term(
-            '9136CCB8F66711D5BE060004AC494FFE',
-            term, False)
-        for section in class_schedule.sections:
-            if section.section_label() == '2013,spring,TRAIN,100/A':
-                self.assertEquals(len(section.get_instructors()), 0)
-
-        class_schedule = get_schedule_by_regid_and_term(
-            '12345678901234567890123456789012', term)
-        for section in class_schedule.sections:
-            if section.section_label() == '2013,spring,,MATH,125/G':
-                self.assertEquals(section.student_credits,
-                                  Decimal("{:f}".format(5.0)))
-                self.assertEquals(section.student_grade, "3.5")
-                self.assertEquals(section.is_auditor, True)
-                self.assertTrue(section.is_primary_section)
+        section = self._get_section_from_schedule(
+            class_schedule, '2013,spring,PHYS,121/AC')
+        self.assertEquals(section.student_credits,
+                          Decimal("{:f}".format(3.0)))
+        self.assertEquals(section.student_grade, "4.0")
+        self.assertEquals(section.get_grade_date_str(), "2013-06-11")
+        self.assertFalse(section.is_primary_section)
+        self.assertEquals(section.is_auditor, False)
 
     def test_get_schedule_by_regid_and_term(self):
         term = Term(quarter="spring", year=2013)
+
+        # include TSPrint is false instructor
+        class_schedule = get_schedule_by_regid_and_term(
+            '9136CCB8F66711D5BE060004AC494FFE', term)
+        self.assertEquals(len(class_schedule.sections), 5)
+        section = self._get_section_from_schedule(
+            class_schedule, '2013,spring,TRAIN,100/A')
+        self.assertEquals(len(section.get_instructors()), 1)
+
+        # exclude TSPrint is false instructor
+        class_schedule = get_schedule_by_regid_and_term(
+            '9136CCB8F66711D5BE060004AC494FFE', term,
+            non_time_schedule_instructors=False)
+        self.assertEquals(len(class_schedule.sections), 5)
+        section = self._get_section_from_schedule(
+            class_schedule, '2013,spring,TRAIN,100/A')
+        self.assertEquals(len(section.get_instructors()), 0)
+
+        # not transcriptable_course
         class_schedule = get_schedule_by_regid_and_term(
             'FE36CCB8F66711D5BE060004AC494FCE',
             term, transcriptable_course="no")
+        self.assertEquals(len(class_schedule.sections), 1)
+        section = self._get_section_from_schedule(
+            class_schedule, '2013,spring,ESS,107/A')
+        self.assertEquals(len(section.get_instructors()), 1)
 
-        for section in class_schedule.sections:
-            if section.section_label() == '2013,spring,ESS,107/A':
-                self.assertEquals(len(section.get_instructors()), 1)
-                self.assertEquals(section.student_credits,
-                                  Decimal("{:f}".format(3.0)))
-                self.assertEquals(section.student_grade, "X")
-                self.assertEquals(section.get_grade_date_str(), None)
-                self.assertTrue(section.is_primary_section)
-                self.assertEquals(section.is_auditor, False)
+        # eight's schedule
+        class_schedule = get_schedule_by_regid_and_term(
+            '12345678901234567890123456789012', term)
+        self.assertEquals(len(class_schedule.sections), 12)
+        section = self._get_section_from_schedule(
+            class_schedule, '2013,spring,MATH,125/G')
+        self.assertEquals(section.student_credits,
+                          Decimal("{:f}".format(5.0)))
+        self.assertEquals(section.student_grade, "3.5")
+        self.assertEquals(section.is_auditor, True)
+        self.assertTrue(section.is_primary_section)
 
+        section = self._get_section_from_schedule(
+            class_schedule, '2013,spring,MATH,125/GA')
+        self.assertEquals(len(section.get_instructors()), 2)
+        self.assertEquals(section.student_grade, "X")
+        self.assertEquals(section.get_grade_date_str(), None)
+        self.assertFalse(section.is_primary_section)
+        self.assertEquals(section.is_auditor, False)
+
+    def test_transcriptable_course_all(self):
         term = Term(quarter="winter", year=2013)
         class_schedule = get_schedule_by_regid_and_term(
             'FE36CCB8F66711D5BE060004AC494F31', term,
