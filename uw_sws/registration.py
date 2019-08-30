@@ -377,4 +377,4 @@ def _set_actual_instructor(instructor_json, section):
     else:
         section.meetings[0].instructors = []
 
-    section.independent_study_instructor_regid = instructor_json
+    section.independent_study_instructor_regid = instructor_regid
