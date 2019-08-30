@@ -82,6 +82,7 @@ def _json_to_registrations(data, section):
     _set_person_in_registrations(registrations, person_threads)
     return registrations
 
+
 def _json_to_a_registration(reg_data, section, person_threads):
     registration = Registration()
     registration.section = section
@@ -246,17 +247,15 @@ def _json_to_schedule(json_data, reg_in_payload, term, regid,
     enable_cache_entry_queueing()
     try:
         for registration in json_data["Registrations"]:
-
             thread = SWSThread()
             if reg_in_payload:
                 thread.reg_json = registration
-                thread.reg_url  = None
+                thread.reg_url = None
                 thread.url = registration["Section"]["Href"]
             else:
                 thread.reg_json = None
                 thread.reg_url = registration["Href"]
                 thread.url = to_course_url(thread.reg_url)
-                              
             thread.headers = {"Accept": "application/json"}
             thread.start()
             sws_threads.append(thread)
