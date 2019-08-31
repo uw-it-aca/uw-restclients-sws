@@ -193,13 +193,12 @@ def get_schedule_by_regid_and_term(regid, term,
                                    non_time_schedule_instructors=True,
                                    per_section_prefetch_callback=None,
                                    transcriptable_course="",
-                                   verbose=False,
                                    **kwargs):
     """
     Returns a uw_sws.models.ClassSchedule object
     for the regid and term passed in.
-    Valid kwargs are:
-      transcriptable_course="{|yes|no|all}",
+    transcriptable_course values: "{|yes|no|all}".
+    kwargs:
       instructor_reg_id="{instructor regid}"
       (to search the registration with an independent study instructor).
     """
@@ -211,9 +210,6 @@ def get_schedule_by_regid_and_term(regid, term,
         ('reg_id', regid),
     ]
 
-    if verbose:
-        params.append(('verbose', "on"))
-
     if transcriptable_course != "":
         params.append(("transcriptable_course", transcriptable_course,))
 
@@ -221,23 +217,17 @@ def get_schedule_by_regid_and_term(regid, term,
         ('quarter', term.quarter),
         ('is_active', 'true'),
         ('year', term.year),
+        ('verbose', "on")
     ])
 
     url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
 
-    return _json_to_schedule(get_resource(url), verbose, term, regid,
+    return _json_to_schedule(get_resource(url), term, regid,
                              non_time_schedule_instructors,
                              per_section_prefetch_callback)
 
 
-def to_course_url(reg_url):
-    course_url = re.sub('registration', 'course', reg_url)
-    course_url = re.sub('^(.*?,.*?,.*?,.*?,.*?),.*', '\\1.json', course_url)
-    course_url = re.sub(',([^,]*).json', '/\\1.json', course_url)
-    return course_url
-
-
-def _json_to_schedule(json_data, reg_in_payload, term, regid,
+def _json_to_schedule(json_data, term, regid,
                       include_instructor_not_on_time_schedule=True,
                       per_section_prefetch_callback=None):
     sections = []
@@ -248,14 +238,8 @@ def _json_to_schedule(json_data, reg_in_payload, term, regid,
     try:
         for registration in json_data["Registrations"]:
             thread = SWSThread()
-            if reg_in_payload:
-                thread.reg_json = registration
-                thread.reg_url = None
-                thread.url = registration["Section"]["Href"]
-            else:
-                thread.reg_json = None
-                thread.reg_url = registration["Href"]
-                thread.url = to_course_url(thread.reg_url)
+            thread.reg_json = registration
+            thread.url = registration["Section"]["Href"]
             thread.headers = {"Accept": "application/json"}
             thread.start()
             sws_threads.append(thread)
@@ -348,21 +332,16 @@ def _add_credits_grade_to_section(thread, section):
     Given the registration url passed in,
     add credits, grade, grade date in the section object
     """
-    if thread.reg_url is None:
-        section_reg_data = thread.reg_json
-    else:
-        section_reg_data = get_resource(thread.reg_url)
-
-    if section_reg_data is not None:
-        section.student_grade = section_reg_data['Grade']
-        section.is_auditor = section_reg_data['Auditor']
-        if len(section_reg_data['GradeDate']) > 0:
-            section.grade_date = parse(section_reg_data["GradeDate"]).date()
-        try:
-            raw_credits = section_reg_data['Credits'].strip()
-            section.student_credits = Decimal(raw_credits)
-        except InvalidOperation:
-            pass
+    section_reg_data = thread.reg_json
+    section.student_grade = section_reg_data['Grade']
+    section.is_auditor = section_reg_data['Auditor']
+    if len(section_reg_data['GradeDate']) > 0:
+        section.grade_date = parse(section_reg_data["GradeDate"]).date()
+    try:
+        raw_credits = section_reg_data['Credits'].strip()
+        section.student_credits = Decimal(raw_credits)
+    except InvalidOperation:
+        pass
 
 
 def _set_actual_instructor(instructor_json, section):

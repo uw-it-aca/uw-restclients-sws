@@ -127,7 +127,7 @@ class SWSTestRegistrations(TestCase):
     def test_get_active_schedule_by_regid_and_term(self):
         term = Term(quarter="spring", year=2013)
         class_schedule = get_schedule_by_regid_and_term(
-            '9136CCB8F66711D5BE060004AC494FFE', term, verbose=True)
+            '9136CCB8F66711D5BE060004AC494FFE', term)
         self.assertEquals(len(class_schedule.sections), 5)
         section = self._get_section_from_schedule(
             class_schedule, '2013,spring,TRAIN,100/A')
@@ -180,7 +180,7 @@ class SWSTestRegistrations(TestCase):
         # eight's schedule
         class_schedule = get_schedule_by_regid_and_term(
             '12345678901234567890123456789012', term)
-        self.assertEquals(len(class_schedule.sections), 12)
+        self.assertEquals(len(class_schedule.sections), 9)
         section = self._get_section_from_schedule(
             class_schedule, '2013,spring,MATH,125/G')
         self.assertEquals(section.student_credits,
