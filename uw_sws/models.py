@@ -563,7 +563,10 @@ class Section(models.Model):
         else:
             open_date = self.term.grading_period_open
 
-        return (open_date <= now <= self.term.grade_submission_deadline)
+        try:
+            return (open_date <= now <= self.term.grade_submission_deadline)
+        except TypeError:  # Undefined term dates
+            return False
 
     def canvas_course_sis_id(self):
         if self.is_primary_section:

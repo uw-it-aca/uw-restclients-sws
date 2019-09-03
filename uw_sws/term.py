@@ -154,42 +154,25 @@ def _json_to_term_model(term_data):
     if term_data["LastAddDayBTerm"] is not None:
         term.bterm_last_day_add = parse_sws_date(term_data["LastAddDayBTerm"])
 
-    term.last_final_exam_date = parse_sws_date(term_data["LastFinalExamDay"])
+    if term_data["LastFinalExamDay"] is not None:
+        term.last_final_exam_date = parse_sws_date(
+            term_data["LastFinalExamDay"])
 
-    try:
+    if term_data["GradingPeriodOpen"] is not None:
         term.grading_period_open = strptime(
             term_data["GradingPeriodOpen"], datetime_format)
-    except (TypeError, ValueError):
-        logger.warn('Malformed term_data["GradingPeriodOpen"]: {}'.format(
-            term_data["GradingPeriodOpen"]))
-        term.grading_period_open = strptime(
-            '{}T08:00:00'.format(term_data['LastFinalExamDay']),
-            datetime_format)
 
     if term_data["GradingPeriodOpenATerm"] is not None:
         term.aterm_grading_period_open = strptime(
             term_data["GradingPeriodOpenATerm"], datetime_format)
 
-    try:
+    if term_data["GradingPeriodClose"] is not None:
         term.grading_period_close = strptime(
             term_data["GradingPeriodClose"], datetime_format)
-    except (TypeError, ValueError):
-        logger.warn('Malformed term_data["GradingPeriodClose"]: {}'.format(
-            term_data["GradingPeriodClose"]))
-        term.grading_period_close = strptime(
-            '{}T17:00:00'.format(term_data['LastFinalExamDay']),
-            datetime_format)
 
-    try:
+    if term_data["GradeSubmissionDeadline"] is not None:
         term.grade_submission_deadline = strptime(
             term_data["GradeSubmissionDeadline"], datetime_format)
-    except (TypeError, ValueError):
-        logger.warn(
-            'Malformed term_data["GradeSubmissionDeadline"]: {}'.format(
-                term_data["GradeSubmissionDeadline"]))
-        term.grade_submission_deadline = strptime(
-            '{}T17:00:00'.format(term_data['LastFinalExamDay']),
-            datetime_format)
 
     if term_data["RegistrationServicesStart"] is not None:
         term.registration_services_start = parse_sws_date(

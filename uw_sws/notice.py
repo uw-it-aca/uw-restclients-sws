@@ -59,7 +59,7 @@ def _notices_from_json(notice_data):
                     logger.warn(
                         "Unkown attribute type: {}\nWith Value:{}".format(
                             attribute.data_type,
-                            notice_attrib.get("value")))
+                            notice_attrib.get("Value")))
                     continue
                 notice_attribs.append(attribute)
         except TypeError:
