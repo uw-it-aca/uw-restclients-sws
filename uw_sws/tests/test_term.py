@@ -218,9 +218,9 @@ class SWSTestTerm(TestCase):
                           datetime(2013, 3, 16, 0, 0, 0))
 
         self.assertFalse(term.is_summer_quarter())
-        self.assertEquals(term.aterm_last_date, None)
-        self.assertEquals(term.bterm_first_date, None)
-        self.assertEquals(term.aterm_grading_period_open, None)
+        self.assertEquals(term.aterm_last_date, '')
+        self.assertEquals(term.bterm_first_date, '')
+        self.assertEquals(term.aterm_grading_period_open, '')
 
         self.assertEquals(len(term.time_schedule_construction), 3)
         self.assertEquals(
@@ -410,7 +410,7 @@ class SWSTestTerm(TestCase):
 
         # Loading a term with null Registration Periods
         term = get_term_by_year_and_quarter(2015, 'autumn')
-        self.assertEquals(term.registration_services_start, None)
+        self.assertEquals(term.registration_services_start, '')
 
         # Loading a term with null Grading Periods
         term = get_term_by_year_and_quarter(2008, 'autumn')
@@ -569,10 +569,10 @@ class SWSTestTerm(TestCase):
 
     def test_term_wo_reg_start_data(self):
         term = get_term_by_year_and_quarter(2016, 'winter')
-        self.assertIsNone(term.registration_services_start)
-        self.assertIsNone(term.registration_period1_start)
-        self.assertIsNone(term.registration_period2_start)
-        self.assertIsNone(term.registration_period3_start)
+        self.assertEquals(term.registration_services_start, '')
+        self.assertEquals(term.registration_period1_start, '')
+        self.assertEquals(term.registration_period2_start, '')
+        self.assertEquals(term.registration_period3_start, '')
         self.assertFalse(term.time_schedule_published.get(u'seattle'))
         self.assertFalse(term.time_schedule_published.get(u'bothell'))
         self.assertFalse(term.time_schedule_published.get(u'tacoma'))

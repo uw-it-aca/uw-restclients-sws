@@ -90,7 +90,7 @@ class PersonTest(TestCase):
         data = get_person_by_regid("00000000000000000000000000000001")
         self.assertEquals(data.uwnetid, "none")
         self.assertEquals(data.uwregid, "00000000000000000000000000000001")
-        self.assertIsNone(data.birth_date)
+        self.assertEquals(data.birth_date, '')
         self.assertIsNone(data.directory_release)
         self.assertIsNone(data.email)
         self.assertIsNone(data.employee_id)

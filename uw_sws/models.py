@@ -20,12 +20,6 @@ CANVAS_IND_STUDY_COURSE_ID = (
     "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
 
 
-def date_to_json(dt):
-    if dt is not None:
-        return str(dt)
-    return dt
-
-
 class LastEnrolled(models.Model):
     href = models.CharField(max_length=200)
     quarter = models.CharField(max_length=16)
@@ -77,7 +71,7 @@ class SwsPerson(models.Model):
     uwnetid = models.SlugField(max_length=16,
                                db_index=True,
                                unique=True)
-    birth_date = models.DateField(null=True, default=None)
+    birth_date = models.DateField(blank=True, default="")
     directory_release = models.NullBooleanField(null=True)
     employee_id = models.SlugField(max_length=16, null=True, blank=True)
     email = models.CharField(max_length=255, null=True, blank=True)
@@ -115,7 +109,7 @@ class SwsPerson(models.Model):
         return {
             'uwnetid': self.uwnetid,
             'uwregid': self.uwregid,
-            'birth_date': date_to_json(self.birth_date),
+            'birth_date': str(self.birth_date),
             'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
@@ -151,27 +145,27 @@ class Term(models.Model):
     quarter = models.CharField(max_length=6,
                                choices=QUARTERNAME_CHOICES)
     year = models.PositiveSmallIntegerField()
-    last_day_add = models.DateField()
-    last_day_drop = models.DateField()
+    last_day_add = models.DateField(blank=True, default="")
+    last_day_drop = models.DateField(blank=True, default="")
     first_day_quarter = models.DateField(db_index=True)
     census_day = models.DateField()
     last_day_instruction = models.DateField(db_index=True)
-    aterm_last_date = models.DateField(blank=True)
-    bterm_first_date = models.DateField(blank=True)
-    aterm_last_day_add = models.DateField(blank=True)
-    bterm_last_day_add = models.DateField(blank=True)
-    last_final_exam_date = models.DateField()
-    grading_period_open = models.DateTimeField()
-    aterm_grading_period_open = models.DateTimeField(blank=True)
-    grading_period_close = models.DateTimeField()
-    grade_submission_deadline = models.DateTimeField()
-    registration_services_start = models.DateTimeField(blank=True)
-    registration_period1_start = models.DateTimeField(blank=True)
-    registration_period1_end = models.DateTimeField(blank=True)
-    registration_period2_start = models.DateTimeField(blank=True)
-    registration_period2_end = models.DateTimeField(blank=True)
-    registration_period3_start = models.DateTimeField(blank=True)
-    registration_period3_end = models.DateTimeField(blank=True)
+    aterm_last_date = models.DateField(blank=True, default="")
+    bterm_first_date = models.DateField(blank=True, default="")
+    aterm_last_day_add = models.DateField(blank=True, default="")
+    bterm_last_day_add = models.DateField(blank=True, default="")
+    last_final_exam_date = models.DateField(blank=True, default="")
+    grading_period_open = models.DateTimeField(blank=True, default="")
+    aterm_grading_period_open = models.DateTimeField(blank=True, default="")
+    grading_period_close = models.DateTimeField(blank=True, default="")
+    grade_submission_deadline = models.DateTimeField(blank=True, default="")
+    registration_services_start = models.DateTimeField(blank=True, default="")
+    registration_period1_start = models.DateTimeField(blank=True, default="")
+    registration_period1_end = models.DateTimeField(blank=True, default="")
+    registration_period2_start = models.DateTimeField(blank=True, default="")
+    registration_period2_end = models.DateTimeField(blank=True, default="")
+    registration_period3_start = models.DateTimeField(blank=True, default="")
+    registration_period3_end = models.DateTimeField(blank=True, default="")
 
     @staticmethod
     def _quarter_to_int(quarter):
@@ -309,18 +303,18 @@ class Term(models.Model):
         registration_period = []
         if self.registration_period1_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period1_start.date()),
-                'end': date_to_json(self.registration_period1_end.date())
+                'start': str(self.registration_period1_start.date()),
+                'end': str(self.registration_period1_end.date())
             })
         if self.registration_period2_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period2_start.date()),
-                'end': date_to_json(self.registration_period2_end.date())
+                'start': str(self.registration_period2_start.date()),
+                'end': str(self.registration_period2_end.date())
             })
         if self.registration_period3_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period3_start.date()),
-                'end': date_to_json(self.registration_period3_end.date())
+                'start': str(self.registration_period3_start.date()),
+                'end': str(self.registration_period3_end.date())
             })
 
         time_schedule_published = {}
@@ -331,16 +325,14 @@ class Term(models.Model):
             'quarter': self.get_quarter_display(),
             'year': self.year,
             'label': self.term_label(),
-            'last_day_add': date_to_json(self.last_day_add),
-            'last_day_drop': date_to_json(self.last_day_drop),
-            'first_day_quarter': date_to_json(self.first_day_quarter),
-            'census_day': date_to_json(self.census_day),
-            'last_day_instruction': date_to_json(self.last_day_instruction),
-            'grading_period_open': date_to_json(self.grading_period_open),
-            'aterm_grading_period_open': date_to_json(
-                self.aterm_grading_period_open),
-            'grade_submission_deadline': date_to_json(
-                self.grade_submission_deadline),
+            'last_day_add': str(self.last_day_add),
+            'last_day_drop': str(self.last_day_drop),
+            'first_day_quarter': str(self.first_day_quarter),
+            'census_day': str(self.census_day),
+            'last_day_instruction': str(self.last_day_instruction),
+            'grading_period_open': str(self.grading_period_open),
+            'aterm_grading_period_open': str(self.aterm_grading_period_open),
+            'grade_submission_deadline': str(self.grade_submission_deadline),
             'registration_periods': registration_period,
             'time_schedule_published': time_schedule_published
         }
@@ -459,13 +451,13 @@ class Section(models.Model):
     auditors = models.IntegerField()
 
     # These are for non-standard start/end dates - don't have those yet
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(blank=True, default="")
+    end_date = models.DateField(blank=True, default="")
 
     # We don't have final exam data yet :(
-    # final_exam_date = models.DateField()
-    # final_exam_start_time = models.TimeField()
-    # final_exam_end_time = models.TimeField()
+    # final_exam_date = models.DateField(blank=True, default="")
+    # final_exam_start_time = models.TimeField(blank=True, default="")
+    # final_exam_end_time = models.TimeField(blank=True, default="")
     # final_exam_building = models.CharField(max_length=5)
     # final_exam_room_number = models.CharField(max_length=5)
 
@@ -489,7 +481,7 @@ class Section(models.Model):
     is_auditor = models.NullBooleanField()
     student_credits = models.DecimalField(max_digits=3, decimal_places=1)
     student_grade = models.CharField(max_length=6, null=True, blank=True)
-    grade_date = models.DateField(null=True, blank=True, default=None)
+    grade_date = models.DateField(blank=True, default="")
     grading_system = models.CharField(max_length=32, null=True, blank=True)
     course_description = models.TextField()
 
@@ -703,8 +695,8 @@ class Section(models.Model):
             'class_website_url': self.class_website_url,
             'sln': self.sln,
             'summer_term': self.summer_term,
-            'start_date': date_to_json(self.start_date),
-            'end_date': date_to_json(self.end_date),
+            'start_date': str(self.start_date),
+            'end_date': str(self.end_date),
             'current_enrollment': self.current_enrollment,
             'limit_estimate_enrollment': self.limit_estimate_enrollment,
             'limit_estimate_enrollment_indicator':
@@ -715,7 +707,7 @@ class Section(models.Model):
             'credits': str(self.student_credits),
             'is_auditor':  self.is_auditor,
             'grade': self.student_grade,
-            'grade_date': date_to_json(self.grade_date),
+            'grade_date': str(self.grade_date),
             'grading_system': self.grading_system
         }
 
@@ -802,21 +794,21 @@ WITHDREW_GRADE_PATTERN = re.compile(r'^W')
 
 class Registration(models.Model):
     credits = models.CharField(max_length=5)
-    duplicate_code = models.CharField(max_length=3)
+    duplicate_code = models.CharField(max_length=3, blank=True)
     grade = models.CharField(max_length=5, blank=True)
-    grade_date = models.DateField(blank=True, null=True, default=None)
+    grade_date = models.DateField(blank=True, default="")
     feebase_type = models.CharField(max_length=64, blank=True)
-    is_active = models.NullBooleanField()
-    is_auditor = models.NullBooleanField()
-    is_credit = models.NullBooleanField()
-    is_independent_start = models.NullBooleanField()
-    meta_data = models.CharField(max_length=96, blank=True, null=True)
-    start_date = models.DateField(blank=True, null=True, default=None)
-    end_date = models.DateField(blank=True, null=True, default=None)
-    repeat_course = models.NullBooleanField()
+    is_active = models.BooleanField()
+    is_auditor = models.BooleanField()
+    is_credit = models.BooleanField()
+    is_independent_start = models.BooleanField()
+    meta_data = models.CharField(max_length=96, blank=True)
+    start_date = models.DateField(blank=True, default="")
+    end_date = models.DateField(blank=True, default="")
+    repeat_course = models.BooleanField()
     repository_timestamp = models.DateTimeField()
-    request_date = models.DateField(blank=True, null=True, default=None)
-    request_status = models.CharField(max_length=50)
+    request_date = models.DateField(blank=True, default="")
+    request_status = models.CharField(max_length=50, blank=True)
 
     def __init__(self, *args, **kwargs):
         self.section = None  # either Section or SectionReference
@@ -826,16 +818,16 @@ class Registration(models.Model):
             return super(Registration, self).__init__(*args, **kwargs)
 
         self.credits = reg_json["Credits"].strip()
-        self.duplicate_code = reg_json.get("DuplicateCode")
-        self.feebase_type = reg_json.get("FeeBaseType")
-        self.grade = reg_json.get("Grade")
-        self.is_active = reg_json.get("IsActive")
-        self.is_auditor = reg_json.get("Auditor")
-        self.is_credit = reg_json.get("IsCredit")
-        self.is_independent_start = reg_json.get("IsIndependentStart")
-        self.meta_data = reg_json.get("Metadata")
-        self.request_status = reg_json.get("RequestStatus")
-        self.repeat_course = reg_json.get("RepeatCourse")
+        self.duplicate_code = reg_json.get("DuplicateCode", "")
+        self.feebase_type = reg_json.get("FeeBaseType", "")
+        self.grade = reg_json.get("Grade", "")
+        self.is_active = reg_json.get("IsActive", False)
+        self.is_auditor = reg_json.get("Auditor", False)
+        self.is_credit = reg_json.get("IsCredit", False)
+        self.is_independent_start = reg_json.get("IsIndependentStart", False)
+        self.meta_data = reg_json.get("Metadata", "")
+        self.request_status = reg_json.get("RequestStatus", "")
+        self.repeat_course = reg_json.get("RepeatCourse", False)
 
         if reg_json.get("GradeDate") and len(reg_json["GradeDate"]) > 0:
             self.grade_date = parse(reg_json["GradeDate"]).date()
@@ -880,18 +872,18 @@ class Registration(models.Model):
             'credits': self.credits,
             'duplicate_code': self.duplicate_code,
             'grade': self.grade,
-            'grade_date': date_to_json(self.grade_date),
+            'grade_date': str(self.grade_date),
             'feebase_type': self.feebase_type,
             'is_active': self.is_active,
             'is_auditor': self.is_auditor,
             'is_credit': self.is_credit,
             'is_independent_start': self.is_independent_start,
             'meta_data': self.meta_data,
-            'end_date': date_to_json(self.end_date),
-            'start_date': date_to_json(self.start_date),
+            'end_date': str(self.end_date),
+            'start_date': str(self.start_date),
             'repeat_course': self.repeat_course,
-            'repository_timestamp': date_to_json(self.repository_timestamp),
-            'request_date': date_to_json(self.request_date),
+            'repository_timestamp': str(self.repository_timestamp),
+            'request_date': str(self.request_date),
             'request_status': self.request_status,
             'is_dropped': self.is_dropped_status(),
             'is_pending': self.is_pending_status(),
@@ -1052,7 +1044,7 @@ class NoticeAttribute(models.Model):
 
     _url_value = models.URLField(blank=True)
     _string_value = models.CharField(max_length=100, blank=True)
-    _date_value = models.DateField(blank=True)
+    _date_value = models.DateField(blank=True, default="")
 
     def get_value(self):
         if self.data_type == "date":
