@@ -819,11 +819,12 @@ class Registration(models.Model):
     request_status = models.CharField(max_length=50)
 
     def __init__(self, *args, **kwargs):
-        reg_json = kwargs.get("data")
-        if reg_json is None:
-            super(Registration, self).__init__(*args, **kwargs)
         self.section = None  # either Section or SectionReference
         self.person = None
+        reg_json = kwargs.get("data")
+        if reg_json is None:
+            return super(Registration, self).__init__(*args, **kwargs)
+
         self.credits = reg_json["Credits"].strip()
         self.duplicate_code = reg_json.get("DuplicateCode")
         self.feebase_type = reg_json.get("FeeBaseType")
