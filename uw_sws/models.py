@@ -3,6 +3,7 @@ import os
 import re
 from datetime import datetime
 from time import strftime
+from dateutil.parser import parse
 from uw_pws.models import Person, Entity
 from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
@@ -17,6 +18,12 @@ CANVAS_TERM_ID = "{year}-{quarter}"
 CANVAS_COURSE_ID = "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}"
 CANVAS_IND_STUDY_COURSE_ID = (
     "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
+
+
+def date_to_json(dt):
+    if dt is not None:
+        return str(dt)
+    return dt
 
 
 class LastEnrolled(models.Model):
@@ -108,7 +115,7 @@ class SwsPerson(models.Model):
         return {
             'uwnetid': self.uwnetid,
             'uwregid': self.uwregid,
-            'birth_date': str(self.birth_date),
+            'birth_date': date_to_json(self.birth_date),
             'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
@@ -302,18 +309,18 @@ class Term(models.Model):
         registration_period = []
         if self.registration_period1_start:
             registration_period.append({
-                'start': str(self.registration_period1_start.date()),
-                'end': str(self.registration_period1_end.date())
+                'start': date_to_json(self.registration_period1_start.date()),
+                'end': date_to_json(self.registration_period1_end.date())
             })
         if self.registration_period2_start:
             registration_period.append({
-                'start': str(self.registration_period2_start.date()),
-                'end': str(self.registration_period2_end.date())
+                'start': date_to_json(self.registration_period2_start.date()),
+                'end': date_to_json(self.registration_period2_end.date())
             })
         if self.registration_period3_start:
             registration_period.append({
-                'start': str(self.registration_period3_start.date()),
-                'end': str(self.registration_period3_end.date())
+                'start': date_to_json(self.registration_period3_start.date()),
+                'end': date_to_json(self.registration_period3_end.date())
             })
 
         time_schedule_published = {}
@@ -324,14 +331,16 @@ class Term(models.Model):
             'quarter': self.get_quarter_display(),
             'year': self.year,
             'label': self.term_label(),
-            'last_day_add': str(self.last_day_add),
-            'last_day_drop': str(self.last_day_drop),
-            'first_day_quarter': str(self.first_day_quarter),
-            'census_day': str(self.census_day),
-            'last_day_instruction': str(self.last_day_instruction),
-            'grading_period_open': str(self.grading_period_open),
-            'aterm_grading_period_open': str(self.aterm_grading_period_open),
-            'grade_submission_deadline': str(self.grade_submission_deadline),
+            'last_day_add': date_to_json(self.last_day_add),
+            'last_day_drop': date_to_json(self.last_day_drop),
+            'first_day_quarter': date_to_json(self.first_day_quarter),
+            'census_day': date_to_json(self.census_day),
+            'last_day_instruction': date_to_json(self.last_day_instruction),
+            'grading_period_open': date_to_json(self.grading_period_open),
+            'aterm_grading_period_open': date_to_json(
+                self.aterm_grading_period_open),
+            'grade_submission_deadline': date_to_json(
+                self.grade_submission_deadline),
             'registration_periods': registration_period,
             'time_schedule_published': time_schedule_published
         }
@@ -601,15 +610,6 @@ class Section(models.Model):
 
         return sis_id
 
-    def get_grade_date_str(self):
-        """
-        return next due date in the ISO format (yyyy-mm-dd).
-        If the next_due is None, return None.
-        """
-        if self.grade_date is not None:
-            return str(self.grade_date)
-        return None
-
     def for_credit(self):
         return self.credit_control is not None
 
@@ -703,8 +703,8 @@ class Section(models.Model):
             'class_website_url': self.class_website_url,
             'sln': self.sln,
             'summer_term': self.summer_term,
-            'start_date': str(self.start_date),
-            'end_date': str(self.end_date),
+            'start_date': date_to_json(self.start_date),
+            'end_date': date_to_json(self.end_date),
             'current_enrollment': self.current_enrollment,
             'limit_estimate_enrollment': self.limit_estimate_enrollment,
             'limit_estimate_enrollment_indicator':
@@ -715,7 +715,7 @@ class Section(models.Model):
             'credits': str(self.student_credits),
             'is_auditor':  self.is_auditor,
             'grade': self.student_grade,
-            'grade_date': self.get_grade_date_str(),
+            'grade_date': date_to_json(self.grade_date),
             'grading_system': self.grading_system
         }
 
@@ -801,26 +801,56 @@ WITHDREW_GRADE_PATTERN = re.compile(r'^W')
 
 
 class Registration(models.Model):
-    section = models.ForeignKey(Section,
-                                on_delete=models.PROTECT)
-    person = models.ForeignKey(Person,
-                               on_delete=models.PROTECT)
-    is_active = models.NullBooleanField()
-    is_credit = models.NullBooleanField()
-    is_auditor = models.NullBooleanField()
-    is_independent_start = models.NullBooleanField()
-    start_date = models.DateField(blank=True, null=True, default=None)
-    end_date = models.DateField(blank=True, null=True, default=None)
-    request_date = models.DateField(blank=True, null=True, default=None)
-    request_status = models.CharField(max_length=50)
     credits = models.CharField(max_length=5)
     duplicate_code = models.CharField(max_length=3)
-    repeat_course = models.NullBooleanField()
-    repository_timestamp = models.DateTimeField()
     grade = models.CharField(max_length=5, blank=True)
     grade_date = models.DateField(blank=True, null=True, default=None)
     feebase_type = models.CharField(max_length=64, blank=True)
+    is_active = models.NullBooleanField()
+    is_auditor = models.NullBooleanField()
+    is_credit = models.NullBooleanField()
+    is_independent_start = models.NullBooleanField()
     meta_data = models.CharField(max_length=96, blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True, default=None)
+    end_date = models.DateField(blank=True, null=True, default=None)
+    repeat_course = models.NullBooleanField()
+    repository_timestamp = models.DateTimeField()
+    request_date = models.DateField(blank=True, null=True, default=None)
+    request_status = models.CharField(max_length=50)
+
+    def __init__(self, *args, **kwargs):
+        reg_json = kwargs.get("data")
+        if reg_json is None:
+            super(Registration, self).__init__(*args, **kwargs)
+        self.section = None  # either Section or SectionReference
+        self.person = None
+        self.credits = reg_json["Credits"].strip()
+        self.duplicate_code = reg_json.get("DuplicateCode")
+        self.feebase_type = reg_json.get("FeeBaseType")
+        self.grade = reg_json.get("Grade")
+        self.is_active = reg_json.get("IsActive")
+        self.is_auditor = reg_json.get("Auditor")
+        self.is_credit = reg_json.get("IsCredit")
+        self.is_independent_start = reg_json.get("IsIndependentStart")
+        self.meta_data = reg_json.get("Metadata")
+        self.request_status = reg_json.get("RequestStatus")
+        self.repeat_course = reg_json.get("RepeatCourse")
+
+        if reg_json.get("GradeDate") and len(reg_json["GradeDate"]) > 0:
+            self.grade_date = parse(reg_json["GradeDate"]).date()
+
+        if reg_json.get("StartDate") and len(reg_json["StartDate"]) > 0:
+            self.start_date = parse(reg_json["StartDate"]).date()
+
+        if reg_json.get("EndDate") and len(reg_json["EndDate"]) > 0:
+            self.end_date = parse(reg_json["EndDate"]).date()
+
+        if reg_json.get("RequestDate") and len(reg_json["RequestDate"]) > 0:
+            self.request_date = parse(reg_json["RequestDate"]).date()
+
+        if reg_json.get("RepositoryTimeStamp"):
+            self.repository_timestamp = datetime.strptime(
+                reg_json["RepositoryTimeStamp"], "%m/%d/%Y %H:%M:%S %p")
 
     def eos_only(self):
         return (self.meta_data is not None and
@@ -829,13 +859,13 @@ class Registration(models.Model):
     def is_fee_based(self):
         return self.feebase_type.lower() == "fee based course"
 
-    def is_pending_status(self):
-        return (len(self.request_status) and
-                self.request_status.lower() == "pending added to class")
-
     def is_dropped_status(self):
         return (len(self.request_status) and
                 self.request_status.lower() == "dropped from class")
+
+    def is_pending_status(self):
+        return (len(self.request_status) and
+                self.request_status.lower() == "pending added to class")
 
     def is_standby_status(self):
         return (len(self.request_status) and
@@ -843,6 +873,33 @@ class Registration(models.Model):
 
     def is_withdrew(self):
         return (WITHDREW_GRADE_PATTERN.match(self.grade) is not None)
+
+    def json_data(self):
+        return {
+            'credits': self.credits,
+            'duplicate_code': self.duplicate_code,
+            'grade': self.grade,
+            'grade_date': date_to_json(self.grade_date),
+            'feebase_type': self.feebase_type,
+            'is_active': self.is_active,
+            'is_auditor': self.is_auditor,
+            'is_credit': self.is_credit,
+            'is_independent_start': self.is_independent_start,
+            'meta_data': self.meta_data,
+            'end_date': date_to_json(self.end_date),
+            'start_date': date_to_json(self.start_date),
+            'repeat_course': self.repeat_course,
+            'repository_timestamp': date_to_json(self.repository_timestamp),
+            'request_date': date_to_json(self.request_date),
+            'request_status': self.request_status,
+            'is_dropped': self.is_dropped_status(),
+            'is_pending': self.is_pending_status(),
+            'is_standby': self.is_standby_status(),
+            'is_withdrew': self.is_withdrew(),
+            'is_eos_only': self.eos_only()}
+
+    def __str__(self):
+        return json.dumps(self.json_data())
 
 
 class SectionMeeting(models.Model):
@@ -1147,53 +1204,6 @@ class Minor(models.Model):
                 'full_name': self.full_name,
                 'short_name': self.short_name
                 }
-
-    def __str__(self):
-        return json.dumps(self.json_data())
-
-
-class UnfinishedPceCourse(models.Model):
-    # Having non-empty StartDate and EndDate
-    FEEBASED = "fee based course"
-    STANDBY = "added to standby"
-    PENDING = "pending added to class"
-
-    end_date = models.DateField()
-    feebase_type = models.CharField(max_length=64, blank=True)
-    independent_start = models.BooleanField()
-    is_credit = models.BooleanField()
-    meta_data = models.CharField(max_length=96)
-    request_status = models.CharField(max_length=96, blank=True)
-    start_date = models.DateField()
-    section_ref = models.ForeignKey(SectionReference,
-                                    on_delete=models.PROTECT)
-
-    def eos_only(self):
-        return "RegistrationSourceLocation=EOS;" in self.meta_data
-
-    def is_fee_based(self):
-        return self.feebase_type.lower() == UnfinishedPceCourse.FEEBASED
-
-    def standby(self):
-        return self.request_status.lower() == UnfinishedPceCourse.STANDBY
-
-    def pending(self):
-        return self.request_status.lower() == UnfinishedPceCourse.PENDING
-
-    def json_data(self, include_section_ref=False):
-        data = {'start_date': str(self.start_date),
-                'end_date': str(self.end_date),
-                'feebase_type': self.feebase_type,
-                'independent_start': self.independent_start,
-                'is_credit': self.is_credit,
-                'meta_data': self.meta_data,
-                'standby': self.standby(),
-                'pending': self.pending(),
-                'request_status': self.request_status,
-                }
-        if include_section_ref:
-            data['section_ref'] = self.section_ref.json_data()
-        return data
 
     def __str__(self):
         return json.dumps(self.json_data())

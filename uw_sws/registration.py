@@ -37,6 +37,29 @@ class SWSPersonByRegIDThread(Thread):
         self.person = UWPWS.get_person_by_regid(self.regid)
 
 
+def get_active_registrations_by_section(section, transcriptable_course=""):
+    """
+    Returns a list of restclients.Registration objects, representing
+    active registrations for the passed section. For independent study
+    sections, section.independent_study_instructor_regid limits
+    registrations to that instructor.
+    """
+    return _registrations_for_section_with_active_flag(section, True,
+                                                       transcriptable_course)
+
+
+def get_all_registrations_by_section(section, transcriptable_course=""):
+    """
+    Returns a list of uw_sws.models.Registration objects,
+    representing all (active and inactive) registrations for the passed
+    section. For independent study sections,
+    section.independent_study_instructor_regid limits registrations to
+    that instructor.
+    """
+    return _registrations_for_section_with_active_flag(section, False,
+                                                       transcriptable_course)
+
+
 def _registrations_for_section_with_active_flag(section, is_active,
                                                 transcriptable_course=""):
     """
@@ -75,49 +98,20 @@ def _json_to_registrations(data, section):
     """
     registrations = []
     person_threads = {}
-    for reg_data in data.get("Registrations", []):
-        registrations.append(_json_to_a_registration(
-            reg_data, section, person_threads))
+    for reg_json in data.get("Registrations", []):
+        registration = Registration(data=reg_json)
+        registration._uwregid = reg_json["Person"]["RegID"]
+        registration.section = section
+        registrations.append(registration)
+
+        if registration._uwregid not in person_threads:
+            thread = SWSPersonByRegIDThread()
+            thread.regid = registration._uwregid
+            thread.start()
+            person_threads[registration._uwregid] = thread
 
     _set_person_in_registrations(registrations, person_threads)
     return registrations
-
-
-def _json_to_a_registration(reg_data, section, person_threads):
-    registration = Registration()
-    registration.section = section
-    registration.is_active = reg_data["IsActive"]
-    registration.is_credit = reg_data["IsCredit"]
-    registration.is_auditor = reg_data["Auditor"]
-    registration.is_independent_start = reg_data["IsIndependentStart"]
-    if len(reg_data["StartDate"]) > 0:
-        registration.start_date = parse(reg_data["StartDate"])
-    if len(reg_data["EndDate"]) > 0:
-        registration.end_date = parse(reg_data["EndDate"])
-    if len(reg_data["RequestDate"]) > 0:
-        registration.request_date = parse(reg_data["RequestDate"])
-
-    registration.request_status = reg_data["RequestStatus"]
-    registration.duplicate_code = reg_data["DuplicateCode"]
-    registration.credits = reg_data["Credits"]
-    registration.repository_timestamp = datetime.strptime(
-        reg_data["RepositoryTimeStamp"], "%m/%d/%Y %H:%M:%S %p")
-    registration.repeat_course = reg_data["RepeatCourse"]
-
-    registration.grade = reg_data["Grade"]
-    if len(reg_data["GradeDate"]) > 0:
-        registration.grade_date = parse(reg_data["GradeDate"])
-
-    registration.feebase_type = reg_data.get("FeeBaseType")
-    registration.meta_data = reg_data.get("Metadata")
-
-    registration._uwregid = reg_data["Person"]["RegID"]
-    if registration._uwregid not in person_threads:
-        thread = SWSPersonByRegIDThread()
-        thread.regid = registration._uwregid
-        thread.start()
-        person_threads[registration._uwregid] = thread
-    return registration
 
 
 def _set_person_in_registrations(registrations, person_threads):
@@ -126,29 +120,6 @@ def _set_person_in_registrations(registrations, person_threads):
         thread.join()
         registration.person = thread.person
         del registration._uwregid
-
-
-def get_active_registrations_by_section(section, transcriptable_course=""):
-    """
-    Returns a list of restclients.Registration objects, representing
-    active registrations for the passed section. For independent study
-    sections, section.independent_study_instructor_regid limits
-    registrations to that instructor.
-    """
-    return _registrations_for_section_with_active_flag(section, True,
-                                                       transcriptable_course)
-
-
-def get_all_registrations_by_section(section, transcriptable_course=""):
-    """
-    Returns a list of uw_sws.models.Registration objects,
-    representing all (active and inactive) registrations for the passed
-    section. For independent study sections,
-    section.independent_study_instructor_regid limits registrations to
-    that instructor.
-    """
-    return _registrations_for_section_with_active_flag(section, False,
-                                                       transcriptable_course)
 
 
 # This function won't work when the dup_code is not empty
@@ -300,7 +271,7 @@ def _json_to_schedule(json_data, term, regid,
             section = _json_to_section(json.loads(response.data), term,
                                        include_instructor_not_on_time_schedule)
 
-            _add_credits_grade_to_section(thread, section)
+            _add_registration_to_section(thread.reg_json, section)
 
             if section.student_credits is not None:
                 term_credit_hours += section.student_credits
@@ -327,19 +298,17 @@ def _json_to_schedule(json_data, term, regid,
     return schedule
 
 
-def _add_credits_grade_to_section(thread, section):
+def _add_registration_to_section(reg_json, section):
     """
-    Given the registration url passed in,
-    add credits, grade, grade date in the section object
+    Add the Registration object to section.
     """
-    section_reg_data = thread.reg_json
-    section.student_grade = section_reg_data['Grade']
-    section.is_auditor = section_reg_data['Auditor']
-    if len(section_reg_data['GradeDate']) > 0:
-        section.grade_date = parse(section_reg_data["GradeDate"]).date()
+    registration = Registration(data=reg_json)
+    section.registration = registration
+    section.grade_date = registration.grade_date
+    section.student_grade = registration.grade
+    section.is_auditor = registration.is_auditor
     try:
-        raw_credits = section_reg_data['Credits'].strip()
-        section.student_credits = Decimal(raw_credits)
+        section.student_credits = Decimal(registration.credits)
     except InvalidOperation:
         pass
 

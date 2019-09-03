@@ -1,5 +1,5 @@
 from unittest import TestCase
-from uw_sws.models import Term
+from uw_sws.models import Term, date_to_json
 from uw_sws.section import get_section_by_label
 from uw_sws.registration import (
     get_active_registrations_by_section, get_all_registrations_by_section,
@@ -49,7 +49,8 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(javerage_reg.is_active, False)
         self.assertEquals(javerage_reg.is_auditor, False)
         self.assertEquals(javerage_reg.is_credit, True)
-        self.assertEquals(str(javerage_reg.request_date.date()), '2015-11-18')
+        self.assertEquals(date_to_json(javerage_reg.request_date),
+                          '2015-11-18')
         self.assertEquals(javerage_reg.request_status, 'DROPPED FROM CLASS')
         self.assertTrue(javerage_reg.is_dropped_status())
         self.assertEquals(javerage_reg.duplicate_code, '')
@@ -63,6 +64,30 @@ class SWSTestRegistrations(TestCase):
         self.assertFalse(javerage_reg.is_fee_based())
         self.assertFalse(javerage_reg.is_standby_status())
         self.assertFalse(javerage_reg.is_pending_status())
+        self.assertEquals(
+            javerage_reg.json_data(),
+            {'credits': '2.0',
+             'duplicate_code': '',
+             'end_date': None,
+             'feebase_type': '',
+             'grade': 'X',
+             'grade_date': None,
+             'is_active': False,
+             'is_auditor': False,
+             'is_credit': True,
+             'is_dropped': True,
+             'is_eos_only': False,
+             'is_independent_start': False,
+             'is_pending': False,
+             'is_standby': False,
+             'is_withdrew': False,
+             'meta_data': 'RegistrationSourceLocation=SDB;',
+             'repeat_course': False,
+             'repository_timestamp': '2016-01-05 02:45:15',
+             'request_date': '2015-11-18',
+             'request_status': 'DROPPED FROM CLASS',
+             'start_date': None})
+        self.assertIsNotNone(str(javerage_reg))
 
     def test_active_registration_status_after_drop_and_add(self):
         section = get_section_by_label('2013,winter,DROP_T,100/B')
@@ -74,7 +99,8 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(javerage_reg.is_active, True)
         self.assertEquals(javerage_reg.is_auditor, True)
         self.assertEquals(javerage_reg.is_credit, True)
-        self.assertEquals(str(javerage_reg.request_date.date()), '2015-11-18')
+        self.assertEquals(date_to_json(javerage_reg.request_date),
+                          '2015-11-18')
         self.assertEquals(javerage_reg.request_status, 'ADDED TO CLASS')
         self.assertFalse(javerage_reg.is_pending_status())
         self.assertEquals(javerage_reg.duplicate_code, 'A')
@@ -135,7 +161,7 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(section.student_credits,
                           Decimal("{:f}".format(1.0)))
         self.assertEquals(section.student_grade, "X")
-        self.assertEquals(section.get_grade_date_str(), None)
+        self.assertIsNone(section.grade_date)
         self.assertTrue(section.is_primary_section)
         self.assertEquals(section.is_auditor, False)
 
@@ -144,7 +170,7 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(section.student_credits,
                           Decimal("{:f}".format(3.0)))
         self.assertEquals(section.student_grade, "4.0")
-        self.assertEquals(section.get_grade_date_str(), "2013-06-11")
+        self.assertEquals(date_to_json(section.grade_date), "2013-06-11")
         self.assertFalse(section.is_primary_section)
         self.assertEquals(section.is_auditor, False)
 
@@ -193,7 +219,7 @@ class SWSTestRegistrations(TestCase):
             class_schedule, '2013,spring,MATH,125/GA')
         self.assertEquals(len(section.get_instructors()), 2)
         self.assertEquals(section.student_grade, "X")
-        self.assertEquals(section.get_grade_date_str(), None)
+        self.assertEquals(date_to_json(section.grade_date), None)
         self.assertFalse(section.is_primary_section)
         self.assertEquals(section.is_auditor, False)
 
