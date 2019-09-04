@@ -3,8 +3,9 @@ This class interfaces with the Student Web Service, Term resource.
 """
 import logging
 from datetime import datetime
+from dateutil.parser import parse
 from uw_sws import get_resource, QUARTER_SEQ
-from uw_sws.models import Term as TermModel
+from uw_sws.models import Term
 from restclients_core.exceptions import DataFailureException
 
 
@@ -19,7 +20,7 @@ def get_term_by_year_and_quarter(year, quarter):
     """
     url = "{}/{},{}.json".format(
         term_res_url_prefix, year, quarter.lower())
-    return _json_to_term_model(get_resource(url))
+    return Term(data=get_resource(url))
 
 
 def get_current_term():
@@ -28,7 +29,7 @@ def get_current_term():
     for the current term.
     """
     url = "{}/current.json".format(term_res_url_prefix)
-    term = _json_to_term_model(get_resource(url))
+    term = Term(data=get_resource(url))
 
     # A term doesn't become "current" until 2 days before the start of
     # classes.  That's too late to be useful, so if we're after the last
@@ -45,7 +46,7 @@ def get_next_term():
     for the next term.
     """
     url = "{}/next.json".format(term_res_url_prefix)
-    return _json_to_term_model(get_resource(url))
+    return Term(data=get_resource(url))
 
 
 def get_previous_term():
@@ -54,7 +55,7 @@ def get_previous_term():
     for the previous term.
     """
     url = "{}/previous.json".format(term_res_url_prefix)
-    return _json_to_term_model(get_resource(url))
+    return Term(data=get_resource(url))
 
 
 def get_term_before(aterm):
@@ -116,68 +117,6 @@ def get_term_by_date(date):
         return term_after
 
     pass
-
-
-def _json_to_term_model(term_data):
-    """
-    Returns a term model created from the passed json data.
-    param: term_data loaded json data
-    """
-    def to_dt(s, fmt):
-        return datetime.strptime(s, fmt) if s is not None else None
-
-    date_fmt = "%Y-%m-%d"
-    datetime_fmt = "%Y-%m-%dT%H:%M:%S"
-
-    term = TermModel()
-    term.year = term_data["Year"]
-    term.quarter = term_data["Quarter"]
-
-    term.last_day_add = to_dt(term_data["LastAddDay"], date_fmt)
-    term.first_day_quarter = to_dt(term_data["FirstDay"], date_fmt)
-    term.last_day_instruction = to_dt(term_data["LastDayOfClasses"], date_fmt)
-    term.last_day_drop = to_dt(term_data["LastDropDay"], date_fmt)
-    term.census_day = to_dt(term_data["CensusDay"], date_fmt)
-    term.aterm_last_date = to_dt(term_data["ATermLastDay"], date_fmt)
-    term.bterm_first_date = to_dt(term_data["BTermFirstDay"], date_fmt)
-    term.aterm_last_day_add = to_dt(term_data["LastAddDayATerm"], date_fmt)
-    term.bterm_last_day_add = to_dt(term_data["LastAddDayBTerm"], date_fmt)
-    term.last_final_exam_date = to_dt(term_data["LastFinalExamDay"], date_fmt)
-    term.grading_period_open = to_dt(
-        term_data["GradingPeriodOpen"], datetime_fmt)
-    term.aterm_grading_period_open = to_dt(
-        term_data["GradingPeriodOpenATerm"], datetime_fmt)
-    term.grading_period_close = to_dt(
-        term_data["GradingPeriodClose"], datetime_fmt)
-    term.grade_submission_deadline = to_dt(
-        term_data["GradeSubmissionDeadline"], datetime_fmt)
-    term.registration_services_start = to_dt(
-        term_data["RegistrationServicesStart"], date_fmt)
-    term.registration_period1_start = to_dt(
-        term_data["RegistrationPeriods"][0]["StartDate"], date_fmt)
-    term.registration_period1_end = to_dt(
-        term_data["RegistrationPeriods"][0]["EndDate"], date_fmt)
-    term.registration_period2_start = to_dt(
-        term_data["RegistrationPeriods"][1]["StartDate"], date_fmt)
-    term.registration_period2_end = to_dt(
-        term_data["RegistrationPeriods"][1]["EndDate"], date_fmt)
-    term.registration_period3_start = to_dt(
-        term_data["RegistrationPeriods"][2]["StartDate"], date_fmt)
-    term.registration_period3_end = to_dt(
-        term_data["RegistrationPeriods"][2]["EndDate"], date_fmt)
-
-    term.time_schedule_construction = {}
-    for campus in term_data["TimeScheduleConstruction"]:
-        term.time_schedule_construction[campus.lower()] = True if (
-            term_data["TimeScheduleConstruction"][campus]) else False
-
-    term.time_schedule_published = {}
-    for campus in term_data["TimeSchedulePublished"]:
-        term.time_schedule_published[campus.lower()] = True if (
-            term_data["TimeSchedulePublished"][campus]) else False
-
-    term.clean_fields()
-    return term
 
 
 def get_specific_term(year, quarter):
