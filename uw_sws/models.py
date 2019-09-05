@@ -173,6 +173,59 @@ class Term(models.Model):
     registration_period3_start = models.DateTimeField(blank=True)
     registration_period3_end = models.DateTimeField(blank=True)
 
+    def __init__(self, *args, **kwargs):
+        data = kwargs.get("data")
+        if data is None:
+            return super(Term, self).__init__(*args, **kwargs)
+
+        def to_dt(s):
+            return parse(s) if (s is not None and len(s)) else None
+
+        def to_date(s):
+            dt = to_dt(s)
+            return dt.date() if dt is not None else None
+
+        self.year = data["Year"]
+        self.quarter = data["Quarter"]
+        self.last_day_add = to_date(data["LastAddDay"])
+        self.first_day_quarter = to_date(data["FirstDay"])
+        self.last_day_instruction = to_date(data["LastDayOfClasses"])
+        self.last_day_drop = to_date(data["LastDropDay"])
+        self.census_day = to_date(data["CensusDay"])
+        self.aterm_last_date = to_date(data["ATermLastDay"])
+        self.bterm_first_date = to_date(data["BTermFirstDay"])
+        self.aterm_last_day_add = to_date(data["LastAddDayATerm"])
+        self.bterm_last_day_add = to_date(data["LastAddDayBTerm"])
+        self.last_final_exam_date = to_date(data["LastFinalExamDay"])
+        self.grading_period_open = to_dt(data["GradingPeriodOpen"])
+        self.aterm_grading_period_open = to_dt(data["GradingPeriodOpenATerm"])
+        self.grading_period_close = to_dt(data["GradingPeriodClose"])
+        self.grade_submission_deadline = to_dt(data["GradeSubmissionDeadline"])
+        self.registration_services_start = to_date(
+            data["RegistrationServicesStart"])
+        self.registration_period1_start = to_date(
+            data["RegistrationPeriods"][0]["StartDate"])
+        self.registration_period1_end = to_date(
+            data["RegistrationPeriods"][0]["EndDate"])
+        self.registration_period2_start = to_date(
+            data["RegistrationPeriods"][1]["StartDate"])
+        self.registration_period2_end = to_date(
+            data["RegistrationPeriods"][1]["EndDate"])
+        self.registration_period3_start = to_date(
+            data["RegistrationPeriods"][2]["StartDate"])
+        self.registration_period3_end = to_date(
+            data["RegistrationPeriods"][2]["EndDate"])
+
+        self.time_schedule_construction = {}
+        for campus in data["TimeScheduleConstruction"]:
+            self.time_schedule_construction[campus.lower()] = True if (
+                data["TimeScheduleConstruction"][campus]) else False
+
+        self.time_schedule_published = {}
+        for campus in data["TimeSchedulePublished"]:
+            self.time_schedule_published[campus.lower()] = True if (
+                data["TimeSchedulePublished"][campus]) else False
+
     @staticmethod
     def _quarter_to_int(quarter):
         if quarter.lower() == Term.WINTER:
@@ -309,18 +362,18 @@ class Term(models.Model):
         registration_period = []
         if self.registration_period1_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period1_start.date()),
-                'end': date_to_json(self.registration_period1_end.date())
+                'start': date_to_json(self.registration_period1_start),
+                'end': date_to_json(self.registration_period1_end)
             })
         if self.registration_period2_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period2_start.date()),
-                'end': date_to_json(self.registration_period2_end.date())
+                'start': date_to_json(self.registration_period2_start),
+                'end': date_to_json(self.registration_period2_end)
             })
         if self.registration_period3_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period3_start.date()),
-                'end': date_to_json(self.registration_period3_end.date())
+                'start': date_to_json(self.registration_period3_start),
+                'end': date_to_json(self.registration_period3_end)
             })
 
         time_schedule_published = {}
@@ -563,7 +616,10 @@ class Section(models.Model):
         else:
             open_date = self.term.grading_period_open
 
-        return (open_date <= now <= self.term.grade_submission_deadline)
+        try:
+            return (open_date <= now <= self.term.grade_submission_deadline)
+        except TypeError:  # Undefined term dates
+            return False
 
     def canvas_course_sis_id(self):
         if self.is_primary_section:
