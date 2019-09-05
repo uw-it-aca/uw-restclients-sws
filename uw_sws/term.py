@@ -3,7 +3,6 @@ This class interfaces with the Student Web Service, Term resource.
 """
 import logging
 from datetime import datetime
-from dateutil.parser import parse
 from uw_sws import get_resource, QUARTER_SEQ
 from uw_sws.models import Term
 from restclients_core.exceptions import DataFailureException
