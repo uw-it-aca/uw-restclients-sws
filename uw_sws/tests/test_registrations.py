@@ -1,5 +1,5 @@
 from unittest import TestCase
-from uw_sws.models import Term, date_to_json
+from uw_sws.models import Term, date_to_str
 from uw_sws.section import get_section_by_label
 from uw_sws.registration import (
     get_active_registrations_by_section, get_all_registrations_by_section,
@@ -49,13 +49,13 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(javerage_reg.is_active, False)
         self.assertEquals(javerage_reg.is_auditor, False)
         self.assertEquals(javerage_reg.is_credit, True)
-        self.assertEquals(date_to_json(javerage_reg.request_date),
+        self.assertEquals(date_to_str(javerage_reg.request_date),
                           '2015-11-18')
         self.assertEquals(javerage_reg.request_status, 'DROPPED FROM CLASS')
         self.assertTrue(javerage_reg.is_dropped_status())
         self.assertEquals(javerage_reg.duplicate_code, '')
         self.assertEquals(javerage_reg.repository_timestamp.isoformat(),
-                          '2016-01-05T02:45:15')
+                          '2016-01-05T14:45:15')
         self.assertEquals(javerage_reg.repeat_course, False)
         self.assertEquals(javerage_reg.grade, 'X')
         self.assertIsNone(javerage_reg.grade_date)
@@ -83,7 +83,7 @@ class SWSTestRegistrations(TestCase):
              'is_withdrew': False,
              'meta_data': 'RegistrationSourceLocation=SDB;',
              'repeat_course': False,
-             'repository_timestamp': '2016-01-05 02:45:15',
+             'repository_timestamp': '2016-01-05 14:45:15',
              'request_date': '2015-11-18',
              'request_status': 'DROPPED FROM CLASS',
              'start_date': None})
@@ -99,13 +99,13 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(javerage_reg.is_active, True)
         self.assertEquals(javerage_reg.is_auditor, True)
         self.assertEquals(javerage_reg.is_credit, True)
-        self.assertEquals(date_to_json(javerage_reg.request_date),
+        self.assertEquals(date_to_str(javerage_reg.request_date),
                           '2015-11-18')
         self.assertEquals(javerage_reg.request_status, 'ADDED TO CLASS')
         self.assertFalse(javerage_reg.is_pending_status())
         self.assertEquals(javerage_reg.duplicate_code, 'A')
         self.assertEquals(javerage_reg.repository_timestamp.isoformat(),
-                          '2016-01-05T02:45:15')
+                          '2016-01-05T14:45:15')
         self.assertEquals(javerage_reg.repeat_course, False)
         self.assertEquals(javerage_reg.grade, 'X')
 
@@ -170,7 +170,7 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(section.student_credits,
                           Decimal("{:f}".format(3.0)))
         self.assertEquals(section.student_grade, "4.0")
-        self.assertEquals(date_to_json(section.grade_date), "2013-06-11")
+        self.assertEquals(date_to_str(section.grade_date), "2013-06-11")
         self.assertFalse(section.is_primary_section)
         self.assertEquals(section.is_auditor, False)
 
@@ -219,7 +219,7 @@ class SWSTestRegistrations(TestCase):
             class_schedule, '2013,spring,MATH,125/GA')
         self.assertEquals(len(section.get_instructors()), 2)
         self.assertEquals(section.student_grade, "X")
-        self.assertEquals(date_to_json(section.grade_date), None)
+        self.assertEquals(date_to_str(section.grade_date), None)
         self.assertFalse(section.is_primary_section)
         self.assertEquals(section.is_auditor, False)
 
