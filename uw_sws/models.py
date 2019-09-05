@@ -20,10 +20,17 @@ CANVAS_IND_STUDY_COURSE_ID = (
     "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
 
 
-def date_to_json(dt):
-    if dt is not None:
-        return str(dt)
-    return dt
+def str_to_datetime(s):
+    return parse(s) if (s is not None and len(s)) else None
+
+
+def str_to_date(s):
+    dt = str_to_datetime(s)
+    return dt.date() if dt is not None else None
+
+
+def date_to_str(dt):
+    return str(dt) if dt is not None else None
 
 
 class LastEnrolled(models.Model):
@@ -115,7 +122,7 @@ class SwsPerson(models.Model):
         return {
             'uwnetid': self.uwnetid,
             'uwregid': self.uwregid,
-            'birth_date': date_to_json(self.birth_date),
+            'birth_date': date_to_str(self.birth_date),
             'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
@@ -178,42 +185,37 @@ class Term(models.Model):
         if data is None:
             return super(Term, self).__init__(*args, **kwargs)
 
-        def to_dt(s):
-            return parse(s) if (s is not None and len(s)) else None
-
-        def to_date(s):
-            dt = to_dt(s)
-            return dt.date() if dt is not None else None
-
         self.year = data["Year"]
         self.quarter = data["Quarter"]
-        self.last_day_add = to_date(data["LastAddDay"])
-        self.first_day_quarter = to_date(data["FirstDay"])
-        self.last_day_instruction = to_date(data["LastDayOfClasses"])
-        self.last_day_drop = to_date(data["LastDropDay"])
-        self.census_day = to_date(data["CensusDay"])
-        self.aterm_last_date = to_date(data["ATermLastDay"])
-        self.bterm_first_date = to_date(data["BTermFirstDay"])
-        self.aterm_last_day_add = to_date(data["LastAddDayATerm"])
-        self.bterm_last_day_add = to_date(data["LastAddDayBTerm"])
-        self.last_final_exam_date = to_date(data["LastFinalExamDay"])
-        self.grading_period_open = to_dt(data["GradingPeriodOpen"])
-        self.aterm_grading_period_open = to_dt(data["GradingPeriodOpenATerm"])
-        self.grading_period_close = to_dt(data["GradingPeriodClose"])
-        self.grade_submission_deadline = to_dt(data["GradeSubmissionDeadline"])
-        self.registration_services_start = to_date(
+        self.last_day_add = str_to_date(data["LastAddDay"])
+        self.first_day_quarter = str_to_date(data["FirstDay"])
+        self.last_day_instruction = str_to_date(data["LastDayOfClasses"])
+        self.last_day_drop = str_to_date(data["LastDropDay"])
+        self.census_day = str_to_date(data["CensusDay"])
+        self.aterm_last_date = str_to_date(data["ATermLastDay"])
+        self.bterm_first_date = str_to_date(data["BTermFirstDay"])
+        self.aterm_last_day_add = str_to_date(data["LastAddDayATerm"])
+        self.bterm_last_day_add = str_to_date(data["LastAddDayBTerm"])
+        self.last_final_exam_date = str_to_date(data["LastFinalExamDay"])
+        self.grading_period_open = str_to_datetime(data["GradingPeriodOpen"])
+        self.aterm_grading_period_open = str_to_datetime(
+            data["GradingPeriodOpenATerm"])
+        self.grading_period_close = str_to_datetime(data["GradingPeriodClose"])
+        self.grade_submission_deadline = str_to_datetime(
+            data["GradeSubmissionDeadline"])
+        self.registration_services_start = str_to_date(
             data["RegistrationServicesStart"])
-        self.registration_period1_start = to_date(
+        self.registration_period1_start = str_to_date(
             data["RegistrationPeriods"][0]["StartDate"])
-        self.registration_period1_end = to_date(
+        self.registration_period1_end = str_to_date(
             data["RegistrationPeriods"][0]["EndDate"])
-        self.registration_period2_start = to_date(
+        self.registration_period2_start = str_to_date(
             data["RegistrationPeriods"][1]["StartDate"])
-        self.registration_period2_end = to_date(
+        self.registration_period2_end = str_to_date(
             data["RegistrationPeriods"][1]["EndDate"])
-        self.registration_period3_start = to_date(
+        self.registration_period3_start = str_to_date(
             data["RegistrationPeriods"][2]["StartDate"])
-        self.registration_period3_end = to_date(
+        self.registration_period3_end = str_to_date(
             data["RegistrationPeriods"][2]["EndDate"])
 
         self.time_schedule_construction = {}
@@ -362,18 +364,18 @@ class Term(models.Model):
         registration_period = []
         if self.registration_period1_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period1_start),
-                'end': date_to_json(self.registration_period1_end)
+                'start': date_to_str(self.registration_period1_start),
+                'end': date_to_str(self.registration_period1_end)
             })
         if self.registration_period2_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period2_start),
-                'end': date_to_json(self.registration_period2_end)
+                'start': date_to_str(self.registration_period2_start),
+                'end': date_to_str(self.registration_period2_end)
             })
         if self.registration_period3_start:
             registration_period.append({
-                'start': date_to_json(self.registration_period3_start),
-                'end': date_to_json(self.registration_period3_end)
+                'start': date_to_str(self.registration_period3_start),
+                'end': date_to_str(self.registration_period3_end)
             })
 
         time_schedule_published = {}
@@ -384,15 +386,15 @@ class Term(models.Model):
             'quarter': self.get_quarter_display(),
             'year': self.year,
             'label': self.term_label(),
-            'last_day_add': date_to_json(self.last_day_add),
-            'last_day_drop': date_to_json(self.last_day_drop),
-            'first_day_quarter': date_to_json(self.first_day_quarter),
-            'census_day': date_to_json(self.census_day),
-            'last_day_instruction': date_to_json(self.last_day_instruction),
-            'grading_period_open': date_to_json(self.grading_period_open),
-            'aterm_grading_period_open': date_to_json(
+            'last_day_add': date_to_str(self.last_day_add),
+            'last_day_drop': date_to_str(self.last_day_drop),
+            'first_day_quarter': date_to_str(self.first_day_quarter),
+            'census_day': date_to_str(self.census_day),
+            'last_day_instruction': date_to_str(self.last_day_instruction),
+            'grading_period_open': date_to_str(self.grading_period_open),
+            'aterm_grading_period_open': date_to_str(
                 self.aterm_grading_period_open),
-            'grade_submission_deadline': date_to_json(
+            'grade_submission_deadline': date_to_str(
                 self.grade_submission_deadline),
             'registration_periods': registration_period,
             'time_schedule_published': time_schedule_published
@@ -759,8 +761,8 @@ class Section(models.Model):
             'class_website_url': self.class_website_url,
             'sln': self.sln,
             'summer_term': self.summer_term,
-            'start_date': date_to_json(self.start_date),
-            'end_date': date_to_json(self.end_date),
+            'start_date': date_to_str(self.start_date),
+            'end_date': date_to_str(self.end_date),
             'current_enrollment': self.current_enrollment,
             'limit_estimate_enrollment': self.limit_estimate_enrollment,
             'limit_estimate_enrollment_indicator':
@@ -771,7 +773,7 @@ class Section(models.Model):
             'credits': str(self.student_credits),
             'is_auditor':  self.is_auditor,
             'grade': self.student_grade,
-            'grade_date': date_to_json(self.grade_date),
+            'grade_date': date_to_str(self.grade_date),
             'grading_system': self.grading_system
         }
 
@@ -892,22 +894,12 @@ class Registration(models.Model):
         self.meta_data = reg_json.get("Metadata")
         self.request_status = reg_json.get("RequestStatus")
         self.repeat_course = reg_json.get("RepeatCourse")
-
-        if reg_json.get("GradeDate") and len(reg_json["GradeDate"]) > 0:
-            self.grade_date = parse(reg_json["GradeDate"]).date()
-
-        if reg_json.get("StartDate") and len(reg_json["StartDate"]) > 0:
-            self.start_date = parse(reg_json["StartDate"]).date()
-
-        if reg_json.get("EndDate") and len(reg_json["EndDate"]) > 0:
-            self.end_date = parse(reg_json["EndDate"]).date()
-
-        if reg_json.get("RequestDate") and len(reg_json["RequestDate"]) > 0:
-            self.request_date = parse(reg_json["RequestDate"]).date()
-
-        if reg_json.get("RepositoryTimeStamp"):
-            self.repository_timestamp = datetime.strptime(
-                reg_json["RepositoryTimeStamp"], "%m/%d/%Y %H:%M:%S %p")
+        self.grade_date = str_to_date(reg_json.get("GradeDate"))
+        self.start_date = str_to_date(reg_json.get("StartDate"))
+        self.end_date = str_to_date(reg_json.get("EndDate"))
+        self.request_date = str_to_date(reg_json.get("RequestDate"))
+        self.repository_timestamp = str_to_datetime(
+            reg_json.get("RepositoryTimeStamp"))
 
     def eos_only(self):
         return (self.meta_data is not None and
@@ -936,18 +928,18 @@ class Registration(models.Model):
             'credits': self.credits,
             'duplicate_code': self.duplicate_code,
             'grade': self.grade,
-            'grade_date': date_to_json(self.grade_date),
+            'grade_date': date_to_str(self.grade_date),
             'feebase_type': self.feebase_type,
             'is_active': self.is_active,
             'is_auditor': self.is_auditor,
             'is_credit': self.is_credit,
             'is_independent_start': self.is_independent_start,
             'meta_data': self.meta_data,
-            'end_date': date_to_json(self.end_date),
-            'start_date': date_to_json(self.start_date),
+            'end_date': date_to_str(self.end_date),
+            'start_date': date_to_str(self.start_date),
             'repeat_course': self.repeat_course,
-            'repository_timestamp': date_to_json(self.repository_timestamp),
-            'request_date': date_to_json(self.request_date),
+            'repository_timestamp': date_to_str(self.repository_timestamp),
+            'request_date': date_to_str(self.request_date),
             'request_status': self.request_status,
             'is_dropped': self.is_dropped_status(),
             'is_pending': self.is_pending_status(),
