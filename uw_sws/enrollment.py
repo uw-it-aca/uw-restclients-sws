@@ -6,8 +6,7 @@ from dateutil.parser import parse
 import re
 from urllib.parse import urlencode
 from uw_sws.models import (StudentGrades, StudentCourseGrade, Enrollment,
-                           Major, Minor, SectionReference, Term,
-                           UnfinishedPceCourse)
+                           Major, Minor, SectionReference, Term, Registration)
 from uw_sws import get_resource, UWPWS
 from uw_sws.section import get_section_by_url
 from uw_sws.term import get_term_by_year_and_quarter
@@ -119,11 +118,12 @@ def _json_to_enrollment(json_data,
                                                        ENROLLMENT_SOURCE_PCE)
     if include_unfinished_pce_course_reg:
         enrollment.unf_pce_courses = {}
-        # dictionary {section_label: UnfinishedPceCourse}
-        for registration in json_data.get('Registrations', []):
-            if is_unfinished_pce_course(registration):
-                unf_pce_course = _json_to_unfinished_pce_course(registration,
-                                                                term)
+        # dictionary {section_label: Registration}
+        for reg_json in json_data.get('Registrations', []):
+            if is_unfinished_pce_course(reg_json):
+                unf_pce_course = Registration(data=reg_json)
+                unf_pce_course.section_ref = _json_to_section_ref(
+                    reg_json, term)
                 key = unf_pce_course.section_ref.section_label()
                 enrollment.unf_pce_courses[key] = unf_pce_course
 
@@ -151,23 +151,13 @@ def is_unfinished_pce_course(registration):
         is_src_location_pce(registration, REGISTRATION_SOURCE_PCE)
 
 
-def _json_to_unfinished_pce_course(json_data, aterm):
-    unf_pce_course = UnfinishedPceCourse()
-    unf_pce_course.section_ref = SectionReference(
-        term=aterm,
-        curriculum_abbr=json_data['Section']['CurriculumAbbreviation'],
-        course_number=json_data['Section']['CourseNumber'],
-        section_id=json_data['Section']['SectionID'],
-        url=json_data['Section']['Href']
-        )
-    unf_pce_course.start_date = parse(json_data['StartDate']).date()
-    unf_pce_course.end_date = parse(json_data['EndDate']).date()
-    unf_pce_course.feebase_type = json_data['FeeBaseType']
-    unf_pce_course.independent_start = json_data['IsIndependentStart']
-    unf_pce_course.is_credit = json_data['IsCredit']
-    unf_pce_course.request_status = json_data['RequestStatus']
-    unf_pce_course.meta_data = json_data['Metadata']
-    return unf_pce_course
+def _json_to_section_ref(reg_json, term):
+    return SectionReference(
+        term=term,
+        curriculum_abbr=reg_json['Section']['CurriculumAbbreviation'],
+        course_number=reg_json['Section']['CourseNumber'],
+        section_id=reg_json['Section']['SectionID'],
+        url=reg_json['Section']['Href'])
 
 
 def _json_to_major(json_data):

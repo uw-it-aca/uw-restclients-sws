@@ -75,16 +75,21 @@ class SWSTestEnrollments(TestCase):
 
         self.assertTrue(
             enrollment.unf_pce_courses.get("2013,winter,COM,201/A"))
-        section1 = enrollment.unf_pce_courses["2013,winter,COM,201/A"]
-        self.assertTrue(section1.is_fee_based())
-        self.assertEqual(str(section1.end_date), '2013-04-29')
-        self.assertEqual(str(section1.start_date), '2013-01-28')
-        self.assertFalse(section1.eos_only())
-        self.assertFalse(section1.standby())
-        self.assertFalse(section1.pending())
-        self.assertTrue(len(section1.json_data()) > 0)
+        reg1 = enrollment.unf_pce_courses["2013,winter,COM,201/A"]
+        self.assertTrue(reg1.is_fee_based())
+        self.assertEqual(str(reg1.end_date), '2013-04-29')
+        self.assertEqual(str(reg1.start_date), '2013-01-28')
+        self.assertTrue(reg1.is_credit)
+        self.assertEqual(reg1.request_status, "ADDED TO CLASS")
+        self.assertEqual(reg1.meta_data,
+                         "RegistrationSourceLocation=SDB_EOS;")
+        self.assertFalse(reg1.eos_only())
+        self.assertFalse(reg1.is_standby_status())
+        self.assertFalse(reg1.is_dropped_status())
+        self.assertFalse(reg1.is_pending_status())
+        self.assertTrue(len(reg1.json_data()) > 0)
         self.assertEqual(
-            section1.section_ref.json_data(),
+            reg1.section_ref.json_data(),
             {'course_number': u'201',
              'curriculum_abbr': u'COM',
              'quarter': u'winter',
@@ -95,16 +100,14 @@ class SWSTestEnrollments(TestCase):
 
         self.assertTrue(
             enrollment.unf_pce_courses.get("2013,winter,PSYCH,203/A"))
-        section2 = enrollment.unf_pce_courses["2013,winter,PSYCH,203/A"]
-        self.assertTrue(section2.is_fee_based())
-        self.assertEqual(str(section2.end_date), '2013-06-22')
-        self.assertEqual(str(section2.start_date), '2013-01-29')
-        self.assertTrue(section1.is_credit)
-        self.assertEqual(section1.request_status, "ADDED TO CLASS")
-        self.assertEqual(section1.meta_data,
+        reg2 = enrollment.unf_pce_courses["2013,winter,PSYCH,203/A"]
+        self.assertTrue(reg2.is_fee_based())
+        self.assertEqual(str(reg2.end_date), '2013-06-22')
+        self.assertEqual(str(reg2.start_date), '2013-01-29')
+        self.assertEqual(reg2.meta_data,
                          "RegistrationSourceLocation=SDB_EOS;")
         self.assertEqual(
-            section2.section_ref.json_data(),
+            reg2.section_ref.json_data(),
             {'course_number': u'203',
              'curriculum_abbr': u'PSYCH',
              'quarter': u'winter',
@@ -142,8 +145,8 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(str(section1.end_date), '2013-06-19')
         self.assertEqual(str(section1.start_date), '2013-04-01')
         self.assertTrue(section1.is_credit)
-        self.assertFalse(section1.standby())
-        self.assertFalse(section1.pending())
+        self.assertFalse(section1.is_standby_status())
+        self.assertFalse(section1.is_dropped_status())
 
         term0 = get_term_before(term)
         self.assertTrue(term0 in result_dict)
@@ -206,20 +209,22 @@ class SWSTestEnrollments(TestCase):
         enroll = result_dict.get(term)
         self.assertTrue(enroll.has_unfinished_pce_course())
         self.assertEqual(len(enroll.unf_pce_courses), 1)
-        section = enroll.unf_pce_courses.get("2013,summer,LIS,498/C")
-        self.assertTrue(section.eos_only())
-        self.assertTrue(section.standby())
-        self.assertFalse(section.pending())
+        registartion = enroll.unf_pce_courses.get("2013,summer,LIS,498/C")
+        self.assertTrue(registartion.eos_only())
+        self.assertTrue(registartion.is_standby_status())
+        self.assertFalse(registartion.is_dropped_status())
+        self.assertFalse(registartion.is_pending_status())
 
         term1 = get_term_by_year_and_quarter(2013, 'autumn')
         self.assertTrue(term in result_dict)
         enroll1 = result_dict.get(term1)
         self.assertTrue(enroll1.has_unfinished_pce_course())
         self.assertEqual(len(enroll1.unf_pce_courses), 1)
-        section1 = enroll1.unf_pce_courses.get("2013,autumn,MUSEUM,700/A")
-        self.assertTrue(section1.eos_only())
-        self.assertFalse(section1.standby())
-        self.assertTrue(section1.pending())
+        registartion1 = enroll1.unf_pce_courses.get("2013,autumn,MUSEUM,700/A")
+        self.assertTrue(registartion1.eos_only())
+        self.assertTrue(registartion1.is_pending_status())
+        self.assertFalse(registartion1.is_dropped_status())
+        self.assertFalse(registartion1.is_standby_status())
 
     def test_has_start_end_dates(self):
         json_data = {u'StartDate': u'01/29/2013',
