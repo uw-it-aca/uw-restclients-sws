@@ -281,8 +281,7 @@ class Term(models.Model):
 
     def is_grading_period_past(self):
         comparison_datetime = datetime.now()
-        return (self.grade_submission_deadline is None and
-                comparison_datetime > self.get_eod_last_instruction() or
+        return (self.grade_submission_deadline is None or
                 comparison_datetime > self.grade_submission_deadline)
 
     def get_week_of_term(self):
