@@ -349,7 +349,8 @@ class Term(models.Model):
                 comparison_datetime < self.get_end_of_the_term())
 
     def is_past(self, comparison_datetime):
-        return (self.get_end_of_the_term() is None or
+        return (self.get_end_of_the_term() is None and
+                comparison_datetime > self.get_eod_last_final_exam() or
                 comparison_datetime > self.get_end_of_the_term())
 
     def is_future(self, comparison_datetime):
