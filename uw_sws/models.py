@@ -277,11 +277,11 @@ class Term(models.Model):
 
         return (open_date is not None and
                 self.grade_submission_deadline is not None and
-                open_date <= datetime.now() <= self.grade_submission_deadline))
+                open_date <= datetime.now() <= self.grade_submission_deadline)
 
     def is_grading_period_past(self):
         return (self.grade_submission_deadline is None or
-                datetime.now() > self.grade_submission_deadline))
+                datetime.now() > self.grade_submission_deadline)
 
     def get_week_of_term(self):
         return self.get_week_of_term_for_date(datetime.now())
