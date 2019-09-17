@@ -413,9 +413,16 @@ class SWSTestTerm(TestCase):
         self.assertEquals(term.registration_services_start, None)
 
         # Loading a term with null Grading Periods
-        term = get_term_by_year_and_quarter(2008, 'autumn')
-        self.assertEquals(term.grading_period_open, None)
-        self.assertEquals(term.grading_period_close, None)
+        term = get_term_by_year_and_quarter(1998, 'spring')
+        self.assertIsNone(term.grading_period_open)
+        self.assertIsNone(term.grading_period_close)
+        self.assertIsNone(term.grade_submission_deadline)
+        self.assertIsNone(term.aterm_grading_period_open)
+        self.assertFalse(term.is_grading_period_open())
+        self.assertTrue(term.is_grading_period_past())
+        self.assertTrue(term.is_past(datetime.now()))
+        self.assertFalse(term.is_current(datetime.now()))
+        self.assertFalse(term.is_future(datetime.now()))
 
     def test_week_of_term(self):
         now = datetime.now()
