@@ -168,10 +168,10 @@ class Term(models.Model):
     aterm_last_day_add = models.DateField(null=True)
     bterm_last_day_add = models.DateField(null=True)
     last_final_exam_date = models.DateField()
-    grading_period_open = models.DateTimeField()
+    grading_period_open = models.DateTimeField(null=True)
     aterm_grading_period_open = models.DateTimeField(null=True)
-    grading_period_close = models.DateTimeField()
-    grade_submission_deadline = models.DateTimeField()
+    grading_period_close = models.DateTimeField(null=True)
+    grade_submission_deadline = models.DateTimeField(null=True)
     registration_services_start = models.DateField(null=True)
     registration_period1_start = models.DateField(null=True)
     registration_period1_end = models.DateField(null=True)
@@ -275,10 +275,13 @@ class Term(models.Model):
         else:
             open_date = self.grading_period_open
 
-        return (open_date <= datetime.now() <= self.grade_submission_deadline)
+        return (open_date is not None and
+                self.grade_submission_deadline is not None and
+                open_date <= datetime.now() <= self.grade_submission_deadline))
 
     def is_grading_period_past(self):
-        return (datetime.now() > self.grade_submission_deadline)
+        return (self.grade_submission_deadline is None or
+                datetime.now() > self.grade_submission_deadline))
 
     def get_week_of_term(self):
         return self.get_week_of_term_for_date(datetime.now())
@@ -341,11 +344,13 @@ class Term(models.Model):
         return convert_to_end_of_day(self.aterm_last_date)
 
     def is_current(self, comparison_datetime):
-        return self.get_bod_first_day() < comparison_datetime and\
-            comparison_datetime < self.get_end_of_the_term()
+        return (self.get_end_of_the_term() is not None and
+                self.get_bod_first_day() < comparison_datetime and
+                comparison_datetime < self.get_end_of_the_term())
 
     def is_past(self, comparison_datetime):
-        return comparison_datetime > self.get_end_of_the_term()
+        return (self.get_end_of_the_term() is None or
+                comparison_datetime > self.get_end_of_the_term())
 
     def is_future(self, comparison_datetime):
         return comparison_datetime < self.get_bod_first_day()
