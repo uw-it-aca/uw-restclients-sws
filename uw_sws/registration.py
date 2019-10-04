@@ -278,8 +278,8 @@ def _json_to_schedule(json_data, term, regid,
 
             # For independent study courses, only include the one relevant
             # instructor
-            if registration.get("Instructor") is not None:
-                _set_actual_instructor(registration["Instructor"], section)
+            if thread.reg_json.get("Instructor") is not None:
+                _set_actual_instructor(thread.reg_json["Instructor"], section)
 
             sections.append(section)
 
