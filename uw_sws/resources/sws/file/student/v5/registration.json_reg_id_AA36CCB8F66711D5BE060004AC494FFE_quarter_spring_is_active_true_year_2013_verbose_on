@@ -49,6 +49,15 @@
       "Quarter": "spring",
       "RegID": "9136CCB8F66711D5BE060004AC494FFE",
       "SectionID": "A",
+      "Section": {
+        "CourseNumber": "101",
+        "CurriculumAbbreviation": "TRAIN",
+        "Href": "/student/v5/course/2013,spring,TRAIN,100/A.json",
+        "Quarter": "spring",
+        "SLN": "13830",
+        "SectionID": "A",
+        "Year": 2013
+      },
       "Year": "2013"
     },
     {
@@ -82,6 +91,15 @@
       "Instructor": null,
       "Quarter": "spring",
       "RegID": "9136CCB8F66711D5BE060004AC494FFE",
+      "Section": {
+        "CourseNumber": "101",
+        "CurriculumAbbreviation": "TRAIN",
+        "Href": "/student/v5/course/2013,spring,TRAIN,101/A.json",
+        "Quarter": "spring",
+        "SLN": "13833",
+        "SectionID": "A",
+        "Year": 2013
+      },
       "SectionID": "A",
       "Year": "2013"
     }
