@@ -116,10 +116,14 @@ def _json_to_enrollment(json_data,
 
     enrollment.is_enroll_src_pce = is_src_location_pce(json_data,
                                                        ENROLLMENT_SOURCE_PCE)
+
+    registrations = json_data.get('Registrations', [])
+    enrollment.is_registered = len(registrations) > 0
+
     if include_unfinished_pce_course_reg:
         enrollment.unf_pce_courses = {}
         # dictionary {section_label: Registration}
-        for reg_json in json_data.get('Registrations', []):
+        for reg_json in registrations:
             if is_unfinished_pce_course(reg_json):
                 unf_pce_course = Registration(data=reg_json)
                 unf_pce_course.section_ref = _json_to_section_ref(
