@@ -159,7 +159,7 @@ class SWSTestEnrollments(TestCase):
         # regular course
         result_dict = enrollment_search_by_regid(
             '9136CCB8F66711D5BE060004AC494FFE')
-        self.assertEqual(len(result_dict), 6)
+        self.assertEqual(len(result_dict), 7)
         term = get_current_term()
         self.assertTrue(term in result_dict)
         self.assertIsNotNone(result_dict.get(term))
@@ -182,14 +182,14 @@ class SWSTestEnrollments(TestCase):
         enroll1_major = enroll1.majors[0]
         self.assertFalse(enroll_major == enroll1_major)
 
-        term2 = get_term_by_year_and_quarter(2013, 'autumn')
+        term2 = get_term_by_year_and_quarter(2014, 'winter')
         self.assertIsNone(result_dict.get(term2))
 
         term3 = get_term_by_year_and_quarter(2012, 'spring')
         self.assertTrue(term3 in result_dict)
         self.assertIsNotNone(result_dict.get(term3))
         enroll3 = result_dict.get(term3)
-        self.assertFalse(enroll3.is_registered)
+        self.assertTrue(enroll3.is_registered)
         self.assertEquals(len(enroll3.minors), 1)
         enroll3_minor = enroll3.minors[0]
         self.assertTrue(enroll3_minor != enroll_minor)
@@ -197,8 +197,10 @@ class SWSTestEnrollments(TestCase):
         term4 = Term(year=1996, quarter='autumn')
         self.assertTrue(term4 in result_dict)
         self.assertIsNotNone(result_dict.get(term4))
-        enroll4 = result_dict.get(term4)
-        self.assertFalse(enroll4.is_registered)
+
+        term5 = get_term_by_year_and_quarter(2013, 'autumn')
+        enroll5 = result_dict.get(term5)
+        self.assertFalse(enroll5.is_registered)
 
         # regid of none
         result_dict = enrollment_search_by_regid(
@@ -258,12 +260,12 @@ class SWSTestEnrollments(TestCase):
     def test_get_enrollment_history_by_regid(self):
         result_list = get_enrollment_history_by_regid(
             '9136CCB8F66711D5BE060004AC494FFE')
-        self.assertEqual(len(result_list), 6)
+        self.assertEqual(len(result_list), 7)
         self.assertEqual(result_list[0].term.year, 1996)
         self.assertEqual(result_list[0].term.quarter, "autumn")
         self.assertEqual(result_list[0].majors[0].major_name,
                          "PRE MAJOR (A&S)")
 
-        self.assertEqual(result_list[-1].term.year, 2013)
-        self.assertEqual(result_list[-1].term.quarter, "summer")
-        self.assertEqual(result_list[-1].majors[0].major_name, "ENGLISH")
+        self.assertEqual(result_list[-2].term.year, 2013)
+        self.assertEqual(result_list[-2].term.quarter, "summer")
+        self.assertEqual(result_list[-2].majors[0].major_name, "ENGLISH")

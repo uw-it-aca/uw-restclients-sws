@@ -1285,6 +1285,51 @@
         "Quarter": "summer",
         "Year": "2013"
           }
+    },
+   {
+    "ClassLevel": "SENIOR",
+    "FullName": "AVERAGE,JAMES",
+    "HonorsProgram": false,
+    "LeaveEndQuarter": 0,
+    "LeaveEndYear": 0,
+    "Majors": [
+        {
+            "Abbreviation":"ENGL",
+            "Campus":"Seattle",
+            "CollegeAbbreviation":"A & S",
+            "CollegeFullName":"COLLEGE OF ARTS & SCIENCES",
+            "DegreeLevel":1,
+            "DegreeName":"BACHELOR OF ARTS (ENGLISH)",
+            "DegreeType":1,
+            "FullName":"English",
+            "MajorName":"ENGLISH",
+            "Pathway":0,
+            "ShortName":"ENGLISH"
+        }
+    ],
+    "Metadata":"EnrollmentSourceLocation=SDB;",
+    "Minors":[],
+    "PendingClassChange": false,
+    "PendingHonorsChange": false,
+    "PendingMajorChange": false,
+    "PendingResidentChange": false,
+    "PendingSpecialProgramChange": false,
+    "Person": {
+        "Href": "/student/v5/person/9136CCB8F66711D5BE060004AC494FFE.json",
+        "Name": "AVERAGE,JAMES",
+        "RegID": "9136CCB8F66711D5BE060004AC494FFE"
+    },
+    "QtrGradePoints": 0,
+    "QtrGradedAttmp": 0,
+    "QtrNonGrdEarned": 2,
+    "RegID": "9136CCB8F66711D5BE060004AC494FFE",
+    "Registrations": [],
+    "RepositoryTimeStamp": "6/28/2013 2:35:26 PM",
+    "Term": {
+        "Href": "/student/v5/term/2013,autumn.json",
+        "Quarter": "autumn",
+        "Year": "2013"
+          }
     }
     ],
     "Next": null,
