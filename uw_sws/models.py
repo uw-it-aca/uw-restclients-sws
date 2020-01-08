@@ -1183,6 +1183,7 @@ class Enrollment(models.Model):
                              db_index=True,
                              unique=True)
     is_enroll_src_pce = models.NullBooleanField()
+    is_registered = models.NullBooleanField()
     has_pending_major_change = models.NullBooleanField()
 
     def is_non_matric(self):

@@ -72,6 +72,7 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(enrollment.is_non_matric())
         self.assertTrue(enrollment.has_unfinished_pce_course())
         self.assertEqual(len(enrollment.unf_pce_courses), 2)
+        self.assertTrue(enrollment.is_registered)
 
         self.assertTrue(
             enrollment.unf_pce_courses.get("2013,winter,COM,201/A"))
@@ -128,6 +129,7 @@ class SWSTestEnrollments(TestCase):
         term = get_current_term()
         self.assertTrue(term in result_dict)
         enrollment = result_dict.get(term)
+        self.assertTrue(enrollment.is_registered)
         self.assertTrue(enrollment.is_non_matric())
         self.assertEquals(enrollment.majors[0].college_abbr, "INDUG")
         self.assertEquals(enrollment.majors[0].college_full_name,
@@ -187,6 +189,7 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(term3 in result_dict)
         self.assertIsNotNone(result_dict.get(term3))
         enroll3 = result_dict.get(term3)
+        self.assertFalse(enroll3.is_registered)
         self.assertEquals(len(enroll3.minors), 1)
         enroll3_minor = enroll3.minors[0]
         self.assertTrue(enroll3_minor != enroll_minor)
@@ -194,6 +197,8 @@ class SWSTestEnrollments(TestCase):
         term4 = Term(year=1996, quarter='autumn')
         self.assertTrue(term4 in result_dict)
         self.assertIsNotNone(result_dict.get(term4))
+        enroll4 = result_dict.get(term4)
+        self.assertFalse(enroll4.is_registered)
 
         # regid of none
         result_dict = enrollment_search_by_regid(
