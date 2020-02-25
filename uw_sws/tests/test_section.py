@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest import TestCase
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
@@ -490,6 +490,15 @@ class SWSTestSectionData(TestCase):
 
         self.assertEquals(section.is_grading_period_open(), True,
                           "Grading window is open")
+
+        # Using passed datetimes
+        dt = datetime.now() + timedelta(days=1)
+        self.assertEquals(section.is_grading_period_open(dt), True,
+                          "Grading window is open using passed dt")
+
+        dt = datetime.now() + timedelta(days=100)
+        self.assertEquals(section.is_grading_period_open(dt), False,
+                          "Grading window is not open using passed dt")
 
     def test_grading_system(self):
         section = get_section_by_label('2012,summer,PHYS,121/A')

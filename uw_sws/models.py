@@ -269,7 +269,10 @@ class Term(models.Model):
     def __key(self):
         return (str(self.year), self.quarter)
 
-    def is_grading_period_open(self):
+    def is_grading_period_open(self, cmp_dt=None):
+        if cmp_dt is None:
+            cmp_dt = datetime.now()
+
         if self.is_summer_quarter():
             open_date = self.aterm_grading_period_open
         else:
@@ -277,14 +280,18 @@ class Term(models.Model):
 
         return (open_date is not None and
                 self.grade_submission_deadline is not None and
-                open_date <= datetime.now() <= self.grade_submission_deadline)
+                open_date <= cmp_dt <= self.grade_submission_deadline)
 
-    def is_grading_period_past(self):
+    def is_grading_period_past(self, cmp_dt=None):
+        if cmp_dt is None:
+            cmp_dt = datetime.now()
         return (self.grade_submission_deadline is None or
-                datetime.now() > self.grade_submission_deadline)
+                cmp_dt > self.grade_submission_deadline)
 
-    def get_week_of_term(self):
-        return self.get_week_of_term_for_date(datetime.now())
+    def get_week_of_term(self, cmp_dt=None):
+        if cmp_dt is None:
+            cmp_dt = datetime.now()
+        return self.get_week_of_term_for_date(cmp_dt)
 
     def get_week_of_term_for_date(self, date):
         days = (date.date() - self.first_day_quarter).days
@@ -343,18 +350,18 @@ class Term(models.Model):
             return None
         return convert_to_end_of_day(self.aterm_last_date)
 
-    def is_current(self, comparison_datetime):
+    def is_current(self, cmp_dt):
         return (self.get_end_of_the_term() is not None and
-                self.get_bod_first_day() < comparison_datetime and
-                comparison_datetime < self.get_end_of_the_term())
+                self.get_bod_first_day() < cmp_dt and
+                cmp_dt < self.get_end_of_the_term())
 
-    def is_past(self, comparison_datetime):
+    def is_past(self, cmp_dt):
         return (self.get_end_of_the_term() is None and
-                comparison_datetime > self.get_eod_last_final_exam() or
-                comparison_datetime > self.get_end_of_the_term())
+                cmp_dt > self.get_eod_last_final_exam() or
+                cmp_dt > self.get_end_of_the_term())
 
-    def is_future(self, comparison_datetime):
-        return comparison_datetime < self.get_bod_first_day()
+    def is_future(self, cmp_dt):
+        return cmp_dt < self.get_bod_first_day()
 
     def is_summer_quarter(self):
         return self.quarter.lower() == Term.SUMMER
@@ -617,15 +624,17 @@ class Section(models.Model):
                 return True
         return False
 
-    def is_grading_period_open(self):
-        now = datetime.now()
+    def is_grading_period_open(self, cmp_dt=None):
+        if cmp_dt is None:
+            cmp_dt = datetime.now()
+
         if self.is_summer_a_term():
             open_date = self.term.aterm_grading_period_open
         else:
             open_date = self.term.grading_period_open
 
         try:
-            return (open_date <= now <= self.term.grade_submission_deadline)
+            return (open_date <= cmp_dt <= self.term.grade_submission_deadline)
         except TypeError:  # Undefined term dates
             return False
 
