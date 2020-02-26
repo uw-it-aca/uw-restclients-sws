@@ -55,6 +55,13 @@ class SWSTestTerm(TestCase):
         self.assertEquals(term.is_grading_period_past(),
                           False, "Grading period is not past")
 
+        self.assertEquals(term.is_grading_period_open(now + hour1_delta),
+                          True, "Grading period is open using passed dt")
+
+        day100_delta = timedelta(days=100)
+        self.assertEquals(term.is_grading_period_open(now + day100_delta),
+                          False, "Grading period is not open using passed dt")
+
         deadline = term.grade_submission_deadline
         self.assertEquals(deadline + hour1_delta > now,
                           True, "Deadline is in the future")
