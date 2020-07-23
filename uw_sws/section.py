@@ -528,6 +528,16 @@ def _json_to_section(section_data,
             final_exam.clean_fields()
             section.final_exam = final_exam
 
+    if (section_data.get("TimeScheduleComments") and
+            section_data["TimeScheduleComments"].get("SectionComments")):
+        comments = section_data["TimeScheduleComments"]["SectionComments"]
+        if comments.get("Lines"):
+            for line in comments["Lines"]:
+                if (line.get("Text") and
+                        "OFFERED VIA REMOTE LEARNING" in line["Text"]):
+                    section.is_remote = True
+                    break
+
     return section
 
 
