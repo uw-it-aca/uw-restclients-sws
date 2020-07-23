@@ -527,7 +527,7 @@ def _json_to_section(section_data,
 
             final_exam.clean_fields()
             section.final_exam = final_exam
-    print(section_data.get("TimeScheduleComments"))
+
     if (section_data.get("TimeScheduleComments") and
             section_data["TimeScheduleComments"].get("SectionComments")):
         comments = section_data["TimeScheduleComments"]["SectionComments"]
