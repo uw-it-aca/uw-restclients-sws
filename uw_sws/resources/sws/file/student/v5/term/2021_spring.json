@@ -1,0 +1,65 @@
+{
+    "ATermLastDay": null,
+    "AcademicCatalog": "2017-08-01",
+    "BTermFirstDay": null,
+    "CensusDay": "2021-04-09",
+    "FifthDay": "2021-04-02",
+    "FinancialAidYear": null,
+    "FirstDay": "2021-03-29",
+    "FirstDayMedSchool": null,
+    "GradeSubmissionDeadline": "2021-06-14T17:00:00",
+    "GradingPeriodClose": "2021-06-23T17:00:00",
+    "GradingPeriodOpen": "2021-05-24T08:00:00",
+    "GradingPeriodOpenATerm": null,
+    "LastAddDay": "2021-04-18",
+    "LastAddDayATerm": null,
+    "LastAddDayBTerm": null,
+    "LastDayOfClasses": "2021-06-04",
+    "LastDropDay": "2021-05-16",
+    "LastDropDayATerm": null,
+    "LastDropDayBTerm": null,
+    "LastDropDayNotRecorded": "2021-04-11",
+    "LastDropDayNotRecordedATerm": null,
+    "LastDropDayNotRecordedBTerm": null,
+    "LastFinalExamDay": "2021-06-11",
+    "Metadata": "TermSourceKey=SDB;",
+    "NextTerm": {
+        "Href": "/student/v5/term/2021,summer.json",
+        "Quarter": "summer",
+        "Year": 2021
+    },
+    "PreviousTerm": {
+        "Href": "/student/v5/term/2021,winter.json",
+        "Quarter": "winter",
+        "Year": 2021
+    },
+    "Quarter": "spring",
+    "RegistrationPeriods": [
+        {
+            "EndDate": "2021-02-28",
+            "StartDate": "2021-02-12"
+        },
+        {
+            "EndDate": "2021-03-28",
+            "StartDate": "2021-03-01"
+        },
+        {
+            "EndDate": "2021-04-04",
+            "StartDate": "2021-03-29"
+        }
+    ],
+    "RegistrationServicesStart": "2021-02-05",
+    "RepositoryTimeStamp": "4/11/2020 7:17:58 AM",
+    "StudentAccountStart": null,
+    "TimeScheduleConstruction": {
+        "Bothell": true,
+        "Seattle": true,
+        "Tacoma": true
+    },
+    "TimeSchedulePublished": {
+        "Bothell": false,
+        "Seattle": false,
+        "Tacoma": false
+    },
+    "Year": 2021
+}
