@@ -25,7 +25,6 @@ setup(
     install_requires=['UW-RestClients-Core<2.0',
                       'UW-RestClients-PWS<3.0',
                       'mock',
-                      'python-dateutil',
                       'pytz',
                      ],
     license='Apache License, Version 2.0',

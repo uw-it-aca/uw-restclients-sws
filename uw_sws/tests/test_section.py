@@ -709,3 +709,8 @@ class SWSTestSectionData(TestCase):
         person = section.grade_submission_delegates[0].person
         self.assertEqual(person.uwregid, '1230A9206A7D11D5A4AE0004AC494123')
         self.assertEqual(person.display_name, 'PWS, FOUR OH FOUR')
+
+    def test_remote_section(self):
+        section = get_section_by_label('2020,autumn,E E,233/A')
+        self.assertTrue(section.is_remote)
+        self.assertTrue(section.json_data()['is_remote'])

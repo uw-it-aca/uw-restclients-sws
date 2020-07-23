@@ -506,7 +506,7 @@ class Section(models.Model):
     course_campus = models.CharField(max_length=7)
     credit_control = models.CharField(max_length=32, null=True)
     section_type = models.CharField(max_length=30, null=True)
-    is_independent_study = models.NullBooleanField(default=False)
+    is_independent_study = models.BooleanField(default=False)
     independent_study_instructor_regid = models.CharField(max_length=32,
                                                           null=True)
     institute_name = models.CharField(max_length=200, null=True)
@@ -520,7 +520,7 @@ class Section(models.Model):
     primary_lms = models.CharField(max_length=12, choices=PRIMARY_LMS_CHOICES,
                                    null=True)
     lms_ownership = models.CharField(max_length=12, choices=LMS_OWNER_CHOICES)
-    is_independent_start = models.NullBooleanField()
+    is_independent_start = models.BooleanField(default=False)
     current_enrollment = models.IntegerField()
     limit_estimate_enrollment = models.IntegerField()
     limit_estimate_enrollment_indicator = models.CharField(max_length=20)
@@ -552,14 +552,15 @@ class Section(models.Model):
                                                             blank=True,
                                                             )
     primary_section_id = models.CharField(max_length=2, null=True, blank=True)
-    is_primary_section = models.NullBooleanField()
-    allows_secondary_grading = models.NullBooleanField()
-    is_auditor = models.NullBooleanField()
+    is_primary_section = models.BooleanField(default=False)
+    allows_secondary_grading = models.BooleanField(default=False)
+    is_auditor = models.BooleanField(default=False)
     student_credits = models.DecimalField(max_digits=3, decimal_places=1)
     student_grade = models.CharField(max_length=6, null=True, blank=True)
     grade_date = models.DateField(null=True, blank=True, default=None)
     grading_system = models.CharField(max_length=32, null=True, blank=True)
     course_description = models.TextField()
+    is_remote = models.BooleanField(default=False)
 
     def is_campus_seattle(self):
         return (self.course_campus is not None and
@@ -789,7 +790,8 @@ class Section(models.Model):
             'is_auditor':  self.is_auditor,
             'grade': self.student_grade,
             'grade_date': date_to_str(self.grade_date),
-            'grading_system': self.grading_system
+            'grading_system': self.grading_system,
+            'is_remote': self.is_remote
         }
 
         if self.final_exam is not None:
@@ -839,10 +841,10 @@ class SectionReference(models.Model):
 
 
 class SectionStatus(models.Model):
-    add_code_required = models.NullBooleanField()
+    add_code_required = models.NullBooleanField(default=False)
     current_enrollment = models.IntegerField()
     current_registration_period = models.IntegerField()
-    faculty_code_required = models.NullBooleanField()
+    faculty_code_required = models.NullBooleanField(default=False)
     limit_estimated_enrollment = models.IntegerField()
     limit_estimate_enrollment_indicator = models.CharField(max_length=8)
     room_capacity = models.IntegerField()
