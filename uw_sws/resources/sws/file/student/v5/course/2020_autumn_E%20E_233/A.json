@@ -60,14 +60,6 @@
     },
     "GradeSubmissionDelegates": [
         {
-            "DelegateLevel": "college",
-            "Person": {
-                "Href": "/student/v5/person/489E0F016AF4A2EF04FC6100CC280461.json",
-                "Name": "Charlotte I Goddard",
-                "RegID": "489E0F016AF4A2EF04FC6100CC280461"
-            }
-        },
-        {
             "DelegateLevel": "department",
             "Person": {
                 "Href": "/student/v5/person/9136CCB8F66711D5BE060004AC494F31.json",
@@ -175,9 +167,9 @@
                     "GradeRoster": null,
                     "PercentInvolve": "99",
                     "Person": {
-                        "Href": "/student/v5/person/9136CCB8F66711D5BE060004AC494FFE..json",
+                        "Href": "/student/v5/person/9136CCB8F66711D5BE060004AC494FFE.json",
                         "Name": "See pws",
-                        "RegID": "9136CCB8F66711D5BE060004AC494FFE."
+                        "RegID": "9136CCB8F66711D5BE060004AC494FFE"
                     },
                     "TSPrint": true
                 }
