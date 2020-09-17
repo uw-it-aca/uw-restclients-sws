@@ -230,6 +230,12 @@ class SWSTestRegistrations(TestCase):
             transcriptable_course="all",
         )
         self.assertEquals(len(class_schedule.sections), 1)
+        self.assertEquals(str(class_schedule.sections[0].start_date),
+                          "2013-01-16")
+        self.assertEquals(str(class_schedule.sections[0].end_date),
+                          "2013-03-20")
+        self.assertTrue(class_schedule.sections[0].is_source_eos())
+        self.assertEquals(class_schedule.registered_summer_terms, {})
 
     def test_empty_request_date(self):
         section = get_section_by_label('2013,winter,DROP_T,100/A')
@@ -239,3 +245,11 @@ class SWSTestRegistrations(TestCase):
         javerage_reg = registrations[1]
         self.assertEquals(javerage_reg.person.uwnetid, 'javerage')
         self.assertEquals(javerage_reg.request_date, None)
+
+    def test_registered_summer_terms(self):
+        class_schedule = get_schedule_by_regid_and_term(
+            '12345678901234567890123456789012',
+            Term(quarter="summer", year=2013),
+            transcriptable_course="all")
+        self.assertEquals(class_schedule.registered_summer_terms,
+                          {'a-term': True, 'b-term': True, 'full-term': True})

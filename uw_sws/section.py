@@ -4,15 +4,15 @@ Interfacing with the Student Web Service, for Section and Course resources.
 import logging
 import re
 from datetime import datetime
-from dateutil.parser import parse
 from urllib.parse import urlencode
 from restclients_core.thread import generic_prefetch
 from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
 from restclients_core.exceptions import DataFailureException
 from uw_sws import get_resource, encode_section_label, UWPWS
 from uw_sws.term import get_term_by_year_and_quarter
-from uw_sws.models import (Section, SectionReference, FinalExam,
-                           SectionMeeting, GradeSubmissionDelegate, Person)
+from uw_sws.models import (
+    Section, SectionReference, FinalExam, str_to_date,
+    SectionMeeting, GradeSubmissionDelegate, Person)
 
 
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
@@ -345,29 +345,17 @@ def _json_to_section(section_data,
         "IndependentStudy", is_independent_study)
 
     section.credit_control = section_data.get("CreditControl", "")
+    section.end_date = str_to_date(section_data.get("EndDate"))
+    section.start_date = str_to_date(section_data.get("StartDate"))
+    section.class_website_url = section_data.get("ClassWebsiteUrl")
 
-    if "StartDate" in section_data and\
-       len(section_data["StartDate"]) > 0:
-        section.start_date = parse(section_data["StartDate"]).date()
-
-    if "EndDate" in section_data and\
-       len(section_data["EndDate"]) > 0:
-        section.end_date = parse(section_data["EndDate"]).date()
-
-    section.class_website_url = section_data["ClassWebsiteUrl"]
-
-    if is_valid_sln(section_data["SLN"]):
+    if is_valid_sln(section_data.get("SLN")):
         section.sln = int(section_data["SLN"])
-    else:
-        section.sln = 0
 
-    if "SummerTerm" in section_data:
-        section.summer_term = section_data["SummerTerm"]
-    else:
-        section.summer_term = ""
-
-    section.delete_flag = section_data["DeleteFlag"]
+    section.summer_term = section_data.get("SummerTerm", "")
+    section.delete_flag = section_data.get("DeleteFlag", "")
     section.current_enrollment = int(section_data['CurrentEnrollment'])
+
     section.limit_estimate_enrollment = int(
         section_data['LimitEstimateEnrollment'])
     section.limit_estimate_enrollment_indicator = section_data[
@@ -456,12 +444,8 @@ def _json_to_section(section_data,
             if len(meeting.end_time) > 5:
                 meeting.end_time = meeting.end_time[:5]
 
-        if (meeting_data.get("EOS_StartDate", None) and
-                meeting_data.get("EOS_EndDate", None)):
-            meeting.eos_start_date = parse(
-                meeting_data["EOS_StartDate"]).date()
-            meeting.eos_end_date = parse(
-                meeting_data["EOS_EndDate"]).date()
+        meeting.eos_start_date = str_to_date(meeting_data.get("EOS_StartDate"))
+        meeting.eos_end_date = str_to_date(meeting_data.get("EOS_EndDate"))
 
         meeting.instructors = []
         for instructor_data in meeting_data["Instructors"]:

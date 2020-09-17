@@ -24,7 +24,7 @@
     "DeleteFlag": "suspended",
     "DistanceLearning": false,
     "DuplicateEnrollmentAllowed": false,
-    "EndDate": "2013-03-20",
+    "EndDate": "2013-03-27",
     "EnrollmentRestrictions": false,
     "FeeAmount": null,
     "FeeBudget": null,
@@ -134,7 +134,7 @@
     "SectionType": null,
     "SelfRegistrationAllowed": false,
     "ServiceLearning": false,
-    "StartDate": "2013-01-16",
+    "StartDate": "2013-01-09",
     "StudentCreditHours": null,
     "SummerTerm": "",
     "Term": {
