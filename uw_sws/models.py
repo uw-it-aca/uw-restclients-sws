@@ -708,7 +708,7 @@ class Section(models.Model):
     def is_same_summer_term(self, summer_term):
         return (summer_term is not None and
                 self.summer_term.lower() == summer_term.lower() or
-                summer_term is None and len(self.summer_term) ==0)
+                summer_term is None and len(self.summer_term) == 0)
 
     def is_clerkship(self):
         return self.section_type is not None and\
