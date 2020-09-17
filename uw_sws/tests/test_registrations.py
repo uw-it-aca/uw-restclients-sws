@@ -1,6 +1,7 @@
 from unittest import TestCase
 from uw_sws.models import Term, date_to_str
 from uw_sws.section import get_section_by_label
+from uw_sws.term import get_term_by_year_and_quarter
 from uw_sws.registration import (
     get_active_registrations_by_section, get_all_registrations_by_section,
     get_schedule_by_regid_and_term)
@@ -249,7 +250,9 @@ class SWSTestRegistrations(TestCase):
     def test_registered_summer_terms(self):
         class_schedule = get_schedule_by_regid_and_term(
             '12345678901234567890123456789012',
-            Term(quarter="summer", year=2013),
+            get_term_by_year_and_quarter(2013, "summer"),
             transcriptable_course="all")
+        self.assertEquals(len(class_schedule.sections), 3)
         self.assertEquals(class_schedule.registered_summer_terms,
                           {'a-term': True, 'b-term': True, 'full-term': True})
+        self.assertIsNotNone(class_schedule.json_data())

@@ -1068,6 +1068,7 @@ class ClassSchedule(models.Model):
     user = models.ForeignKey(Person)
     term = models.ForeignKey(Term,
                              on_delete=models.PROTECT)
+    registered_summer_terms = {}
 
     def json_data(self):
         data = {
@@ -1075,11 +1076,11 @@ class ClassSchedule(models.Model):
             'quarter': self.term.quarter,
             'term': self.term.json_data(),
             'sections': [],
+            'registered_summer_terms': self.registered_summer_terms
         }
 
         for section in self.sections:
             data["sections"].append(section.json_data())
-
         return data
 
 
