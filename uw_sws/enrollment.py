@@ -107,6 +107,7 @@ def _json_to_enrollment(json_data,
                         term,
                         include_unfinished_pce_course_reg=True):
     enrollment = Enrollment()
+    enrollment.registrations = []
     enrollment.regid = json_data['RegID']
     enrollment.class_level = json_data['ClassLevel']
     enrollment.is_honors = json_data['HonorsProgram']
@@ -119,17 +120,19 @@ def _json_to_enrollment(json_data,
 
     registrations = json_data.get('Registrations', [])
     enrollment.is_registered = len(registrations) > 0
-
-    if include_unfinished_pce_course_reg:
+    if enrollment.is_registered:
         enrollment.unf_pce_courses = {}
-        # dictionary {section_label: Registration}
+
         for reg_json in registrations:
-            if is_unfinished_pce_course(reg_json):
-                unf_pce_course = Registration(data=reg_json)
-                unf_pce_course.section_ref = _json_to_section_ref(
-                    reg_json, term)
-                key = unf_pce_course.section_ref.section_label()
-                enrollment.unf_pce_courses[key] = unf_pce_course
+            registration = Registration(data=reg_json)
+            registration.section_ref = _json_to_section_ref(reg_json, term)
+            enrollment.registrations.append(registration)
+
+            if include_unfinished_pce_course_reg:
+                # dictionary {section_label: Registration}
+                if is_unfinished_pce_course(reg_json):
+                    key = registration.section_ref.section_label()
+                    enrollment.unf_pce_courses[key] = registration
 
     enrollment.majors = []
     if json_data.get('Majors') is not None and len(json_data['Majors']) > 0:

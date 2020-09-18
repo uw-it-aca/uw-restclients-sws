@@ -1201,6 +1201,7 @@ class Enrollment(models.Model):
     is_enroll_src_pce = models.NullBooleanField()
     is_registered = models.NullBooleanField()
     has_pending_major_change = models.NullBooleanField()
+    # will have a list of Registrations if verbose is true
 
     def is_non_matric(self):
         return self.class_level.lower() == Enrollment.CLASS_LEVEL_NON_MATRIC
