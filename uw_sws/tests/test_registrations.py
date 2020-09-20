@@ -256,3 +256,10 @@ class SWSTestRegistrations(TestCase):
         self.assertEquals(class_schedule.registered_summer_terms,
                           {'a-term': True, 'b-term': True, 'full-term': True})
         self.assertIsNotNone(class_schedule.json_data())
+
+    def test_not_registered(self):
+        class_schedule = get_schedule_by_regid_and_term(
+            '00000000000000000000000000000001',
+            get_term_by_year_and_quarter(2013, "summer"),
+            transcriptable_course="all")
+        self.assertEqual(len(class_schedule.sections), 0)

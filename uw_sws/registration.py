@@ -205,6 +205,11 @@ def _json_to_stud_reg_schedule(json_data, term, regid,
     sws_threads = []
     term_credit_hours = Decimal("0.0")
     registered_summer_terms = {}
+    if len(json_data["Registrations"]) == 0:
+        schedule = ClassSchedule()
+        schedule.sections = sections
+        schedule.term = term
+        return schedule
 
     enable_cache_entry_queueing()
     try:
