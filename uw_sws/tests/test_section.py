@@ -40,6 +40,8 @@ class SWSTestSectionData(TestCase):
                          '2013-04-02')
         self.assertEqual(str(section.meetings[0].eos_end_date),
                          '2013-06-04')
+        self.assertTrue(section.is_source_eos())
+
         section = get_section_by_label('2013,summer,PHIL,495/A')
         self.assertTrue(section.is_ind_study())
         section = get_section_by_label('2013,summer,PHYS,121/AK')
@@ -51,8 +53,8 @@ class SWSTestSectionData(TestCase):
     def test_non_credit_certificate_couse_section(self):
         section = get_section_by_label('2013,winter,BIGDATA,220/A')
         self.assertTrue(section.is_campus_pce())
-        self.assertEquals(str(section.start_date), "2013-01-16")
-        self.assertEquals(str(section.end_date), "2013-03-20")
+        self.assertEquals(str(section.start_date), "2013-01-09")
+        self.assertEquals(str(section.end_date), "2013-03-27")
         self.assertEquals(section.metadata, "SectionSourceKey=EOS;")
         self.assertEquals(section.is_active(), False)
         self.assertEquals(section.is_withdrawn(), False)
@@ -606,10 +608,12 @@ class SWSTestSectionData(TestCase):
         self.assertTrue(section.is_inst_pce())
         self.assertTrue(section.is_independent_start)
         self.assertIsNone(section.eos_cid)
+        self.assertTrue(section.is_source_sdb_eos())
 
         section = get_section_by_label('2018,winter,INFX,543/A')
         self.assertTrue(section.is_inst_pce())
         self.assertEquals(section.eos_cid, '116878')
+        self.assertTrue(section.is_source_sdb_eos())
 
     def test_early_fall_start(self):
         section = get_section_by_label('2013,spring,EFS_FAILT,101/AQ')
@@ -714,3 +718,4 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2020,autumn,E E,233/A')
         self.assertTrue(section.is_remote)
         self.assertTrue(section.json_data()['is_remote'])
+        self.assertTrue(section.is_source_sdb())

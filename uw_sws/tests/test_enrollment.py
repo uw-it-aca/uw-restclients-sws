@@ -70,10 +70,16 @@ class SWSTestEnrollments(TestCase):
         self.assertEquals(enrollment.class_level, u'NON_MATRIC')
         self.assertTrue(enrollment.is_enroll_src_pce)
         self.assertTrue(enrollment.is_non_matric())
+        self.assertTrue(enrollment.is_registered)
+        self.assertEqual(len(enrollment.registrations), 2)
+        self.assertEqual(
+            enrollment.registrations[0].section_ref.section_label(),
+            "2013,winter,COM,201/A")
+        self.assertEqual(
+            enrollment.registrations[1].section_ref.section_label(),
+            "2013,winter,PSYCH,203/A")
         self.assertTrue(enrollment.has_unfinished_pce_course())
         self.assertEqual(len(enrollment.unf_pce_courses), 2)
-        self.assertTrue(enrollment.is_registered)
-
         self.assertTrue(
             enrollment.unf_pce_courses.get("2013,winter,COM,201/A"))
         reg1 = enrollment.unf_pce_courses["2013,winter,COM,201/A"]
