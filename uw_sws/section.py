@@ -526,8 +526,7 @@ def _json_to_section(section_data,
 
 def is_remote(comment_dict):
     return (comment_dict.get("Text") and
-            ("OFFERED VIA REMOTE LEARNING" in comment_dict["Text"] or
-             "LECTURES ARE OFFERED VIA REMOTE" in comment_dict["Text"]))
+            "OFFERED VIA REMOTE" in comment_dict["Text"])
 
 
 def is_a_term(str):
