@@ -8,15 +8,13 @@ from uw_sws.exceptions import (InvalidSectionID, InvalidSectionURL,
                                InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
 from uw_sws import use_v5_resources
-from uw_sws.section import get_section_by_label, \
-    get_joint_sections, get_linked_sections, \
-    get_sections_by_instructor_and_term, \
-    get_sections_by_curriculum_and_term, \
-    get_sections_by_building_and_term, \
-    get_last_section_by_instructor_and_terms, \
-    get_changed_sections_by_term, validate_section_label, \
-    get_sections_by_delegate_and_term, \
-    is_a_term, is_b_term, is_full_summer_term, is_valid_sln
+from uw_sws.section import (
+    get_section_by_label, get_joint_sections, get_linked_sections,
+    get_sections_by_instructor_and_term, get_sections_by_curriculum_and_term,
+    get_sections_by_building_and_term, get_changed_sections_by_term,
+    get_last_section_by_instructor_and_terms, validate_section_label,
+    get_sections_by_delegate_and_term, is_a_term, is_b_term,
+    is_full_summer_term, is_valid_sln, is_remote)
 
 
 @fdao_pws_override
@@ -719,3 +717,7 @@ class SWSTestSectionData(TestCase):
         self.assertTrue(section.is_remote)
         self.assertTrue(section.json_data()['is_remote'])
         self.assertTrue(section.is_source_sdb())
+
+        self.assertTrue(is_remote({"Text": "OFFERED VIA REMOTE LEARNING"}))
+        self.assertTrue(is_remote({"Text": "LECTURES ARE OFFERED VIA REMOTE"}))
+        self.assertFalse(is_remote({"Text": "PERSON"}))

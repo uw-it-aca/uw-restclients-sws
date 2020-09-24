@@ -517,12 +517,16 @@ def _json_to_section(section_data,
         comments = section_data["TimeScheduleComments"]["SectionComments"]
         if comments.get("Lines"):
             for line in comments["Lines"]:
-                if (line.get("Text") and
-                        "OFFERED VIA REMOTE LEARNING" in line["Text"]):
+                if is_remote(line):
                     section.is_remote = True
                     break
 
     return section
+
+
+def is_remote(comment_dict):
+    return (comment_dict.get("Text") and
+            "OFFERED VIA REMOTE" in comment_dict["Text"])
 
 
 def is_a_term(str):
