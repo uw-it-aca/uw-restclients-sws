@@ -539,7 +539,7 @@ class SWSTestSectionData(TestCase):
             'Canvas section SIS ID')
 
         # Independent study section
-        section = get_section_by_label('2013,summer,PHIL,600/A')
+        section = get_section_by_label('2020,summer,PHIL,600/A')
 
         # ..missing instructor regid
         self.assertRaises(InvalidCanvasIndependentStudyCourse,
@@ -549,11 +549,11 @@ class SWSTestSectionData(TestCase):
             'A9D2DDFA6A7D11D5A4AE0004AC494FFE')
         self.assertEquals(
             section.canvas_course_sis_id(),
-            '2013-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE',
+            '2020-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE',
             'Canvas course SIS ID')
         self.assertEquals(
             section.canvas_section_sis_id(),
-            '2013-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE--',
+            '2020-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE--',
             'Canvas section SIS ID')
 
     def test_summer_terms(self):
@@ -568,13 +568,11 @@ class SWSTestSectionData(TestCase):
         self.assertFalse(section.is_same_summer_term("B-term"))
         self.assertFalse(section.is_same_summer_term(None))
 
-        section = get_section_by_label('2013,summer,PHIL,600/A')
-        # section.summer_term is ""
+        section = get_section_by_label('2020,summer,EDIT,120/B')
+        self.assertFalse(section.for_credit())
         self.assertFalse(section.is_summer_a_term())
         self.assertFalse(section.is_summer_b_term())
-        self.assertFalse(section.is_full_summer_term())
-        self.assertTrue(section.is_same_summer_term(None))
-        self.assertTrue(section.is_same_summer_term(""))
+        self.assertTrue(section.is_full_summer_term())
 
     def test_summer_term_statics(self):
         self.assertTrue(is_a_term("A-term"))

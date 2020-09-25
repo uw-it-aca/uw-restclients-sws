@@ -352,7 +352,7 @@ def _json_to_section(section_data,
     if is_valid_sln(section_data.get("SLN")):
         section.sln = int(section_data["SLN"])
 
-    section.summer_term = section_data.get("SummerTerm", "")
+    _set_summer_term(section_data, section)
     section.delete_flag = section_data.get("DeleteFlag", "")
     section.current_enrollment = int(section_data['CurrentEnrollment'])
 
@@ -549,3 +549,11 @@ def is_valid_section_label(label):
         return section_label_pattern.match(label) is not None
     except TypeError:
         return False
+
+
+def _set_summer_term(section_data, section):
+    section.summer_term = section_data.get("SummerTerm", "")
+    if (section.term.is_summer_quarter() and len(section.summer_term) == 0 and
+            section.is_campus_pce() and not section.for_credit()):
+        section.summer_term = "Full-term"
+        # PCE non-credit summer term courses are full-term by default
