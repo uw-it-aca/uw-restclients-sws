@@ -12,7 +12,7 @@ from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
                          convert_to_end_of_day)
 from restclients_core import models
 
-SWS_TIMEZONE = "US/Pacific"
+SWS_TIMEZONE = timezone("US/Pacific")
 SWS_TERM_LABEL = "{year},{quarter}"
 SWS_SECTION_LABEL = "{year},{quarter},{curr_abbr},{course_num}/{section_id}"
 
@@ -36,8 +36,9 @@ def date_to_str(dt):
 
 
 def sws_now():
-    return datetime.fromtimestamp(int(time()) + int(datetime.now(
-        timezone(SWS_TIMEZONE)).utcoffset().total_seconds()))
+    return datetime.fromtimestamp(
+        int(datetime.utcfromtimestamp(time()).timestamp()) +
+        int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
 
 class LastEnrolled(models.Model):
