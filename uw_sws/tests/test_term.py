@@ -4,7 +4,7 @@ from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from datetime import datetime, timedelta
 from restclients_core.exceptions import DataFailureException
-from uw_sws.models import Term
+from uw_sws.models import Term, sws_now
 from uw_sws.term import get_term_by_year_and_quarter, \
     get_term_before, get_term_after, get_current_term, get_next_term, \
     get_previous_term, get_term_by_date, get_specific_term, \
@@ -432,12 +432,12 @@ class SWSTestTerm(TestCase):
         self.assertFalse(term.is_future(datetime.now()))
 
     def test_week_of_term(self):
-        now = datetime.now()
+        now = sws_now()
         term = get_current_term()
 
-        term.first_day_quarter = now.date()
-
         # First day of class
+        start_date = now
+        term.first_day_quarter = start_date.date()
         self.assertEquals(term.get_week_of_term(), 1,
                           "Term starting now in first week")
         self.assertEquals(term.get_week_of_term_for_date(now), 1,
