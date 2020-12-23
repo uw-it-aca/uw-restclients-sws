@@ -1,11 +1,9 @@
 import json
-import os
 import re
 from datetime import datetime
-from time import time, strftime
 from dateutil.parser import parse
 from pytz import timezone
-from uw_pws.models import Person, Entity
+from uw_pws.models import Person
 from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
 from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
@@ -37,7 +35,7 @@ def date_to_str(dt):
 
 def sws_now():
     return datetime.fromtimestamp(
-        int(datetime.utcfromtimestamp(time()).timestamp()) +
+        int(datetime.utcnow().strftime('%s')) +
         int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
 
