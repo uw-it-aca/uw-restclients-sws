@@ -1,16 +1,16 @@
 import json
-import os
 import re
 from datetime import datetime
-from time import strftime
 from dateutil.parser import parse
-from uw_pws.models import Person, Entity
+from pytz import timezone
+from uw_pws.models import Person
 from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
 from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
                          convert_to_end_of_day)
 from restclients_core import models
 
+SWS_TIMEZONE = timezone("US/Pacific")
 SWS_TERM_LABEL = "{year},{quarter}"
 SWS_SECTION_LABEL = "{year},{quarter},{curr_abbr},{course_num}/{section_id}"
 
@@ -31,6 +31,12 @@ def str_to_date(s):
 
 def date_to_str(dt):
     return str(dt) if dt is not None else None
+
+
+def sws_now():
+    return datetime.fromtimestamp(
+        int(datetime.utcnow().strftime('%s')) +
+        int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
 
 class LastEnrolled(models.Model):
@@ -271,7 +277,7 @@ class Term(models.Model):
 
     def is_grading_period_open(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
 
         if self.is_summer_quarter():
             open_date = self.aterm_grading_period_open
@@ -284,13 +290,13 @@ class Term(models.Model):
 
     def is_grading_period_past(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
         return (self.grade_submission_deadline is None or
                 cmp_dt > self.grade_submission_deadline)
 
     def get_week_of_term(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
         return self.get_week_of_term_for_date(cmp_dt)
 
     def get_week_of_term_for_date(self, date):
@@ -633,7 +639,7 @@ class Section(models.Model):
 
     def is_grading_period_open(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
 
         if self.is_summer_a_term():
             open_date = self.term.aterm_grading_period_open
