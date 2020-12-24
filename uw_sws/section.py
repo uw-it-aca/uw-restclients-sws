@@ -9,9 +9,10 @@ from restclients_core.thread import generic_prefetch
 from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
 from restclients_core.exceptions import DataFailureException
 from uw_sws import get_resource, encode_section_label, UWPWS
+from uw_sws.util import str_to_date
 from uw_sws.term import get_term_by_year_and_quarter
 from uw_sws.models import (
-    Section, SectionReference, FinalExam, str_to_date,
+    Section, SectionReference, FinalExam,
     SectionMeeting, GradeSubmissionDelegate, Person)
 
 

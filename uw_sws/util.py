@@ -1,9 +1,34 @@
 from datetime import date, datetime, timedelta
+from pytz import timezone
+from dateutil.parser import parse
 from restclients_core.util.decorators import use_mock
 from uw_sws.dao import SWS_DAO
 
-
 fdao_sws_override = use_mock(SWS_DAO())
+
+SWS_TIMEZONE = timezone("US/Pacific")
+
+
+def sws_now():
+    """
+    Return a naive datetime corresponding to the natural SWS timezone.
+    """
+    return datetime.fromtimestamp(
+        int(datetime.utcnow().strftime('%s')) +
+        int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
+
+
+def str_to_datetime(s):
+    return parse(s) if (s is not None and len(s)) else None
+
+
+def str_to_date(s):
+    dt = str_to_datetime(s)
+    return dt.date() if dt is not None else None
+
+
+def date_to_str(dt):
+    return str(dt) if dt is not None else None
 
 
 def abbr_week_month_day_str(adatetime):
