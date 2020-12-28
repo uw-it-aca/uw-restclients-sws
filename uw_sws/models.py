@@ -1,14 +1,12 @@
 import json
-import os
 import re
-from datetime import datetime
-from time import strftime
-from dateutil.parser import parse
-from uw_pws.models import Person, Entity
-from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
-                               InvalidCanvasSection)
-from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
-                         convert_to_end_of_day)
+from uw_pws.models import Person
+from uw_sws.exceptions import (
+    InvalidCanvasIndependentStudyCourse, InvalidCanvasSection)
+from uw_sws.util import (
+    abbr_week_month_day_str, convert_to_begin_of_day, convert_to_end_of_day,
+    str_to_datetime, str_to_date, date_to_str)
+from uw_sws.dao import sws_now
 from restclients_core import models
 
 SWS_TERM_LABEL = "{year},{quarter}"
@@ -18,19 +16,6 @@ CANVAS_TERM_ID = "{year}-{quarter}"
 CANVAS_COURSE_ID = "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}"
 CANVAS_IND_STUDY_COURSE_ID = (
     "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
-
-
-def str_to_datetime(s):
-    return parse(s) if (s is not None and len(s)) else None
-
-
-def str_to_date(s):
-    dt = str_to_datetime(s)
-    return dt.date() if dt is not None else None
-
-
-def date_to_str(dt):
-    return str(dt) if dt is not None else None
 
 
 class LastEnrolled(models.Model):
@@ -271,7 +256,7 @@ class Term(models.Model):
 
     def is_grading_period_open(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
 
         if self.is_summer_quarter():
             open_date = self.aterm_grading_period_open
@@ -284,13 +269,13 @@ class Term(models.Model):
 
     def is_grading_period_past(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
         return (self.grade_submission_deadline is None or
                 cmp_dt > self.grade_submission_deadline)
 
     def get_week_of_term(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
         return self.get_week_of_term_for_date(cmp_dt)
 
     def get_week_of_term_for_date(self, date):
@@ -633,7 +618,7 @@ class Section(models.Model):
 
     def is_grading_period_open(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
 
         if self.is_summer_a_term():
             open_date = self.term.aterm_grading_period_open

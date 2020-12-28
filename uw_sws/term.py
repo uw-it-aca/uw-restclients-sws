@@ -2,7 +2,6 @@
 This class interfaces with the Student Web Service, Term resource.
 """
 import logging
-from datetime import datetime
 from uw_sws import get_resource, QUARTER_SEQ
 from uw_sws.models import Term
 from restclients_core.exceptions import DataFailureException
@@ -33,9 +32,8 @@ def get_current_term():
     # A term doesn't become "current" until 2 days before the start of
     # classes.  That's too late to be useful, so if we're after the last
     # day of grade submission window, use the next term resource.
-    if datetime.now() > term.grade_submission_deadline:
+    if term.is_grading_period_past():
         return get_next_term()
-
     return term
 
 

@@ -1,11 +1,11 @@
 from unittest import TestCase
-from uw_sws.models import Term, date_to_str
+from uw_sws.models import Term
 from uw_sws.section import get_section_by_label
 from uw_sws.term import get_term_by_year_and_quarter
 from uw_sws.registration import (
     get_active_registrations_by_section, get_all_registrations_by_section,
     get_schedule_by_regid_and_term)
-from uw_sws.util import fdao_sws_override
+from uw_sws.util import fdao_sws_override, date_to_str
 from uw_pws.util import fdao_pws_override
 from restclients_core.exceptions import DataFailureException
 from decimal import Decimal

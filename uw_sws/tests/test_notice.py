@@ -2,7 +2,8 @@ from unittest import TestCase
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.notice import get_notices_by_regid
-from datetime import date, datetime, timedelta
+from uw_sws.dao import sws_now
+from datetime import timedelta
 
 
 @fdao_pws_override
@@ -12,7 +13,7 @@ class SWSNotice(TestCase):
         notices = get_notices_by_regid("9136CCB8F66711D5BE060004AC494FFE")
         self.assertEquals(len(notices), 17)
 
-        today = date.today()
+        today = sws_now().date()
         yesterday = today - timedelta(days=1)
         tomorrow = today + timedelta(days=1)
         week = today + timedelta(days=2)
