@@ -2,8 +2,7 @@ import json
 from urllib.parse import quote
 from restclients_core.exceptions import DataFailureException
 from uw_pws import PWS
-from uw_sws.dao import SWS_DAO
-from uw_sws.util import sws_now
+from uw_sws.dao import SWS_DAO, SWS_TIMEZONE, sws_now
 
 QUARTER_SEQ = ["winter", "spring", "summer", "autumn"]
 DAO = SWS_DAO()

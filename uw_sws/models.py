@@ -5,7 +5,8 @@ from uw_sws.exceptions import (
     InvalidCanvasIndependentStudyCourse, InvalidCanvasSection)
 from uw_sws.util import (
     abbr_week_month_day_str, convert_to_begin_of_day, convert_to_end_of_day,
-    str_to_datetime, str_to_date, date_to_str, sws_now)
+    str_to_datetime, str_to_date, date_to_str)
+from uw_sws.dao import sws_now
 from restclients_core import models
 
 SWS_TERM_LABEL = "{year},{quarter}"

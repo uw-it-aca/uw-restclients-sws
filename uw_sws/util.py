@@ -1,21 +1,9 @@
-from datetime import date, datetime, timedelta
-from pytz import timezone
+from datetime import datetime, timedelta
 from dateutil.parser import parse
 from restclients_core.util.decorators import use_mock
 from uw_sws.dao import SWS_DAO
 
 fdao_sws_override = use_mock(SWS_DAO())
-
-SWS_TIMEZONE = timezone("US/Pacific")
-
-
-def sws_now():
-    """
-    Return a naive datetime corresponding to the natural SWS timezone.
-    """
-    return datetime.fromtimestamp(
-        int(datetime.utcnow().strftime('%s')) +
-        int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
 
 def str_to_datetime(s):

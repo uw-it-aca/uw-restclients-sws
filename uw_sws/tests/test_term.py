@@ -1,6 +1,7 @@
 import json
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override, sws_now
+from uw_sws.dao import sws_now
+from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from datetime import datetime, timedelta
 from restclients_core.exceptions import DataFailureException
@@ -47,7 +48,7 @@ class SWSTestTerm(TestCase):
         # This rounds down to 0 days, so check by seconds :(
         hour1_delta = timedelta(hours=-1)
         hour48_delta = timedelta(hours=-48)
-        now = datetime.now()
+        now = sws_now()
 
         term = get_current_term()
         self.assertEquals(term.is_grading_period_open(),
@@ -427,9 +428,9 @@ class SWSTestTerm(TestCase):
         self.assertIsNone(term.aterm_grading_period_open)
         self.assertFalse(term.is_grading_period_open())
         self.assertTrue(term.is_grading_period_past())
-        self.assertTrue(term.is_past(datetime.now()))
-        self.assertFalse(term.is_current(datetime.now()))
-        self.assertFalse(term.is_future(datetime.now()))
+        self.assertTrue(term.is_past(sws_now()))
+        self.assertFalse(term.is_current(sws_now()))
+        self.assertFalse(term.is_future(sws_now()))
 
     def test_week_of_term(self):
         now = sws_now()
