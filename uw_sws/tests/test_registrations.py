@@ -1,10 +1,11 @@
 from unittest import TestCase
-from uw_sws.models import Term, date_to_str
+from uw_sws.models import Term
 from uw_sws.section import get_section_by_label
+from uw_sws.term import get_term_by_year_and_quarter
 from uw_sws.registration import (
     get_active_registrations_by_section, get_all_registrations_by_section,
     get_schedule_by_regid_and_term)
-from uw_sws.util import fdao_sws_override
+from uw_sws.util import fdao_sws_override, date_to_str
 from uw_pws.util import fdao_pws_override
 from restclients_core.exceptions import DataFailureException
 from decimal import Decimal
@@ -230,6 +231,12 @@ class SWSTestRegistrations(TestCase):
             transcriptable_course="all",
         )
         self.assertEquals(len(class_schedule.sections), 1)
+        self.assertEquals(str(class_schedule.sections[0].start_date),
+                          "2013-01-16")
+        self.assertEquals(str(class_schedule.sections[0].end_date),
+                          "2013-03-20")
+        self.assertTrue(class_schedule.sections[0].is_source_eos())
+        self.assertEquals(class_schedule.registered_summer_terms, {})
 
     def test_empty_request_date(self):
         section = get_section_by_label('2013,winter,DROP_T,100/A')
@@ -239,3 +246,20 @@ class SWSTestRegistrations(TestCase):
         javerage_reg = registrations[1]
         self.assertEquals(javerage_reg.person.uwnetid, 'javerage')
         self.assertEquals(javerage_reg.request_date, None)
+
+    def test_registered_summer_terms(self):
+        class_schedule = get_schedule_by_regid_and_term(
+            '12345678901234567890123456789012',
+            get_term_by_year_and_quarter(2013, "summer"),
+            transcriptable_course="all")
+        self.assertEquals(len(class_schedule.sections), 3)
+        self.assertEquals(class_schedule.registered_summer_terms,
+                          {'a-term': True, 'b-term': True, 'full-term': True})
+        self.assertIsNotNone(class_schedule.json_data())
+
+    def test_not_registered(self):
+        class_schedule = get_schedule_by_regid_and_term(
+            '00000000000000000000000000000001',
+            get_term_by_year_and_quarter(2013, "summer"),
+            transcriptable_course="all")
+        self.assertEqual(len(class_schedule.sections), 0)

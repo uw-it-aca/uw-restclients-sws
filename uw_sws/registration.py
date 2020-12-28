@@ -193,17 +193,23 @@ def get_schedule_by_regid_and_term(regid, term,
 
     url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
 
-    return _json_to_schedule(get_resource(url), term, regid,
-                             non_time_schedule_instructors,
-                             per_section_prefetch_callback)
+    return _json_to_stud_reg_schedule(get_resource(url), term, regid,
+                                      non_time_schedule_instructors,
+                                      per_section_prefetch_callback)
 
 
-def _json_to_schedule(json_data, term, regid,
-                      include_instructor_not_on_time_schedule=True,
-                      per_section_prefetch_callback=None):
+def _json_to_stud_reg_schedule(json_data, term, regid,
+                               include_instructor_not_on_time_schedule=True,
+                               per_section_prefetch_callback=None):
     sections = []
     sws_threads = []
     term_credit_hours = Decimal("0.0")
+    registered_summer_terms = {}
+    if len(json_data["Registrations"]) == 0:
+        schedule = ClassSchedule()
+        schedule.sections = sections
+        schedule.term = term
+        return schedule
 
     enable_cache_entry_queueing()
     try:
@@ -271,6 +277,9 @@ def _json_to_schedule(json_data, term, regid,
             section = _json_to_section(json.loads(response.data), term,
                                        include_instructor_not_on_time_schedule)
 
+            if len(section.summer_term):
+                registered_summer_terms[section.summer_term.lower()] = True
+
             _add_registration_to_section(thread.reg_json, section)
 
             if section.student_credits is not None:
@@ -288,7 +297,7 @@ def _json_to_schedule(json_data, term, regid,
         schedule = ClassSchedule()
         schedule.sections = sections
         schedule.term = term
-
+        schedule.registered_summer_terms = registered_summer_terms
         save_all_queued_entries()
         disable_cache_entry_queueing()
     except Exception as ex:
@@ -307,6 +316,13 @@ def _add_registration_to_section(reg_json, section):
     section.grade_date = registration.grade_date
     section.student_grade = registration.grade
     section.is_auditor = registration.is_auditor
+
+    if section.is_source_eos() or section.is_source_sdb_eos():
+        # the student's actual enrollment
+        if registration.start_date is not None:
+            section.start_date = registration.start_date
+        if registration.end_date is not None:
+            section.end_date = registration.end_date
     try:
         section.student_credits = Decimal(registration.credits)
     except InvalidOperation:

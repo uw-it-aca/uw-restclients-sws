@@ -1,14 +1,12 @@
 import json
-import os
 import re
-from datetime import datetime
-from time import strftime
-from dateutil.parser import parse
-from uw_pws.models import Person, Entity
-from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
-                               InvalidCanvasSection)
-from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
-                         convert_to_end_of_day)
+from uw_pws.models import Person
+from uw_sws.exceptions import (
+    InvalidCanvasIndependentStudyCourse, InvalidCanvasSection)
+from uw_sws.util import (
+    abbr_week_month_day_str, convert_to_begin_of_day, convert_to_end_of_day,
+    str_to_datetime, str_to_date, date_to_str)
+from uw_sws.dao import sws_now
 from restclients_core import models
 
 SWS_TERM_LABEL = "{year},{quarter}"
@@ -18,19 +16,6 @@ CANVAS_TERM_ID = "{year}-{quarter}"
 CANVAS_COURSE_ID = "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}"
 CANVAS_IND_STUDY_COURSE_ID = (
     "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
-
-
-def str_to_datetime(s):
-    return parse(s) if (s is not None and len(s)) else None
-
-
-def str_to_date(s):
-    dt = str_to_datetime(s)
-    return dt.date() if dt is not None else None
-
-
-def date_to_str(dt):
-    return str(dt) if dt is not None else None
 
 
 class LastEnrolled(models.Model):
@@ -322,7 +307,7 @@ class Term(models.Model):
 
     def is_grading_period_open(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
 
         if self.is_summer_quarter():
             open_date = self.aterm_grading_period_open
@@ -335,13 +320,13 @@ class Term(models.Model):
 
     def is_grading_period_past(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
         return (self.grade_submission_deadline is None or
                 cmp_dt > self.grade_submission_deadline)
 
     def get_week_of_term(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
         return self.get_week_of_term_for_date(cmp_dt)
 
     def get_week_of_term_for_date(self, date):
@@ -475,8 +460,8 @@ class Term(models.Model):
 class FinalExam(models.Model):
     is_confirmed = models.NullBooleanField()
     no_exam_or_nontraditional = models.NullBooleanField()
-    start_date = models.DateTimeField(null=True, blank=True)
-    end_date = models.DateTimeField(null=True, blank=True)
+    start_date = models.DateTimeField(null=True, default=None)  # StartTime
+    end_date = models.DateTimeField(null=True, default=None)  # EndTime
     building = models.CharField(max_length=20, null=True, blank=True)
     room_number = models.CharField(max_length=10, null=True, blank=True)
 
@@ -564,29 +549,26 @@ class Section(models.Model):
     metadata = models.CharField(max_length=100, null=True)
     class_website_url = models.URLField(max_length=255,
                                         blank=True)
-    sln = models.PositiveIntegerField()
+    sln = models.PositiveIntegerField(default=0)
     eos_cid = models.CharField(max_length=10, null=True, default=None)
-    summer_term = models.CharField(max_length=12, null=True)
+    summer_term = models.CharField(max_length=12, default="")
     delete_flag = models.CharField(max_length=20, choices=DELETE_FLAG_CHOICES)
     primary_lms = models.CharField(max_length=12, choices=PRIMARY_LMS_CHOICES,
                                    null=True)
     lms_ownership = models.CharField(max_length=12, choices=LMS_OWNER_CHOICES)
-    is_independent_start = models.BooleanField(default=False)
     current_enrollment = models.IntegerField()
     limit_estimate_enrollment = models.IntegerField()
     limit_estimate_enrollment_indicator = models.CharField(max_length=20)
     auditors = models.IntegerField()
 
-    # These are for non-standard start/end dates - don't have those yet
-    start_date = models.DateField()
-    end_date = models.DateField()
+    # EOS is the only system that have IsIndependentStart set to true.
+    # Not all PCE courses will have IsIndependentStart set to true.
+    is_independent_start = models.BooleanField(default=False)
 
-    # We don't have final exam data yet :(
-    # final_exam_date = models.DateField()
-    # final_exam_start_time = models.TimeField()
-    # final_exam_end_time = models.TimeField()
-    # final_exam_building = models.CharField(max_length=5)
-    # final_exam_room_number = models.CharField(max_length=5)
+    # EOS courses may have specific start/end dates
+    # indicating when the course is offered
+    start_date = models.DateField(null=True, default=None)
+    end_date = models.DateField(null=True, default=None)
 
     primary_section_href = models.CharField(
                                             max_length=200,
@@ -644,6 +626,15 @@ class Section(models.Model):
     def is_withdrawn(self):
         return self.delete_flag == Section.DELETE_FLAG_WITHDRAWN
 
+    def is_source_sdb(self):
+        return "SectionSourceKey=SDB;" in self.metadata
+
+    def is_source_sdb_eos(self):
+        return "SectionSourceKey=SDB_EOS;" in self.metadata
+
+    def is_source_eos(self):
+        return "SectionSourceKey=EOS;" in self.metadata
+
     def section_label(self):
         return SWS_SECTION_LABEL.format(
             year=self.term.year, quarter=self.term.quarter,
@@ -678,7 +669,7 @@ class Section(models.Model):
 
     def is_grading_period_open(self, cmp_dt=None):
         if cmp_dt is None:
-            cmp_dt = datetime.now()
+            cmp_dt = sws_now()
 
         if self.is_summer_a_term():
             open_date = self.term.aterm_grading_period_open
@@ -739,29 +730,21 @@ class Section(models.Model):
         return self.credit_control is not None
 
     def is_summer_a_term(self):
-        return self.summer_term is not None and\
-            len(self.summer_term) > 0 and\
-            self.summer_term.lower() == self.SUMMER_A_TERM
+        return self.summer_term.lower() == self.SUMMER_A_TERM
 
     def is_summer_b_term(self):
-        return self.summer_term is not None and\
-            len(self.summer_term) > 0 and\
-            self.summer_term.lower() == self.SUMMER_B_TERM
+        return self.summer_term.lower() == self.SUMMER_B_TERM
 
     def is_half_summer_term(self):
-        return (self.is_summer_a_term() or
-                self.is_summer_b_term())
+        return self.is_summer_a_term() or self.is_summer_b_term()
 
     def is_full_summer_term(self):
-        return self.summer_term is not None and\
-            len(self.summer_term) > 0 and\
-            self.summer_term.lower() == self.SUMMER_FULL_TERM
+        return self.summer_term.lower() == self.SUMMER_FULL_TERM
 
     def is_same_summer_term(self, summer_term):
-        return (self.summer_term is None or len(self.summer_term) == 0) and\
-            (summer_term is None or len(self.summer_term) == 0) or\
-            self.summer_term is not None and summer_term is not None and\
-            self.summer_term.lower() == summer_term.lower()
+        return (summer_term is not None and
+                self.summer_term.lower() == summer_term.lower() or
+                summer_term is None and len(self.summer_term) == 0)
 
     def is_clerkship(self):
         return self.section_type is not None and\
@@ -935,10 +918,16 @@ class Registration(models.Model):
     is_active = models.NullBooleanField()
     is_auditor = models.NullBooleanField()
     is_credit = models.NullBooleanField()
+
+    # The IsIndependentStart should match with the value in the section
     is_independent_start = models.NullBooleanField()
     meta_data = models.CharField(max_length=96, blank=True, null=True)
-    start_date = models.DateField(blank=True, null=True, default=None)
-    end_date = models.DateField(blank=True, null=True, default=None)
+
+    # The StartDate and EndDate indicate when the student's actual enrollment
+    # is. And they should be contained within the section start
+    # and end dates
+    start_date = models.DateField(null=True, default=None)
+    end_date = models.DateField(null=True, default=None)
     repeat_course = models.NullBooleanField()
     repository_timestamp = models.DateTimeField()
     request_date = models.DateField(blank=True, null=True, default=None)
@@ -1115,6 +1104,7 @@ class ClassSchedule(models.Model):
     user = models.ForeignKey(Person)
     term = models.ForeignKey(Term,
                              on_delete=models.PROTECT)
+    registered_summer_terms = {}
 
     def json_data(self):
         data = {
@@ -1122,11 +1112,11 @@ class ClassSchedule(models.Model):
             'quarter': self.term.quarter,
             'term': self.term.json_data(),
             'sections': [],
+            'registered_summer_terms': self.registered_summer_terms
         }
 
         for section in self.sections:
             data["sections"].append(section.json_data())
-
         return data
 
 
@@ -1247,6 +1237,7 @@ class Enrollment(models.Model):
     is_enroll_src_pce = models.NullBooleanField()
     is_registered = models.NullBooleanField()
     has_pending_major_change = models.NullBooleanField()
+    # will have a list of Registrations if verbose is true
 
     def is_non_matric(self):
         return self.class_level.lower() == Enrollment.CLASS_LEVEL_NON_MATRIC

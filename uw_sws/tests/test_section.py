@@ -8,15 +8,13 @@ from uw_sws.exceptions import (InvalidSectionID, InvalidSectionURL,
                                InvalidCanvasIndependentStudyCourse,
                                InvalidCanvasSection)
 from uw_sws import use_v5_resources
-from uw_sws.section import get_section_by_label, \
-    get_joint_sections, get_linked_sections, \
-    get_sections_by_instructor_and_term, \
-    get_sections_by_curriculum_and_term, \
-    get_sections_by_building_and_term, \
-    get_last_section_by_instructor_and_terms, \
-    get_changed_sections_by_term, validate_section_label, \
-    get_sections_by_delegate_and_term, \
-    is_a_term, is_b_term, is_full_summer_term, is_valid_sln
+from uw_sws.section import (
+    get_section_by_label, get_joint_sections, get_linked_sections,
+    get_sections_by_instructor_and_term, get_sections_by_curriculum_and_term,
+    get_sections_by_building_and_term, get_changed_sections_by_term,
+    get_last_section_by_instructor_and_terms, validate_section_label,
+    get_sections_by_delegate_and_term, is_a_term, is_b_term,
+    is_full_summer_term, is_valid_sln, is_remote)
 
 
 @fdao_pws_override
@@ -40,6 +38,8 @@ class SWSTestSectionData(TestCase):
                          '2013-04-02')
         self.assertEqual(str(section.meetings[0].eos_end_date),
                          '2013-06-04')
+        self.assertTrue(section.is_source_eos())
+
         section = get_section_by_label('2013,summer,PHIL,495/A')
         self.assertTrue(section.is_ind_study())
         section = get_section_by_label('2013,summer,PHYS,121/AK')
@@ -51,8 +51,8 @@ class SWSTestSectionData(TestCase):
     def test_non_credit_certificate_couse_section(self):
         section = get_section_by_label('2013,winter,BIGDATA,220/A')
         self.assertTrue(section.is_campus_pce())
-        self.assertEquals(str(section.start_date), "2013-01-16")
-        self.assertEquals(str(section.end_date), "2013-03-20")
+        self.assertEquals(str(section.start_date), "2013-01-09")
+        self.assertEquals(str(section.end_date), "2013-03-27")
         self.assertEquals(section.metadata, "SectionSourceKey=EOS;")
         self.assertEquals(section.is_active(), False)
         self.assertEquals(section.is_withdrawn(), False)
@@ -539,7 +539,7 @@ class SWSTestSectionData(TestCase):
             'Canvas section SIS ID')
 
         # Independent study section
-        section = get_section_by_label('2013,summer,PHIL,600/A')
+        section = get_section_by_label('2020,summer,PHIL,600/A')
 
         # ..missing instructor regid
         self.assertRaises(InvalidCanvasIndependentStudyCourse,
@@ -549,11 +549,11 @@ class SWSTestSectionData(TestCase):
             'A9D2DDFA6A7D11D5A4AE0004AC494FFE')
         self.assertEquals(
             section.canvas_course_sis_id(),
-            '2013-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE',
+            '2020-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE',
             'Canvas course SIS ID')
         self.assertEquals(
             section.canvas_section_sis_id(),
-            '2013-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE--',
+            '2020-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE--',
             'Canvas section SIS ID')
 
     def test_summer_terms(self):
@@ -568,13 +568,11 @@ class SWSTestSectionData(TestCase):
         self.assertFalse(section.is_same_summer_term("B-term"))
         self.assertFalse(section.is_same_summer_term(None))
 
-        section = get_section_by_label('2013,summer,PHIL,600/A')
-        # section.summer_term is ""
+        section = get_section_by_label('2020,summer,EDIT,120/B')
+        self.assertFalse(section.for_credit())
         self.assertFalse(section.is_summer_a_term())
         self.assertFalse(section.is_summer_b_term())
-        self.assertFalse(section.is_full_summer_term())
-        self.assertTrue(section.is_same_summer_term(None))
-        self.assertTrue(section.is_same_summer_term(""))
+        self.assertTrue(section.is_full_summer_term())
 
     def test_summer_term_statics(self):
         self.assertTrue(is_a_term("A-term"))
@@ -606,10 +604,12 @@ class SWSTestSectionData(TestCase):
         self.assertTrue(section.is_inst_pce())
         self.assertTrue(section.is_independent_start)
         self.assertIsNone(section.eos_cid)
+        self.assertTrue(section.is_source_sdb_eos())
 
         section = get_section_by_label('2018,winter,INFX,543/A')
         self.assertTrue(section.is_inst_pce())
         self.assertEquals(section.eos_cid, '116878')
+        self.assertTrue(section.is_source_sdb_eos())
 
     def test_early_fall_start(self):
         section = get_section_by_label('2013,spring,EFS_FAILT,101/AQ')
@@ -714,3 +714,8 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2020,autumn,E E,233/A')
         self.assertTrue(section.is_remote)
         self.assertTrue(section.json_data()['is_remote'])
+        self.assertTrue(section.is_source_sdb())
+
+        self.assertTrue(is_remote({"Text": "OFFERED VIA REMOTE LEARNING"}))
+        self.assertTrue(is_remote({"Text": "LECTURES ARE OFFERED VIA REMOTE"}))
+        self.assertFalse(is_remote({"Text": "PERSON"}))

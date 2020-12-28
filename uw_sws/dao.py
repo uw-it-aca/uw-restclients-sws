@@ -5,12 +5,23 @@ import json
 import time
 import re
 import random
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
+from pytz import timezone
 from commonconf import settings
 from os.path import abspath, dirname
 import os
-
 from restclients_core.dao import DAO, MockDAO
+
+SWS_TIMEZONE = timezone("US/Pacific")
+
+
+def sws_now():
+    """
+    Return a naive datetime corresponding to the natural SWS timezone.
+    """
+    return datetime.fromtimestamp(
+        int(datetime.utcnow().strftime('%s')) +
+        int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
 
 class SWS_DAO(DAO):
@@ -45,7 +56,7 @@ class SWS_DAO(DAO):
         # This is to enable mock data grading.
         if (re.match(r'/student/v\d/term/current.json', url) or
                 re.match(r'/student/v\d/term/2013,spring.json', url)):
-            now = datetime.now()
+            now = sws_now()
             tomorrow = now + timedelta(days=1)
             yesterday = now - timedelta(days=1)
             json_data = json.loads(response.data)
@@ -65,7 +76,7 @@ class SWS_DAO(DAO):
         """
         Set the date attribte value in the notice mock data
         """
-        today = date.today()
+        today = sws_now().date()
         yesterday = today - timedelta(days=1)
         tomorrow = today + timedelta(days=1)
         week = today + timedelta(days=2)
