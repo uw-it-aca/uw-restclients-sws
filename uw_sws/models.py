@@ -1,16 +1,14 @@
 import json
 import re
-from datetime import datetime
-from dateutil.parser import parse
-from pytz import timezone
 from uw_pws.models import Person
-from uw_sws.exceptions import (InvalidCanvasIndependentStudyCourse,
-                               InvalidCanvasSection)
-from uw_sws.util import (abbr_week_month_day_str, convert_to_begin_of_day,
-                         convert_to_end_of_day)
+from uw_sws.exceptions import (
+    InvalidCanvasIndependentStudyCourse, InvalidCanvasSection)
+from uw_sws.util import (
+    abbr_week_month_day_str, convert_to_begin_of_day, convert_to_end_of_day,
+    str_to_datetime, str_to_date, date_to_str)
+from uw_sws.dao import sws_now
 from restclients_core import models
 
-SWS_TIMEZONE = timezone("US/Pacific")
 SWS_TERM_LABEL = "{year},{quarter}"
 SWS_SECTION_LABEL = "{year},{quarter},{curr_abbr},{course_num}/{section_id}"
 
@@ -18,25 +16,6 @@ CANVAS_TERM_ID = "{year}-{quarter}"
 CANVAS_COURSE_ID = "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}"
 CANVAS_IND_STUDY_COURSE_ID = (
     "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
-
-
-def str_to_datetime(s):
-    return parse(s) if (s is not None and len(s)) else None
-
-
-def str_to_date(s):
-    dt = str_to_datetime(s)
-    return dt.date() if dt is not None else None
-
-
-def date_to_str(dt):
-    return str(dt) if dt is not None else None
-
-
-def sws_now():
-    return datetime.fromtimestamp(
-        int(datetime.utcnow().strftime('%s')) +
-        int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
 
 class LastEnrolled(models.Model):

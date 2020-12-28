@@ -1,14 +1,15 @@
 import json
 from unittest import TestCase
+from uw_sws.dao import sws_now
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from datetime import datetime, timedelta
 from restclients_core.exceptions import DataFailureException
-from uw_sws.models import Term, sws_now
-from uw_sws.term import get_term_by_year_and_quarter, \
-    get_term_before, get_term_after, get_current_term, get_next_term, \
-    get_previous_term, get_term_by_date, get_specific_term, \
-    get_next_autumn_term, get_next_non_summer_term
+from uw_sws.models import Term
+from uw_sws.term import (
+    get_term_by_year_and_quarter, get_term_before, get_term_after,
+    get_current_term, get_next_term, get_previous_term, get_term_by_date,
+    get_specific_term, get_next_autumn_term, get_next_non_summer_term)
 
 
 @fdao_sws_override
@@ -47,7 +48,7 @@ class SWSTestTerm(TestCase):
         # This rounds down to 0 days, so check by seconds :(
         hour1_delta = timedelta(hours=-1)
         hour48_delta = timedelta(hours=-48)
-        now = datetime.now()
+        now = sws_now()
 
         term = get_current_term()
         self.assertEquals(term.is_grading_period_open(),
@@ -427,9 +428,9 @@ class SWSTestTerm(TestCase):
         self.assertIsNone(term.aterm_grading_period_open)
         self.assertFalse(term.is_grading_period_open())
         self.assertTrue(term.is_grading_period_past())
-        self.assertTrue(term.is_past(datetime.now()))
-        self.assertFalse(term.is_current(datetime.now()))
-        self.assertFalse(term.is_future(datetime.now()))
+        self.assertTrue(term.is_past(sws_now()))
+        self.assertFalse(term.is_current(sws_now()))
+        self.assertFalse(term.is_future(sws_now()))
 
     def test_week_of_term(self):
         now = sws_now()
