@@ -274,7 +274,7 @@ class SWSTestRegistrations(TestCase):
             self.assertEqual(
                 ex.msg,
                 {'context': (
-                    'get_schedule_by_regid_and_term,' + 
+                    'get_schedule_by_regid_and_term,' +
                     '_json_to_stud_reg_schedule'),
                  'root_err_code': 404,
                  'root_err_data': ''})
