@@ -273,7 +273,9 @@ class SWSTestRegistrations(TestCase):
         except DataFailureException as ex:
             self.assertEqual(
                 ex.msg,
-                {'context': ('get_schedule_by_regid_and_term,' + 
-                             '_json_to_stud_reg_schedule'),
-                'root_err_code': 404, 'root_err_data': ''})
+                {'context': (
+                    'get_schedule_by_regid_and_term,' + 
+                    '_json_to_stud_reg_schedule'),
+                 'root_err_code': 404,
+                 'root_err_data': ''})
             self.assertEqual(ex.status, 543)
