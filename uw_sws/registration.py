@@ -16,6 +16,7 @@ from restclients_core.cache_manager import (
 from restclients_core.thread import (
     Thread, GenericPrefetchThread, generic_prefetch)
 from uw_sws import get_resource, UWPWS
+from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
 from uw_sws.thread import SWSThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
@@ -172,6 +173,7 @@ def get_schedule_by_regid_and_term(regid, term,
     kwargs:
       instructor_reg_id="{instructor regid}"
       (to search the registration with an independent study instructor).
+    Exceptions: DataFailureException, ThreadedDataError
     """
 
     if "include_instructor_not_on_time_schedule" in kwargs:
@@ -270,9 +272,9 @@ def _json_to_stud_reg_schedule(json_data, term, regid,
                                            500,
                                            thread.exception)
             if response.status != 200:
-                raise DataFailureException(thread.url,
-                                           response.status,
-                                           response.data)
+                raise ThreadedDataError(thread.url,
+                                        response.status,
+                                        response.data)
 
             section = _json_to_section(json.loads(response.data), term,
                                        include_instructor_not_on_time_schedule)
