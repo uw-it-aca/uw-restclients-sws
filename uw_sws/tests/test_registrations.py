@@ -1,6 +1,7 @@
 from unittest import TestCase
 from restclients_core.models import MockHTTP
 from restclients_core.exceptions import DataFailureException
+from uw_sws.exceptions import ThreadedDataError
 from uw_sws.models import Term
 from uw_sws.section import get_section_by_label
 from uw_sws.term import get_term_by_year_and_quarter
@@ -267,15 +268,6 @@ class SWSTestRegistrations(TestCase):
 
     def test_get_schedule_section_error(self):
         term = Term(quarter="spring", year=2012)
-        try:
-            class_schedule = get_schedule_by_regid_and_term(
-                '9136CCB8F66711D5BE060004AC494FFE', term)
-        except DataFailureException as ex:
-            self.assertEqual(
-                ex.msg,
-                {'context': (
-                    'get_schedule_by_regid_and_term,' +
-                    '_json_to_stud_reg_schedule'),
-                 'root_err_code': 404,
-                 'root_err_data': ''})
-            self.assertEqual(ex.status, 543)
+        self.assertRaises(
+            ThreadedDataError, get_schedule_by_regid_and_term,
+            '9136CCB8F66711D5BE060004AC494FFE', term)
