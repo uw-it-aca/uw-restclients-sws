@@ -270,9 +270,15 @@ def _json_to_stud_reg_schedule(json_data, term, regid,
                                            500,
                                            thread.exception)
             if response.status != 200:
+                msg = {
+                    'context': "{},{}".format(
+                        'get_schedule_by_regid_and_term',
+                        '_json_to_stud_reg_schedule'),
+                    "root_err_code": response.status,
+                    "root_err_data": response.data}
                 raise DataFailureException(thread.url,
-                                           response.status,
-                                           response.data)
+                                           543,   # data error
+                                           msg)
 
             section = _json_to_section(json.loads(response.data), term,
                                        include_instructor_not_on_time_schedule)

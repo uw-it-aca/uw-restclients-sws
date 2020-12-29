@@ -1,4 +1,6 @@
 from unittest import TestCase
+from restclients_core.models import MockHTTP
+from restclients_core.exceptions import DataFailureException
 from uw_sws.models import Term
 from uw_sws.section import get_section_by_label
 from uw_sws.term import get_term_by_year_and_quarter
@@ -7,7 +9,6 @@ from uw_sws.registration import (
     get_schedule_by_regid_and_term)
 from uw_sws.util import fdao_sws_override, date_to_str
 from uw_pws.util import fdao_pws_override
-from restclients_core.exceptions import DataFailureException
 from decimal import Decimal
 import mock
 
@@ -263,3 +264,16 @@ class SWSTestRegistrations(TestCase):
             get_term_by_year_and_quarter(2013, "summer"),
             transcriptable_course="all")
         self.assertEqual(len(class_schedule.sections), 0)
+
+    def test_get_schedule_section_error(self):
+        term = Term(quarter="spring", year=2012)
+        try:
+            class_schedule = get_schedule_by_regid_and_term(
+                '9136CCB8F66711D5BE060004AC494FFE', term)
+        except DataFailureException as ex:
+            self.assertEqual(
+                ex.msg,
+                {'context': ('get_schedule_by_regid_and_term,' + 
+                             '_json_to_stud_reg_schedule'),
+                'root_err_code': 404, 'root_err_data': ''})
+            self.assertEqual(ex.status, 543)
