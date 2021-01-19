@@ -48,11 +48,23 @@ jobs:
         with:
           python-version: 3.6
 
-      - name: Test App
-        uses: uw-it-aca/actions/test-python-app@main
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pycodestyle commonconf nose2 coverage
+
+      - name: Run Linters
+        run: pycodestyle ${APP_NAME}/
+
+      - name: Run Tests
+        run: coverage run ${APP_NAME}/test.py -v
+
+      - name: Test Coverage
+        uses: coverallsapp/github-action@master
         with:
-          app_name: ${APP_NAME}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: './.coverage'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
