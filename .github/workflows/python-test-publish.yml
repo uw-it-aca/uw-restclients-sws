@@ -52,6 +52,7 @@ jobs:
         uses: uw-it-aca/actions/test-python-app@main
         with:
           app_name: ${APP_NAME}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
