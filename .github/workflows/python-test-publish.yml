@@ -49,7 +49,7 @@ jobs:
           python-version: 3.6
 
       - name: Test App
-        uses: uw-it-aca/actions/test-python-app@v1
+        uses: uw-it-aca/actions/test-python-app@main
         with:
           app_name: ${APP_NAME}
 
@@ -70,7 +70,7 @@ jobs:
           python-version: '3.x'
 
       - name: Publish to PyPi
-        uses: uw-it-aca/actions/publish-pypi@v1
+        uses: uw-it-aca/actions/publish-pypi@main
         with:
           app_name: ${APP_NAME}
           tag_name: ${{ github.event.release.tag_name }}
