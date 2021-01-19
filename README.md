@@ -1,6 +1,6 @@
 # REST client for the UW Student Web Service
 
-[![Build Status](https://api.travis-ci.org/uw-it-aca/uw-restclients-sws.svg?branch=master)](https://travis-ci.org/uw-it-aca/uw-restclients-sws)
+[![Build Status](https://github.com/uw-it-aca/uw-restclients-sws/workflows/Test,%20Publish/badge.svg?branch=master)]
 [![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/uw-restclients-sws/badge.svg?branch=master)](https://coveralls.io/github/uw-it-aca/uw-restclients-sws?branch=master)
 [![PyPi Version](https://img.shields.io/pypi/v/uw-restclients-sws.svg)](https://pypi.python.org/pypi/uw-restclients-sws)
 ![Python versions](https://img.shields.io/pypi/pyversions/uw-restclients-sws.svg)
