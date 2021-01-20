@@ -20,7 +20,7 @@
 #     and add other branch names if needed.
 #
 ---
-name: Test, Publish
+name: tests
 
 env:
   APP_NAME: uw_sws
