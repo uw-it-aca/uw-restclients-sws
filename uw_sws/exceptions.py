@@ -1,3 +1,11 @@
+from restclients_core.exceptions import DataFailureException
+
+
+class ThreadedDataError(DataFailureException):
+    def __init__(self, url, status, msg):
+        super(ThreadedDataError, self).__init__(url, status, msg)
+
+
 class InvalidCanvasIndependentStudyCourse(Exception):
     """Exception for invalid Canvas course."""
     pass
