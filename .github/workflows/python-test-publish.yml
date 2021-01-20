@@ -20,7 +20,7 @@
 #     and add other branch names if needed.
 #
 ---
-name: Test, Publish
+name: tests
 
 env:
   APP_NAME: uw_sws
@@ -54,13 +54,15 @@ jobs:
           pip install -e .
           pip install pycodestyle commonconf nose2 coverage coveralls==2.2.0
 
-      - name: Run Linters
+      - name: Run Pycodestyle
         run: pycodestyle ${APP_NAME}/
 
       - name: Run Tests
-        run: coverage run ${APP_NAME}/test.py -v
+        run: |
+          python -m compileall ${APP_NAME}/
+          coverage run ${APP_NAME}/test.py -v
 
-      - name: Test Coverage
+      - name: Report Test Coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
