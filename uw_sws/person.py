@@ -35,7 +35,7 @@ def _process_json_data(person_data):
     person.last_name = person_data["LastName"]
     person.pronouns = person_data["Pronouns"]
     person.student_name = person_data["StudentName"]
-    
+
     if person_data["LastEnrolled"] is not None:
         last_enrolled = LastEnrolled()
         last_enrolled.href = person_data["LastEnrolled"]["Href"]

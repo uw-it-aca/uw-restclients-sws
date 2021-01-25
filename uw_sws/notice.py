@@ -7,8 +7,7 @@ from dateutil import parser
 import logging
 import pytz
 from uw_sws.models import Notice, NoticeAttribute
-from uw_sws import get_resource
-from uw_sws.dao import SWS_TIMEZONE
+from uw_sws import get_resource, SWS_TIMEZONE
 
 notice_res_url_prefix = "/student/v5/notice/"
 logger = logging.getLogger(__name__)

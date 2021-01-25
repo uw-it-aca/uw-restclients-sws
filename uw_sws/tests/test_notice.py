@@ -14,6 +14,7 @@ def date_to_dtime(adate):
         datetime(year=adate.year, month=adate.month,
                  day=adate.day)).astimezone(pytz.utc))
 
+
 @fdao_pws_override
 @fdao_sws_override
 class SWSNotice(TestCase):
