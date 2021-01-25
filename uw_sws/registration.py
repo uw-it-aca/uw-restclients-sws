@@ -7,7 +7,6 @@ import re
 from urllib.parse import urlencode
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
-from dateutil.parser import parse
 from uw_sws.models import Registration, ClassSchedule
 from restclients_core.exceptions import DataFailureException
 from restclients_core.cache_manager import (
