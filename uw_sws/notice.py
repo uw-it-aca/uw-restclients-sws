@@ -3,12 +3,12 @@ Interfaceing with the Student Web Service,
  for notice resource
 """
 import copy
+from dateutil import parser
 import logging
+import pytz
 from uw_sws.models import Notice, NoticeAttribute
 from uw_sws import get_resource
-from dateutil import parser
-import pytz
-
+from uw_sws.dao import SWS_TIMEZONE
 
 notice_res_url_prefix = "/student/v5/notice/"
 logger = logging.getLogger(__name__)
@@ -22,6 +22,11 @@ def get_notices_by_regid(regid):
     url = notice_res_url_prefix + regid + ".json"
 
     return _notices_from_json(get_resource(url))
+
+
+def _str_to_utc(date_str):
+    date = parser.parse(date_str)
+    return SWS_TIMEZONE.localize(date).astimezone(pytz.utc)
 
 
 def _notices_from_json(notice_data):
@@ -47,12 +52,8 @@ def _notices_from_json(notice_data):
                     attribute._url_value = notice_attrib.get("Value")
                 elif attribute.data_type == "date":
                     # Convert to UTC datetime
-                    date = parser.parse(notice_attrib.get("Value"))
-                    localtz = pytz.timezone('America/Los_Angeles')
-                    local_dt = localtz.localize(date)
-                    utc_dt = local_dt.astimezone(pytz.utc)
-
-                    attribute._date_value = utc_dt
+                    attribute._date_value = _str_to_utc(
+                        notice_attrib.get("Value"))
                 elif attribute.data_type == "string":
                     attribute._string_value = notice_attrib.get("Value")
                 else:
