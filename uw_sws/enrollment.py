@@ -2,7 +2,6 @@
 Interfacing with the Student Web Service, Enrollment resource.
 """
 import logging
-from dateutil.parser import parse
 import re
 from urllib.parse import urlencode
 from uw_sws.models import (StudentGrades, StudentCourseGrade, Enrollment,

@@ -5,6 +5,7 @@
      "EmployeeID":null,
      "FirstName":null,
      "Gender":null,
+     "Pronouns": null,
      "LastEnrolled":null,
      "LastName":null,
      "LocalAddress":null,
