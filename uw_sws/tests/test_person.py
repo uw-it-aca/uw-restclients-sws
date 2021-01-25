@@ -18,6 +18,7 @@ class PersonTest(TestCase):
         self.assertEquals(data.employee_id, "123456789")
         self.assertEquals(data.gender, "M")
         self.assertEquals(data.first_name, "John Joseph")
+        self.assertEquals(data.pronouns, "he/him/his")
         self.assertEquals(data.last_name, "Average")
         self.assertEquals(data.student_name, "Average,John Joseph")
         self.assertEquals(data.student_number, "1033334")
@@ -57,6 +58,7 @@ class PersonTest(TestCase):
         self.assertEquals(data.gender, "F")
         self.assertEquals(data.first_name, "Japendra")
         self.assertEquals(data.last_name, "Chakrabarti")
+        self.assertEquals(data.pronouns, "she/her/hers")
         self.assertEquals(data.student_name, "Chakrabarti,Japendra")
         self.assertEquals(data.student_number, "1233334")
         self.assertEquals(data.student_system_key, "000018235")
@@ -85,6 +87,7 @@ class PersonTest(TestCase):
 
         data = get_person_by_regid("12345678901234567890123456789012")
         self.assertTrue(data.is_J1())
+        self.assertEquals(data.pronouns, "they/them/theirs")
 
     def test_person_none(self):
         data = get_person_by_regid("00000000000000000000000000000001")
@@ -96,6 +99,7 @@ class PersonTest(TestCase):
         self.assertIsNone(data.employee_id)
         self.assertIsNone(data.gender)
         self.assertIsNone(data.first_name)
+        self.assertEquals(data.pronouns, None)
         self.assertIsNone(data.last_name)
         self.assertEqual(data.student_name, "SYSTEM OVERHEAD")
         self.assertIsNone(data.student_number)

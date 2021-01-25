@@ -7,8 +7,6 @@ from uw_sws.exceptions import InvalidCourseID
 from restclients_core.exceptions import DataFailureException
 from uw_sws import get_resource, encode_section_label
 from uw_sws.models import Course
-from urllib.parse import quote
-
 
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
 course_res_url_prefix = "/student/v5/course"

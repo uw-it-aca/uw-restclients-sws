@@ -33,6 +33,7 @@ def _process_json_data(person_data):
     person.first_name = person_data["FirstName"]
     person.gender = person_data["Gender"]
     person.last_name = person_data["LastName"]
+    person.pronouns = person_data["Pronouns"]
     person.student_name = person_data["StudentName"]
 
     if person_data["LastEnrolled"] is not None:
