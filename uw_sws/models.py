@@ -1113,7 +1113,7 @@ class NoticeAttribute(models.Model):
 
     def get_value(self):
         if self.data_type == "date":
-            return str(self._date_value)
+            return date_to_str(self._date_value)
         if self.data_type == "string":
             return self._string_value
         if self.data_type == "url":
