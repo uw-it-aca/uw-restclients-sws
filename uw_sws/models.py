@@ -76,7 +76,7 @@ class SwsPerson(models.Model):
     gender = models.CharField(max_length=1, null=True, blank=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    pronouns = models.CharField(max_length=64, null=True, blank=True)
+    pronouns = models.CharField(max_length=140, null=True, blank=True)
     student_name = models.CharField(max_length=255)
     student_number = models.SlugField(max_length=16, null=True, blank=True)
     student_system_key = models.SlugField(max_length=16, null=True, blank=True)
