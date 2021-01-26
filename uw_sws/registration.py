@@ -14,7 +14,7 @@ from restclients_core.cache_manager import (
     save_all_queued_entries)
 from restclients_core.thread import (
     Thread, GenericPrefetchThread, generic_prefetch)
-from uw_sws import get_resource
+from uw_sws import get_resource, UWPWS
 from uw_sws.person import get_person_by_regid
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
@@ -35,7 +35,7 @@ class SWSPersonByRegIDThread(Thread):
         if self.regid is None:
             raise Exception("SWSPersonByRegIDThread must have a regid")
 
-        self.person = get_person_by_regid(self.regid)
+        self.person = UWPWS.get_person_by_regid(self.regid)
 
 
 def get_active_registrations_by_section(section, transcriptable_course=""):
