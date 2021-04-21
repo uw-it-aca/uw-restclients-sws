@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from uw_sws.exceptions import InvalidSectionID
 from uw_sws.section import section_label_pattern
 from uw_sws import get_resource, encode_section_label
