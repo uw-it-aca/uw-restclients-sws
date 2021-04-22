@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Code for (old) restclients compatability.  None of this should be needed, but
 it's here in the interest of not changing restclients tests during the move
