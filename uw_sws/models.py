@@ -138,6 +138,7 @@ class StudentAdvisers(models.Model):
     is_active = models.BooleanField()
     is_dept_adviser = models.BooleanField()
     full_name = models.CharField(max_length=128)
+    pronouns = models.CharField(max_length=140, null=True, blank=True)
     email_address = models.CharField(max_length=128)
     phone_number = models.CharField(max_length=32, null=True,
                                     blank=True, default=None)
@@ -147,6 +148,7 @@ class StudentAdvisers(models.Model):
                                blank=True, default=None)
     booking_url = models.CharField(max_length=128, null=True,
                                    blank=True, default=None)
+    meta_data = models.CharField(max_length=128, null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
@@ -162,18 +164,22 @@ class StudentAdvisers(models.Model):
         self.booking_url = data.get("BookingUrl")
         self.is_active = data.get("StudentAdvisingIsActive", False)
         self.is_dept_adviser = data.get("IsDepartmentAdviser", False)
+        self.meta_data = data.get("Metadata")
+        self.pronouns = data.get("AdvisingPronouns")
 
     def json_data(self):
         return {
             'email_address': self.email_address,
             'full_name': self.full_name,
+            'pronouns': self.pronouns,
             'phone_number': self.phone_number,
             'program': self.program,
             'uwnetid': self.uwnetid,
             'regid': self.regid,
             'booking_url': self.booking_url,
             'is_active': self.is_active,
-            'is_dept_adviser': self.is_dept_adviser
+            'is_dept_adviser': self.is_dept_adviser,
+            'meta_data': self.meta_data
             }
 
     def __str__(self):

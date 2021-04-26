@@ -14,6 +14,8 @@ class AdviserTest(TestCase):
             {'booking_url': 'https://honors.uw.edu/advising/',
              'email_address': 'uwhonors@uw.edu',
              'full_name': 'UNIVERSITY HONORS PROGRAM',
+             'metadata': "AcademicAdviserSourceKey=UAA;",
+             'pronouns': "he/him/his",
              'is_active': True,
              'is_dept_adviser': False,
              'phone_number': '+1 206 543-7444',
