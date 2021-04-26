@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Interfacing with the Student Web Service, Registration_Search query.
 """
@@ -9,9 +12,6 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from uw_sws.models import Registration, ClassSchedule
 from restclients_core.exceptions import DataFailureException
-from restclients_core.cache_manager import (
-    enable_cache_entry_queueing, disable_cache_entry_queueing,
-    save_all_queued_entries)
 from restclients_core.thread import (
     Thread, GenericPrefetchThread, generic_prefetch)
 from uw_sws import get_resource, UWPWS
@@ -213,7 +213,6 @@ def _json_to_stud_reg_schedule(json_data, term, regid,
         schedule.term = term
         return schedule
 
-    enable_cache_entry_queueing()
     try:
         for registration in json_data["Registrations"]:
             thread = SWSThread()
@@ -300,11 +299,7 @@ def _json_to_stud_reg_schedule(json_data, term, regid,
         schedule.sections = sections
         schedule.term = term
         schedule.registered_summer_terms = registered_summer_terms
-        save_all_queued_entries()
-        disable_cache_entry_queueing()
     except Exception as ex:
-        save_all_queued_entries()
-        disable_cache_entry_queueing()
         raise ex
     return schedule
 
