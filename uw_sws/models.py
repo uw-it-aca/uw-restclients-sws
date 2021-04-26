@@ -76,6 +76,7 @@ class SwsPerson(models.Model):
     gender = models.CharField(max_length=1, null=True, blank=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    pronouns = models.CharField(max_length=140, null=True, blank=True)
     student_name = models.CharField(max_length=255)
     student_number = models.SlugField(max_length=16, null=True, blank=True)
     student_system_key = models.SlugField(max_length=16, null=True, blank=True)
@@ -115,6 +116,7 @@ class SwsPerson(models.Model):
             'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
+            'pronouns': self.pronouns,
             'student_name': self.student_name,
             'student_number': self.student_number,
             'employee_id': self.employee_id,
@@ -1162,7 +1164,7 @@ class NoticeAttribute(models.Model):
 
     def get_value(self):
         if self.data_type == "date":
-            return self._date_value.strftime("%Y-%m-%d")
+            return date_to_str(self._date_value)
         if self.data_type == "string":
             return self._string_value
         if self.data_type == "url":

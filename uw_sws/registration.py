@@ -7,7 +7,6 @@ import re
 from urllib.parse import urlencode
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
-from dateutil.parser import parse
 from uw_sws.models import Registration, ClassSchedule
 from restclients_core.exceptions import DataFailureException
 from restclients_core.cache_manager import (
@@ -16,6 +15,7 @@ from restclients_core.cache_manager import (
 from restclients_core.thread import (
     Thread, GenericPrefetchThread, generic_prefetch)
 from uw_sws import get_resource, UWPWS
+from uw_sws.person import get_person_by_regid
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
 from uw_sws.thread import SWSThread

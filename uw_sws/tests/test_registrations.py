@@ -31,6 +31,7 @@ class SWSTestRegistrations(TestCase):
         reg = get_active_registrations_by_section(section,
                                                   transcriptable_course="all")
         self.assertEqual(len(reg), 2)
+        # self.assertEqual(reg[0].person.pronouns, "he/him/his")
 
     def test_all_registrations_by_section(self):
         # Valid section, missing file resources
