@@ -11,16 +11,14 @@ from uw_sws import get_resource
 
 
 logger = logging.getLogger(__name__)
-sws_url_prefix = "/student/v5/person/"
-sws_url_suffix = ".json"
+person_url = "/student/v5/person/{}.json"
 
 
 def get_person_by_regid(regid):
     """
     Returns a uw_sws.models.SwsPerson object
     """
-    url = sws_url_prefix + regid + sws_url_suffix
-    return _process_json_data(get_resource(url))
+    return _process_json_data(get_resource(person_url.format(regid)))
 
 
 def _process_json_data(person_data):
@@ -38,6 +36,9 @@ def _process_json_data(person_data):
     person.last_name = person_data["LastName"]
     person.pronouns = person_data["Pronouns"]
     person.student_name = person_data["StudentName"]
+
+    if person_data.get("Veteran") is not None:
+        person.veteran_code = person_data["Veteran"].get("Code")
 
     if person_data["LastEnrolled"] is not None:
         last_enrolled = LastEnrolled()

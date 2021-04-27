@@ -100,6 +100,10 @@ class SwsPerson(models.Model):
         related_name='permanent_address')
     permanent_phone = models.CharField(max_length=64, null=True, blank=True)
     visa_type = models.CharField(max_length=2, null=True, blank=True)
+    veteran_code = models.CharField(max_length=2)
+
+    def not_veteran(self):
+        return self.veteran_code == "0"
 
     def is_F1(self):
         return self.visa_type is not None and self.visa_type.lower() == 'f1'
@@ -125,8 +129,61 @@ class SwsPerson(models.Model):
             'permanent_address': get_student_address_json(
                 self.permanent_address),
             'permanent_phone': self.permanent_phone,
-            'visa_type': self.visa_type
+            'visa_type': self.visa_type,
+            'veteran_code': self.veteran_code
                 }
+
+    def __str__(self):
+        return json.dumps(self.json_data())
+
+
+class StudentAdvisers(models.Model):
+    is_active = models.BooleanField()
+    is_dept_adviser = models.BooleanField()
+    full_name = models.CharField(max_length=128)
+    pronouns = models.CharField(max_length=140, null=True, blank=True)
+    email_address = models.CharField(max_length=128)
+    phone_number = models.CharField(max_length=32, null=True,
+                                    blank=True, default=None)
+    uwnetid = models.CharField(max_length=32)
+    regid = models.CharField(max_length=32)
+    program = models.CharField(max_length=128, null=True,
+                               blank=True, default=None)
+    booking_url = models.CharField(max_length=128, null=True,
+                                   blank=True, default=None)
+    metadata = models.CharField(max_length=128, null=True, blank=True)
+
+    def __init__(self, *args, **kwargs):
+        data = kwargs.get("data")
+        if data is None:
+            return super(StudentAdvisers, self).__init__(*args, **kwargs)
+        print(data)
+        self.full_name = data.get("AdvisingFullName")
+        self.email_address = data.get("AdvisingEmailAddress")
+        self.phone_number = data.get("AdvisingPhoneNumber")
+        self.uwnetid = data.get("AdvisingUWNetID")
+        self.regid = data.get("AdvisingRegID")
+        self.program = data.get("AdvisingProgram")
+        self.booking_url = data.get("BookingUrl")
+        self.is_active = data.get("StudentAdvisingIsActive", False)
+        self.is_dept_adviser = data.get("IsDepartmentAdviser", False)
+        self.metadata = data.get("Metadata")
+        self.pronouns = data.get("AdvisingPronouns")
+
+    def json_data(self):
+        return {
+            'email_address': self.email_address,
+            'full_name': self.full_name,
+            'pronouns': self.pronouns,
+            'phone_number': self.phone_number,
+            'program': self.program,
+            'uwnetid': self.uwnetid,
+            'regid': self.regid,
+            'booking_url': self.booking_url,
+            'is_active': self.is_active,
+            'is_dept_adviser': self.is_dept_adviser,
+            'metadata': self.metadata
+            }
 
     def __str__(self):
         return json.dumps(self.json_data())
