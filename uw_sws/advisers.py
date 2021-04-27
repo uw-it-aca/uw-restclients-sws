@@ -1,6 +1,7 @@
-"""
-Interfacing with the search for a student's academic advisers
-"""
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
+# Interfacing with the search for a student's academic advisers
 
 from restclients_core.exceptions import DataFailureException
 from uw_sws.models import StudentAdvisers
