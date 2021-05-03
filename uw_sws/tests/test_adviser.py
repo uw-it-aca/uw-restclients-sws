@@ -14,6 +14,7 @@ class AdviserTest(TestCase):
             "9136CCB8F66711D5BE060004AC494FFE")
         self.assertEquals(len(advisers), 1)
         self.assertEquals(advisers[0].uwnetid, "uwhonors")
+        self.assertTrue(advisers[0].is_honors_program())
         self.assertEquals(
             advisers[0].json_data(),
             {'booking_url': 'https://honors.uw.edu/advising/',

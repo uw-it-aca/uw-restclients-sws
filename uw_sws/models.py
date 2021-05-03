@@ -169,6 +169,9 @@ class StudentAdviser(models.Model):
         self.metadata = data.get("Metadata")
         self.pronouns = data.get("AdvisingPronouns")
 
+    def is_honors_program(self):
+        return self.program == "UW Honors"
+
     def json_data(self):
         return {
             'email_address': self.email_address,
