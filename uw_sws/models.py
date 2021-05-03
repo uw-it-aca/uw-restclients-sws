@@ -184,6 +184,7 @@ class StudentAdviser(models.Model):
             'booking_url': self.booking_url,
             'is_active': self.is_active,
             'is_dept_adviser': self.is_dept_adviser,
+            'is_honors_program': self.program == "UW Honors",
             'metadata': self.metadata
             }
 
