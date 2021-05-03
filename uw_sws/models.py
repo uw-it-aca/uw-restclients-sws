@@ -137,7 +137,7 @@ class SwsPerson(models.Model):
         return json.dumps(self.json_data())
 
 
-class StudentAdvisers(models.Model):
+class StudentAdviser(models.Model):
     is_active = models.BooleanField()
     is_dept_adviser = models.BooleanField()
     full_name = models.CharField(max_length=128)
@@ -156,8 +156,7 @@ class StudentAdvisers(models.Model):
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
         if data is None:
-            return super(StudentAdvisers, self).__init__(*args, **kwargs)
-        print(data)
+            return super(StudentAdviser, self).__init__(*args, **kwargs)
         self.full_name = data.get("AdvisingFullName")
         self.email_address = data.get("AdvisingEmailAddress")
         self.phone_number = data.get("AdvisingPhoneNumber")
@@ -169,6 +168,9 @@ class StudentAdvisers(models.Model):
         self.is_dept_adviser = data.get("IsDepartmentAdviser", False)
         self.metadata = data.get("Metadata")
         self.pronouns = data.get("AdvisingPronouns")
+
+    def is_honors_program(self):
+        return self.program == "UW Honors"
 
     def json_data(self):
         return {
@@ -182,6 +184,7 @@ class StudentAdvisers(models.Model):
             'booking_url': self.booking_url,
             'is_active': self.is_active,
             'is_dept_adviser': self.is_dept_adviser,
+            'is_honors_program': self.is_honors_program(),
             'metadata': self.metadata
             }
 
