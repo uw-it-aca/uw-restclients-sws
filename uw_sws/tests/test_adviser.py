@@ -3,13 +3,14 @@
 
 from unittest import TestCase
 from uw_sws.util import fdao_sws_override
-from uw_sws.advisers import get_advisers
+from uw_sws.adviser import get_advisers_by_regid
 
 
 @fdao_sws_override
 class AdviserTest(TestCase):
     def test_get_advisers(self):
-        advisers = get_advisers("9136CCB8F66711D5BE060004AC494FFE")
+        advisers = get_advisers_by_regid(
+            "9136CCB8F66711D5BE060004AC494FFE")
         self.assertEquals(len(advisers), 1)
         self.assertEquals(advisers[0].uwnetid, "uwhonors")
         self.assertEquals(
@@ -29,5 +30,7 @@ class AdviserTest(TestCase):
 
     def test_error_case(self):
         self.assertEquals(
-            len(get_advisers("00000000000000000000000000000001")), 0)
-        self.assertIsNone(get_advisers("00000000000000000000000000000002"))
+            len(get_advisers_by_regid(
+                "00000000000000000000000000000001")), 0)
+        self.assertIsNone(get_advisers_by_regid(
+            "00000000000000000000000000000002"))

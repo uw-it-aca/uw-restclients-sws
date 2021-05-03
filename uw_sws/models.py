@@ -137,7 +137,7 @@ class SwsPerson(models.Model):
         return json.dumps(self.json_data())
 
 
-class StudentAdvisers(models.Model):
+class StudentAdviser(models.Model):
     is_active = models.BooleanField()
     is_dept_adviser = models.BooleanField()
     full_name = models.CharField(max_length=128)
@@ -156,8 +156,7 @@ class StudentAdvisers(models.Model):
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
         if data is None:
-            return super(StudentAdvisers, self).__init__(*args, **kwargs)
-        print(data)
+            return super(StudentAdviser, self).__init__(*args, **kwargs)
         self.full_name = data.get("AdvisingFullName")
         self.email_address = data.get("AdvisingEmailAddress")
         self.phone_number = data.get("AdvisingPhoneNumber")
