@@ -3,6 +3,7 @@
 
 from unittest import TestCase
 from uw_sws.util import fdao_sws_override
+from restclients_core.exceptions import DataFailureException
 from uw_sws.adviser import get_advisers_by_regid
 
 
@@ -29,8 +30,6 @@ class AdviserTest(TestCase):
         self.assertIsNotNone(str(advisers))
 
     def test_error_case(self):
-        self.assertEquals(
-            len(get_advisers_by_regid(
-                "00000000000000000000000000000001")), 0)
-        self.assertIsNone(get_advisers_by_regid(
-            "00000000000000000000000000000002"))
+        self.assertRaises(
+            DataFailureException, get_advisers_by_regid,
+            "00000000000000000000000000000001")

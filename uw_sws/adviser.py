@@ -13,15 +13,10 @@ advisers_url = "/student/v5/person/{}/advisers.json"
 def get_advisers_by_regid(regid):
     """
     Returns a list of uw_sws.models.StudentAdviser objects
-    Return None if the SWS response if the 404 error
+    Raise DataFailureException if the SWS response any error
     """
     url = advisers_url.format(regid)
-    try:
-        return _process_json_data(get_resource(url))
-    except DataFailureException as ex:
-        if ex.status == 404:
-            return None
-        raise
+    return _process_json_data(get_resource(url))
 
 
 def _process_json_data(jdata):
