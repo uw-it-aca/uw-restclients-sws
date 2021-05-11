@@ -152,6 +152,7 @@ class StudentAdviser(models.Model):
     booking_url = models.CharField(max_length=128, null=True,
                                    blank=True, default=None)
     metadata = models.CharField(max_length=128, null=True, blank=True)
+    timestamp = models.DateField(null=True)
 
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
@@ -168,6 +169,7 @@ class StudentAdviser(models.Model):
         self.is_dept_adviser = data.get("IsDepartmentAdviser", False)
         self.metadata = data.get("Metadata")
         self.pronouns = data.get("AdvisingPronouns")
+        self.timestamp = str_to_datetime(data.get("RepositoryTimeStamp"))
 
     def is_honors_program(self):
         return self.program == "UW Honors"
@@ -185,7 +187,8 @@ class StudentAdviser(models.Model):
             'is_active': self.is_active,
             'is_dept_adviser': self.is_dept_adviser,
             'is_honors_program': self.is_honors_program(),
-            'metadata': self.metadata
+            'metadata': self.metadata,
+            'timestamp': date_to_str(self.timestamp)
             }
 
     def __str__(self):
