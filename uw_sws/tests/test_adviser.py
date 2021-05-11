@@ -28,7 +28,8 @@ class AdviserTest(TestCase):
              'program': 'UW Honors',
              'is_honors_program': True,
              'regid': '24A20F50AE3511D68CBC0004AC494FFE',
-             'uwnetid': 'uwhonors'})
+             'uwnetid': 'uwhonors',
+             'timestamp': '2020-03-24 13:07:14'})
         self.assertIsNotNone(str(advisers))
 
     def test_error_case(self):
