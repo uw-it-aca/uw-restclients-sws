@@ -1,0 +1,45 @@
+{
+  "RepositoryTimeStamp": null,
+  "Metadata": null,
+  "SourceDateString": null,
+  "AcademicAdvisers": {
+    "Href": "/student/v5/person/24A20F50AE3511D68CBC0004AC494FFE/advisers.json",
+    "RegID": "24A20F50AE3511D68CBC0004AC494FFE"
+  },
+  "CurrentEnrollment": null,
+  "Sports": [],
+  "TestScore": {
+    "Href": "/student/v5/testscore/24A20F50AE3511D68CBC0004AC494FFE.json",
+    "RegID": "24A20F50AE3511D68CBC0004AC494FFE"
+  },
+  "VisaType": null,
+  "ResidencyDescription": null,
+  "Resident": null,
+  "PersonFinancial": {
+    "Href": "/student/v5/person/24A20F50AE3511D68CBC0004AC494FFE/financial.json",
+    "RegID": "24A20F50AE3511D68CBC0004AC494FFE"
+  },
+  "Notices": {
+    "Href": "/student/v5/notice/24A20F50AE3511D68CBC0004AC494FFE.json",
+    "RegID": "24A20F50AE3511D68CBC0004AC494FFE"
+  },
+  "LastEnrolled": null,
+  "Veteran": null,
+  "PermanentPhone": null,
+  "EmployeeID": null,
+  "StudentSystemKey": null,
+  "RegisteredName": null,
+  "StudentName": "UNIVERSITY HONORS PROGRAM",
+  "LastName": null,
+  "FirstName": null,
+  "RegID": "24A20F50AE3511D68CBC0004AC494FFE",
+  "UWNetID": "uwhonors",
+  "StudentNumber": null,
+  "BirthDate": null,
+  "Gender": null,
+  "DirectoryRelease": null,
+  "Email": null,
+  "LocalAddress": null,
+  "PermanentAddress": null,
+  "LocalPhone": null
+}

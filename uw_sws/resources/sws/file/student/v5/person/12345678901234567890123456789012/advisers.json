@@ -1,0 +1,23 @@
+{
+    "AcademicAdvisers": [
+        {
+            "AdvisingFullName": "John Average",
+            "AdvisingPronouns": null,
+            "AdvisingEmailAddress": "javerage@uw.edu",
+            "AdvisingPhoneNumber": "+1 206 123-1234",
+            "AdvisingUWNetID": "javerage",
+            "AdvisingRegID": "9136CCB8F66711D5BE060004AC494FFE",
+            "AdvisingProgram": "UAA Advising",
+            "BookingUrl": "https://secure.scheduleonce.com/javerage",
+            "IsDepartmentAdviser": false,
+            "StudentAdvisingIsActive": false,
+            "Metadata": "AcademicAdviserSourceKey=UAA;",
+            "RepositoryTimeStamp": "12/7/2020 7:32:27 AM"
+        }
+    ],
+    "StudentRegID": "12345678901234567890123456789012",
+    "StudentUWNetID": "eight",
+    "StudentSystemKey": "000083857",
+    "StudentNumber": "1443336",
+    "StudentFullName": "Eight Student"
+}
