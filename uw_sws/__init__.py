@@ -28,6 +28,9 @@ def get_resource(url):
     """
     response = DAO.getURL(url, {'Accept': 'application/json',
                                 'Connection': 'keep-alive'})
-    if response.status != 200:
+    if int(response.status) != 200:
         raise DataFailureException(url, response.status, response.data)
-    return json.loads(response.data)
+    if isinstance(response.data, (str, bytes, bytearray)):
+        return json.loads(response.data)
+    else:
+        return response.data
