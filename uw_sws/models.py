@@ -102,8 +102,8 @@ class SwsPerson(models.Model):
     visa_type = models.CharField(max_length=2, null=True, blank=True)
     veteran_code = models.CharField(max_length=2)
 
-    def not_veteran(self):
-        return self.veteran_code == "0"
+    def is_veteran(self):
+        return self.veteran_code != "0"
 
     def is_F1(self):
         return self.visa_type is not None and self.visa_type.lower() == 'f1'
