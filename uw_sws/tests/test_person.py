@@ -27,7 +27,7 @@ class PersonTest(TestCase):
         self.assertEquals(data.student_number, "1033334")
         self.assertEquals(data.student_system_key, "000083856")
         self.assertEquals(data.visa_type, '')
-        self.assertTrue(data.not_veteran())
+        self.assertFalse(data.is_veteran())
         self.assertEquals(data.local_phone, '2063333333')
         self.assertEquals(data.local_address.city, "SEATTLE")
         self.assertEquals(data.local_address.country, "United States")
