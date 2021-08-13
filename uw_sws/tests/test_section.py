@@ -714,9 +714,10 @@ class SWSTestSectionData(TestCase):
         self.assertEqual(person.display_name, 'PWS, FOUR OH FOUR')
 
     def test_remote_section(self):
+        # MUWM-4728, MUWM-4989
         section = get_section_by_label('2020,autumn,E E,233/A')
-        self.assertTrue(section.is_remote)
-        self.assertTrue(section.json_data()['is_remote'])
+        # self.assertTrue(section.is_remote)
+        # self.assertTrue(section.json_data()['is_remote'])
         self.assertTrue(section.is_source_sdb())
 
         self.assertTrue(is_remote({"Text": "OFFERED VIA REMOTE LEARNING"}))
