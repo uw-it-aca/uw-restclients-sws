@@ -515,7 +515,8 @@ def _json_to_section(section_data,
 
             final_exam.clean_fields()
             section.final_exam = final_exam
-
+    """
+    MUWM-4728, MUWM-4989 keep the code for now
     if (section_data.get("TimeScheduleComments") and
             section_data["TimeScheduleComments"].get("SectionComments")):
         comments = section_data["TimeScheduleComments"]["SectionComments"]
@@ -524,6 +525,7 @@ def _json_to_section(section_data,
                 if is_remote(line):
                     section.is_remote = True
                     break
+    """
 
     return section
 
