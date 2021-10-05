@@ -296,15 +296,31 @@ class SWSTestRegistrationBlock(TestCase):
         self.assertEqual(block.put_data(), {'Covid19StatusCode': 2,
                                             'Covid19StatusDate': '20211003'})
 
-    @mock.patch('uw_sws.registration.put_resource')
-    def test_update_registration_block(self, mock_put):
+    def test_update_registration_block(self):
         block = get_registration_block_by_regid(
             '9136CCB8F66711D5BE060004AC494FFE')
         block.covid19_status_code = 4
+
+        new_block = update_registration_block(block, actas_netid='bill')
+        self.assertEqual(block.uwregid, '9136CCB8F66711D5BE060004AC494FFE')
+        self.assertEqual(block.student_name, 'James Average')
+        self.assertEqual(block.covid19_status_code, 4)
+        self.assertEqual(block.covid19_status_date.strftime("%Y%m%d"),
+                         '20211003')
+        self.assertEqual(block.covid19_status_updated.strftime("%Y%m%d"),
+                         '20211004')
+        self.assertEqual(block.put_data(), {'Covid19StatusCode': 4,
+                                            'Covid19StatusDate': '20211003'})
+
+    @mock.patch('uw_sws.registration.put_resource')
+    def test_update_registration_block_request(self, mock_put):
+        block = get_registration_block_by_regid(
+            '9136CCB8F66711D5BE060004AC494FFE')
+        block.covid19_status_code = 3
 
         r = update_registration_block(block, actas_netid='bill')
         mock_put.assert_called_with((
             '/student/v5/person/9136CCB8F66711D5BE060004AC494FFE/'
             'registrationblock.json'),
             {'X-UW-Act-as': 'bill', 'If-Match': '*'},
-            {'Covid19StatusCode': 4, 'Covid19StatusDate': '20211003'})
+            {'Covid19StatusCode': 3, 'Covid19StatusDate': '20211003'})

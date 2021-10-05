@@ -139,8 +139,8 @@ def update_registration_block(registration_block, actas_netid):
     url = registration_block_url.format(registration_block.uwregid)
     headers = {"X-UW-Act-as": actas_netid,
                "If-Match": "*"}
-    response = put_resource(url, headers, registration_block.put_data())
-    return RegistrationBlock(data=response.data)
+    data = put_resource(url, headers, registration_block.put_data())
+    return RegistrationBlock(data=data)
 
 
 # This function won't work when the dup_code is not empty
