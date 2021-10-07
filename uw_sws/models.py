@@ -1025,6 +1025,35 @@ class Registration(models.Model):
         return json.dumps(self.json_data())
 
 
+class RegistrationBlock(models.Model):
+    student_name = models.CharField(max_length=100)
+    uwregid = models.CharField(max_length=32)
+    student_system_key = models.SlugField(max_length=16, null=True, blank=True)
+    covid19_status_code = models.SmallIntegerField()
+    covid19_status_description = models.CharField(max_length=100)
+    covid19_status_date = models.DateTimeField()
+    covid19_status_updated = models.DateTimeField()
+
+    def __init__(self, *args, **kwargs):
+        data = kwargs.get("data")
+        if data is None:
+            return super(RegistrationBlock, self).__init__(*args, **kwargs)
+        self.student_name = data.get("StudentName")
+        self.uwregid = data.get("RegID")
+        self.student_system_key = data.get("StudentSystemKey")
+        self.covid19_status_code = data.get("Covid19StatusCode")
+        self.covid19_status_description = data.get("Covid19StatusDescription")
+        self.covid19_status_date = str_to_date(data.get("Covid19StatusDate"))
+        self.covid19_status_updated = str_to_date(
+            data.get("Covid19StatusUpdateDate"))
+
+    def put_data(self):
+        return {
+            "Covid19StatusCode": self.covid19_status_code,
+            "Covid19StatusDate": self.covid19_status_date.strftime("%Y%m%d"),
+        }
+
+
 class SectionMeeting(models.Model):
     NON_MEETING = "NON"
     term = models.ForeignKey(Term,

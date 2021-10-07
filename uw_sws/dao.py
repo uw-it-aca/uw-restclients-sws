@@ -50,7 +50,7 @@ class SWS_DAO(DAO):
             self._update_put(url, body, response)
 
     def _update_put(self, url, body, response):
-        pass
+        response.data = body
 
     def _update_get(self, url, response):
         if "/student/v5/notice" in url:

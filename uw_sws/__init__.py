@@ -31,3 +31,18 @@ def get_resource(url):
     if response.status != 200:
         raise DataFailureException(url, response.status, response.data)
     return json.loads(response.data)
+
+
+def put_resource(url, headers={}, body={}):
+    """
+    Issue a PUT request to SWS with the given url
+    and return a response in json format.
+    :returns: http response with content in json
+    """
+    headers['Accept'] = 'application/json'
+
+    response = DAO.putURL(url, headers, json.dumps(body))
+
+    if response.status != 200:
+        raise DataFailureException(url, response.status, response.data)
+    return json.loads(response.data)
