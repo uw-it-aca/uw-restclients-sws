@@ -10,10 +10,12 @@ from uw_sws.section import get_section_by_label
 from uw_sws.term import get_term_by_year_and_quarter
 from uw_sws.registration import (
     get_active_registrations_by_section, get_all_registrations_by_section,
-    get_schedule_by_regid_and_term)
+    get_schedule_by_regid_and_term, get_registration_block_by_regid,
+    update_registration_block)
 from uw_sws.util import fdao_sws_override, date_to_str
 from uw_pws.util import fdao_pws_override
 from decimal import Decimal
+from datetime import datetime
 import mock
 
 
@@ -275,3 +277,50 @@ class SWSTestRegistrations(TestCase):
         self.assertRaises(
             ThreadedDataError, get_schedule_by_regid_and_term,
             '9136CCB8F66711D5BE060004AC494FFE', term)
+
+
+@fdao_pws_override
+@fdao_sws_override
+class SWSTestRegistrationBlock(TestCase):
+    def test_get_registration_block_by_regid(self):
+        block = get_registration_block_by_regid(
+            '9136CCB8F66711D5BE060004AC494FFE')
+        self.assertEqual(block.uwregid, '9136CCB8F66711D5BE060004AC494FFE')
+        self.assertEqual(block.student_name, 'James Average')
+        self.assertEqual(block.covid19_status_code, 2)
+        self.assertEqual(block.covid19_status_description, 'Description')
+        self.assertEqual(block.covid19_status_date.strftime("%Y%m%d"),
+                         '20211003')
+        self.assertEqual(block.covid19_status_updated.strftime("%Y%m%d"),
+                         '20211004')
+        self.assertEqual(block.put_data(), {'Covid19StatusCode': 2,
+                                            'Covid19StatusDate': '20211003'})
+
+    def test_update_registration_block(self):
+        block = get_registration_block_by_regid(
+            '9136CCB8F66711D5BE060004AC494FFE')
+        block.covid19_status_code = 4
+
+        new_block = update_registration_block(block, actas_netid='bill')
+        self.assertEqual(block.uwregid, '9136CCB8F66711D5BE060004AC494FFE')
+        self.assertEqual(block.student_name, 'James Average')
+        self.assertEqual(block.covid19_status_code, 4)
+        self.assertEqual(block.covid19_status_date.strftime("%Y%m%d"),
+                         '20211003')
+        self.assertEqual(block.covid19_status_updated.strftime("%Y%m%d"),
+                         '20211004')
+        self.assertEqual(block.put_data(), {'Covid19StatusCode': 4,
+                                            'Covid19StatusDate': '20211003'})
+
+    @mock.patch('uw_sws.registration.put_resource')
+    def test_update_registration_block_request(self, mock_put):
+        block = get_registration_block_by_regid(
+            '9136CCB8F66711D5BE060004AC494FFE')
+        block.covid19_status_code = 3
+
+        r = update_registration_block(block, actas_netid='bill')
+        mock_put.assert_called_with((
+            '/student/v5/person/9136CCB8F66711D5BE060004AC494FFE/'
+            'registrationblock.json'),
+            {'X-UW-Act-as': 'bill', 'If-Match': '*'},
+            {'Covid19StatusCode': 3, 'Covid19StatusDate': '20211003'})

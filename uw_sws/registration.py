@@ -10,11 +10,11 @@ import re
 from urllib.parse import urlencode
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
-from uw_sws.models import Registration, ClassSchedule
+from uw_sws.models import Registration, RegistrationBlock, ClassSchedule
 from restclients_core.exceptions import DataFailureException
 from restclients_core.thread import (
     Thread, GenericPrefetchThread, generic_prefetch)
-from uw_sws import get_resource, UWPWS
+from uw_sws import get_resource, put_resource, UWPWS
 from uw_sws.person import get_person_by_regid
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
@@ -23,6 +23,7 @@ from uw_sws.section import _json_to_section, get_prefetch_for_section_data
 
 
 registration_res_url_prefix = "/student/v5/registration.json"
+registration_block_url = "/student/v5/person/{}/registrationblock.json"
 reg_credits_url_prefix = "/student/v5/registration/"
 logger = logging.getLogger(__name__)
 
@@ -121,6 +122,27 @@ def _set_person_in_registrations(registrations, person_threads):
         thread.join()
         registration.person = thread.person
         del registration._uwregid
+
+
+def get_registration_block_by_regid(regid):
+    """
+    Returns a uw_sws.models.RegistrationBlock object
+    """
+    url = registration_block_url.format(regid)
+    return RegistrationBlock(data=get_resource(url))
+
+
+def update_registration_block(registration_block, actas_netid=None):
+    """
+    Returns a uw_sws.models.RegistrationBlock object
+    """
+    url = registration_block_url.format(registration_block.uwregid)
+    headers = {"If-Match": "*"}
+    if actas_netid:
+        headers["X-UW-Act-as"] = actas_netid
+
+    data = put_resource(url, headers, registration_block.put_data())
+    return RegistrationBlock(data=data)
 
 
 # This function won't work when the dup_code is not empty
