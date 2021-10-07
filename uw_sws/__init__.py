@@ -43,6 +43,6 @@ def put_resource(url, headers={}, body={}):
 
     response = DAO.putURL(url, headers, json.dumps(body))
 
-    if response.status != 200 and response.status != 201:
+    if response.status != 200:
         raise DataFailureException(url, response.status, response.data)
     return json.loads(response.data)
