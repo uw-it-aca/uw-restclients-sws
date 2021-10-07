@@ -39,8 +39,7 @@ def put_resource(url, headers={}, body={}):
     and return a response in json format.
     :returns: http response with content in json
     """
-    headers.update({'Accept': 'application/json',
-                    'Connection': 'keep-alive'})
+    headers['Accept'] = 'application/json'
 
     response = DAO.putURL(url, headers, json.dumps(body))
 

@@ -132,13 +132,15 @@ def get_registration_block_by_regid(regid):
     return RegistrationBlock(data=get_resource(url))
 
 
-def update_registration_block(registration_block, actas_netid):
+def update_registration_block(registration_block, actas_netid=None):
     """
     Returns a uw_sws.models.RegistrationBlock object
     """
     url = registration_block_url.format(registration_block.uwregid)
-    headers = {"X-UW-Act-as": actas_netid,
-               "If-Match": "*"}
+    headers = {"If-Match": "*"}
+    if actas_netid:
+        headers["X-UW-Act-as"] = actas_netid
+
     data = put_resource(url, headers, registration_block.put_data())
     return RegistrationBlock(data=data)
 
