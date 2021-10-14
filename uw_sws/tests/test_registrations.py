@@ -322,5 +322,5 @@ class SWSTestRegistrationBlock(TestCase):
         mock_put.assert_called_with((
             '/student/v5/person/9136CCB8F66711D5BE060004AC494FFE/'
             'registrationblock.json'),
-            {'X-UW-Act-as': 'bill', 'If-Match': '*'},
+            {'X-UW-Act-as': 'bill'},
             {'Covid19StatusCode': 3, 'Covid19StatusDate': '20211003'})

@@ -137,7 +137,8 @@ def update_registration_block(registration_block, actas_netid=None):
     Returns a uw_sws.models.RegistrationBlock object
     """
     url = registration_block_url.format(registration_block.uwregid)
-    headers = {"If-Match": "*"}
+    headers = {}
+
     if actas_netid:
         headers["X-UW-Act-as"] = actas_netid
 
