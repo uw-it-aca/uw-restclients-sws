@@ -55,7 +55,7 @@ class SWS_DAO(DAO):
     def _update_get(self, url, response):
         response.headers = {
             'Content-Type': 'application/json; charset=utf-8',
-            'ETag': '"1/xxxxxxxxxxxxxxxxxxxxxxxxx=="',
+            'ETag': '"1/01234567890123456789="',
         }
 
         if "/student/v5/notice" in url:
