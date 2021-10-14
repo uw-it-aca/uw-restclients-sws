@@ -53,6 +53,11 @@ class SWS_DAO(DAO):
         response.data = body
 
     def _update_get(self, url, response):
+        response.headers = {
+            'Content-Type': 'application/json; charset=utf-8',
+            'ETag': '"1/xxxxxxxxxxxxxxxxxxxxxxxxx=="',
+        }
+
         if "/student/v5/notice" in url:
             self._make_notice_date(response)
 
