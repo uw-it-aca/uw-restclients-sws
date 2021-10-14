@@ -35,11 +35,18 @@ def get_resource(url):
 
 def put_resource(url, headers={}, body={}):
     """
-    Issue a PUT request to SWS with the given url
-    and return a response in json format.
+    Issue a GET request to SWS with the given url in order to obtain
+    an ETag header, followed by a PUT request to the same url. Returns
+    a response in json format.
     :returns: http response with content in json
     """
-    headers['Accept'] = 'application/json'
+    response = DAO.getURL(url, {'Accept': 'application/json'})
+
+    if response.status != 200:
+        raise DataFailureException(url, response.status, response.data)
+
+    headers['If-Match'] = response.headers.get('ETag', '*')
+    headers['Content-Type'] = 'application/json; charset=utf-8'
 
     response = DAO.putURL(url, headers, json.dumps(body))
 
