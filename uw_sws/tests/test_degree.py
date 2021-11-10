@@ -31,7 +31,7 @@ class AdviserTest(TestCase):
                 'type': 1,
                 'year': 2014
             })
-        self.assertIsNotNone(str(degrees))
+        self.assertIsNotNone(str(degrees[0]))
         degrees[0].status = 9
         self.assertTrue(degrees[0].is_granted())
         degrees[0].status = 1
