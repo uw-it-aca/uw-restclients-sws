@@ -195,6 +195,70 @@ class StudentAdviser(models.Model):
         return json.dumps(self.json_data())
 
 
+class DegreeStatus(models.Model):
+    campus = models.CharField(max_length=32)
+    diploma_mail = models.PositiveSmallIntegerField()
+    diploma_mail_to_local_address = models.BooleanField(default=False)
+    level = models.PositiveSmallIntegerField()
+    name_on_diploma = models.CharField(max_length=128, null=True)
+    status = models.PositiveSmallIntegerField()
+    type = models.PositiveSmallIntegerField()
+    title = models.CharField(max_length=96)
+    quarter = models.CharField(max_length=8)
+    year = models.PositiveSmallIntegerField(null=True)
+
+    def has_applied(self):
+        return self.status >= 3 and self.status <= 5
+
+    def is_admin_hole(self):
+        return self.status == 1
+
+    def is_granted(self):
+        return self.status == 9
+
+    def is_incomplete(self):
+        return self.status == 2
+
+    def __init__(self, *args, **kwargs):
+        data = kwargs.get("data")
+        if data is None:
+            return super(Degree, self).__init__(*args, **kwargs)
+
+        self.campus = data.get("Campus")
+        self.diploma_mail = data.get("DiplomaMail")
+        self.diploma_mail_to_local_address = data.get(
+            "DiplomaMailToLocalAddress")
+        self.quarter = data.get("DegreeEarnedQuarter")
+        self.year = data.get("DegreeEarnedYear")
+        self.level = data.get("DegreeLevel")
+        self.status = data.get("DegreeStatus")
+        self.type = data.get("DegreeType")
+        self.title = data.get("DegreeTitle")
+        self.name_on_diploma = data.get("DiplomaName")
+
+    def json_data(self):
+        return {
+            'campus': self.campus,
+            'diploma_mail': self.diploma_mail,
+            'diploma_mail_to_local_address': 
+                self.diploma_mail_to_local_address,
+            'quarter': self.quarter,
+            'year': self.year,
+            'level': self.level,
+            'status': self.status,
+            'type': self.type,
+            'title': self.title,
+            'name_on_diploma': self.name_on_diploma,
+            'has_applied': self.has_applied(),
+            'is_granted': self.is_granted(),
+            'is_admin_hole': self.is_admin_hole(),
+            'is_incomplete': self.is_incomplete()
+        }
+
+    def __str__(self):
+        return json.dumps(self.json_data())
+        
+    
 class Term(models.Model):
     SPRING = 'spring'
     SUMMER = 'summer'
