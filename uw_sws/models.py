@@ -205,7 +205,7 @@ class DegreeStatus(models.Model):
     type = models.PositiveSmallIntegerField()
     title = models.CharField(max_length=96)
     quarter = models.CharField(max_length=8)
-    year = models.PositiveSmallIntegerField(null=True)
+    year = models.PositiveSmallIntegerField()
 
     def has_applied(self):
         return self.status >= 3 and self.status <= 5
@@ -222,7 +222,7 @@ class DegreeStatus(models.Model):
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
         if data is None:
-            return super(Degree, self).__init__(*args, **kwargs)
+            return super(DegreeStatus, self).__init__(*args, **kwargs)
 
         self.campus = data.get("Campus")
         self.diploma_mail = data.get("DiplomaMail")
@@ -240,7 +240,7 @@ class DegreeStatus(models.Model):
         return {
             'campus': self.campus,
             'diploma_mail': self.diploma_mail,
-            'diploma_mail_to_local_address': 
+            'diploma_mail_to_local_address':
                 self.diploma_mail_to_local_address,
             'quarter': self.quarter,
             'year': self.year,
@@ -257,8 +257,8 @@ class DegreeStatus(models.Model):
 
     def __str__(self):
         return json.dumps(self.json_data())
-        
-    
+
+
 class Term(models.Model):
     SPRING = 'spring'
     SUMMER = 'summer'
