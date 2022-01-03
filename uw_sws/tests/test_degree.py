@@ -20,7 +20,7 @@ class AdviserTest(TestCase):
                 'diploma_mail': 0,
                 'diploma_mail_to_local_address': False,
                 'has_applied': True,
-                'is_admin_hole': False,
+                'is_admin_hold': False,
                 'is_granted': False,
                 'is_incomplete': False,
                 'level': 1,
@@ -35,7 +35,7 @@ class AdviserTest(TestCase):
         degrees[0].status = 9
         self.assertTrue(degrees[0].is_granted())
         degrees[0].status = 1
-        self.assertTrue(degrees[0].is_admin_hole())
+        self.assertTrue(degrees[0].is_admin_hold())
         degrees[0].status = 2
         self.assertTrue(degrees[0].is_incomplete())
 

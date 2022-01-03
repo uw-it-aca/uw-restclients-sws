@@ -210,7 +210,7 @@ class DegreeStatus(models.Model):
     def has_applied(self):
         return self.status >= 3 and self.status <= 5
 
-    def is_admin_hole(self):
+    def is_admin_hold(self):
         return self.status == 1
 
     def is_granted(self):
@@ -251,7 +251,7 @@ class DegreeStatus(models.Model):
             'name_on_diploma': self.name_on_diploma,
             'has_applied': self.has_applied(),
             'is_granted': self.is_granted(),
-            'is_admin_hole': self.is_admin_hole(),
+            'is_admin_hold': self.is_admin_hold(),
             'is_incomplete': self.is_incomplete()
         }
 
