@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
@@ -92,7 +92,7 @@ class SWSTestRegistrations(TestCase):
              'is_withdrew': False,
              'meta_data': 'RegistrationSourceLocation=SDB;',
              'repeat_course': False,
-             'repository_timestamp': '2016-01-05 14:45:15',
+             'repository_timestamp': '2016-01-05T14:45:15',
              'request_date': '2015-11-18',
              'request_status': 'DROPPED FROM CLASS',
              'start_date': None})

@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from datetime import datetime, timedelta
@@ -19,7 +19,8 @@ def str_to_date(s):
 
 
 def date_to_str(dt):
-    return str(dt) if dt is not None else None
+    # datetime.datetime.isoformat
+    return dt.isoformat() if dt is not None else None
 
 
 def abbr_week_month_day_str(adatetime):

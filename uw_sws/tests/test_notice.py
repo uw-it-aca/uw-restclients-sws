@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
@@ -13,9 +13,10 @@ from datetime import timedelta
 
 
 def date_to_dtime(adate):
-    return str(SWS_TIMEZONE.localize(
-        datetime(year=adate.year, month=adate.month,
-                 day=adate.day)).astimezone(pytz.utc))
+    return SWS_TIMEZONE.localize(
+        datetime(
+            year=adate.year, month=adate.month, day=adate.day)
+        ).astimezone(pytz.utc).isoformat()
 
 
 @fdao_pws_override

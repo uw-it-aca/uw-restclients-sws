@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
@@ -29,7 +29,7 @@ class AdviserTest(TestCase):
              'is_honors_program': True,
              'regid': '24A20F50AE3511D68CBC0004AC494FFE',
              'uwnetid': 'uwhonors',
-             'timestamp': '2020-03-24 13:07:14'})
+             'timestamp': '2020-03-24T13:07:14'})
         self.assertIsNotNone(str(advisers))
 
     def test_error_case(self):
