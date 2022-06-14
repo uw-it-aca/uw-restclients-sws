@@ -19,7 +19,8 @@ def str_to_date(s):
 
 
 def date_to_str(dt):
-    return str(dt) if dt is not None else None
+    # datetime.datetime.isoformat
+    return dt.isoformat() if dt is not None else None
 
 
 def abbr_week_month_day_str(adatetime):
