@@ -434,6 +434,28 @@ class SWSTestTerm(TestCase):
         self.assertTrue(term.is_past(sws_now()))
         self.assertFalse(term.is_current(sws_now()))
         self.assertFalse(term.is_future(sws_now()))
+        self.maxDiff = None
+        self.assertEquals(
+            term.json_data(),
+            {'aterm_grading_period_open': None,
+             'census_day': '1998-04-10',
+             'first_day_quarter': '1998-03-30',
+             'grade_submission_deadline': None,
+             'grading_period_open': None,
+             'label': '1998,spring',
+             'last_day_add': '1998-04-19',
+             'last_day_drop': '1998-05-17',
+             'last_day_instruction': '1998-06-05',
+             'last_final_exam_date': '1998-06-13T00:00:00',
+             'quarter': 'Spring',
+             'registration_periods':
+                    [{'end': '1998-03-08', 'start': '1998-02-20'},
+                     {'end': '1998-03-29', 'start': '1998-03-09'},
+                     {'end': '1998-04-05', 'start': '1998-03-30'}],
+             'time_schedule_published':
+                    {'bothell': True, 'seattle': True, 'tacoma': True},
+             'year': 1998}
+        )
 
     def test_week_of_term(self):
         now = sws_now()
