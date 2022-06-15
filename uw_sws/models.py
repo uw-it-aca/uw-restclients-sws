@@ -530,8 +530,9 @@ class Term(models.Model):
             'time_schedule_published': time_schedule_published
         }
         if self.last_final_exam_date:
-            data['last_final_exam_date'] = self.last_final_exam_date.strftime(
-                "%Y-%m-%d 23:59:59")  # Datetime for backwards compatibility
+            data['last_final_exam_date'] = date_to_str(
+                self.get_eod_last_final_exam())
+            # Datetime for backwards compatibility
         return data
 
     def __str__(self):
@@ -553,8 +554,9 @@ class FinalExam(models.Model):
         }
 
         if self.start_date:
-            data["start_date"] = self.start_date.strftime("%Y-%m-%d %H:%M")
-            data["end_date"] = self.end_date.strftime("%Y-%m-%d %H:%M")
+            data["start_date"] = date_to_str(self.start_date)
+        if self.end_date:
+            data["end_date"] = date_to_str(self.end_date)
         if self.building:
             data["building"] = self.building
         if self.room_number:

@@ -93,21 +93,15 @@ class SWSTestSectionData(TestCase):
                           "Has right final building")
         self.assertEquals(final_exam.room_number, "012",
                           "Has right room #")
-
-        start = final_exam.start_date
-        end = final_exam.end_date
-
-        self.assertEquals(start.year, 2013)
-        self.assertEquals(start.month, 6)
-        self.assertEquals(start.day, 2)
-        self.assertEquals(start.hour, 13)
-        self.assertEquals(start.minute, 30)
-
-        self.assertEquals(end.year, 2013)
-        self.assertEquals(end.month, 6)
-        self.assertEquals(end.day, 2)
-        self.assertEquals(end.hour, 16)
-        self.assertEquals(end.minute, 20)
+        self.assertEquals(
+            final_exam.json_data(),
+            {'building': 'KNE',
+             'end_date': '2013-06-02T16:20:00',
+             'is_confirmed': True,
+             'no_exam_or_nontraditional': False,
+             'room': '012',
+             'room_number': '012',
+             'start_date': '2013-06-02T13:30:00'})
 
         section = get_section_by_label('2013,spring,MATH,125/H')
         final_exam = section.final_exam
