@@ -448,12 +448,12 @@ class SWSTestTerm(TestCase):
              'last_day_instruction': '1998-06-05',
              'last_final_exam_date': '1998-06-13T00:00:00',
              'quarter': 'Spring',
-             'registration_periods':
-                    [{'end': '1998-03-08', 'start': '1998-02-20'},
-                     {'end': '1998-03-29', 'start': '1998-03-09'},
-                     {'end': '1998-04-05', 'start': '1998-03-30'}],
-             'time_schedule_published':
-                    {'bothell': True, 'seattle': True, 'tacoma': True},
+             'registration_periods': [
+                 {'end': '1998-03-08', 'start': '1998-02-20'},
+                 {'end': '1998-03-29', 'start': '1998-03-09'},
+                 {'end': '1998-04-05', 'start': '1998-03-30'}],
+             'time_schedule_published': {
+                 'bothell': True, 'seattle': True, 'tacoma': True},
              'year': 1998}
         )
 
