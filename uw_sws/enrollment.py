@@ -17,7 +17,7 @@ from uw_sws.term import get_term_by_year_and_quarter, get_current_term
 logger = logging.getLogger(__name__)
 enrollment_res_url_prefix = "/student/v5/enrollment"
 enrollment_search_url_prefix = "/student/v5/enrollment.json?reg_id="
-ENROLLMENT_CUTOFF_DELTA = 20   # live data within last 20 years (SWS PROD limit)
+ENROLLMENT_CUTOFF_DELTA = 20   # SWS PROD limit
 
 
 def get_grades_by_regid_and_term(regid, term):
