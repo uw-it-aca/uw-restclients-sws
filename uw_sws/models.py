@@ -1153,13 +1153,13 @@ class SectionMeeting(models.Model):
         return self.meeting_type == SectionMeeting.NON_MEETING
 
     def no_meeting(self):
-        return not(self.meets_monday or
-                   self.meets_tuesday or
-                   self.meets_wednesday or
-                   self.meets_thursday or
-                   self.meets_friday or
-                   self.meets_saturday or
-                   self.meets_sunday)
+        return not (self.meets_monday or
+                    self.meets_tuesday or
+                    self.meets_wednesday or
+                    self.meets_thursday or
+                    self.meets_friday or
+                    self.meets_saturday or
+                    self.meets_sunday)
 
     def json_data(self):
         data = {
