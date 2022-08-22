@@ -101,6 +101,7 @@ class SwsPerson(models.Model):
     permanent_phone = models.CharField(max_length=64, null=True, blank=True)
     visa_type = models.CharField(max_length=2, null=True, blank=True)
     veteran_code = models.CharField(max_length=2)
+    resident_code = models.SmallIntegerField(null=True)
 
     def is_veteran(self):
         return self.veteran_code != "0"
@@ -130,7 +131,8 @@ class SwsPerson(models.Model):
                 self.permanent_address),
             'permanent_phone': self.permanent_phone,
             'visa_type': self.visa_type,
-            'veteran_code': self.veteran_code
+            'veteran_code': self.veteran_code,
+            'resident_code': self.resident_code
                 }
 
     def __str__(self):
@@ -1151,13 +1153,13 @@ class SectionMeeting(models.Model):
         return self.meeting_type == SectionMeeting.NON_MEETING
 
     def no_meeting(self):
-        return not(self.meets_monday or
-                   self.meets_tuesday or
-                   self.meets_wednesday or
-                   self.meets_thursday or
-                   self.meets_friday or
-                   self.meets_saturday or
-                   self.meets_sunday)
+        return not (self.meets_monday or
+                    self.meets_tuesday or
+                    self.meets_wednesday or
+                    self.meets_thursday or
+                    self.meets_friday or
+                    self.meets_saturday or
+                    self.meets_sunday)
 
     def json_data(self):
         data = {

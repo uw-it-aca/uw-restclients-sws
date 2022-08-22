@@ -51,6 +51,7 @@ class PersonTest(TestCase):
                           "/student/v5/term/2013,autumn.json")
         self.assertEquals(data.last_enrolled.quarter, "autumn")
         self.assertEquals(data.last_enrolled.year, 2013)
+        self.assertEquals(data.resident_code, 1)
 
     def test_person_jinter(self):
         data = get_person_by_regid("9136CCB8F66711D5BE060004AC494F31")
@@ -88,6 +89,7 @@ class PersonTest(TestCase):
         self.assertEquals(data.permanent_address.postal_code, "400001")
         self.assertEquals(data.permanent_address.state, "Mumbai")
         self.assertEquals(data.permanent_address.zip_code, "")
+        self.assertIsNone(data.resident_code)
 
         data = get_person_by_regid("12345678901234567890123456789012")
         self.assertTrue(data.is_J1())
@@ -115,6 +117,7 @@ class PersonTest(TestCase):
         self.assertIsNone(data.local_address)
         self.assertIsNone(data.permanent_phone)
         self.assertIsNone(data.permanent_address)
+        self.assertIsNone(data.resident_code)
 
     def test_json_datat(self):
         data = get_person_by_regid("9136CCB8F66711D5BE060004AC494FFE")

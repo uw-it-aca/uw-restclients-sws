@@ -79,5 +79,6 @@ def _process_json_data(person_data):
     person.student_system_key = person_data.get("StudentSystemKey")
     person.uwnetid = person_data.get("UWNetID")
     person.visa_type = person_data.get("VisaType")
+    person.resident_code = person_data.get("Resident")
 
     return person
