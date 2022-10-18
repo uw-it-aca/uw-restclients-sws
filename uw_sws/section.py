@@ -515,24 +515,45 @@ def _json_to_section(section_data,
 
             final_exam.clean_fields()
             section.final_exam = final_exam
-    """
-    MUWM-4728, MUWM-4989 keep the code for now
-    if (section_data.get("TimeScheduleComments") and
-            section_data["TimeScheduleComments"].get("SectionComments")):
-        comments = section_data["TimeScheduleComments"]["SectionComments"]
-        if comments.get("Lines"):
-            for line in comments["Lines"]:
-                if is_remote(line):
-                    section.is_remote = True
-                    break
-    """
+
+    # MUWM-5099
+    dlct = section_data.get("DistanceLearningCalendarType")
+    dlct_code = None
+    if dlct:
+        dlct_code = dlct.get("Code")
+
+    dlt = section_data.get("DistanceLearningType")
+    dlt_code = None
+    if dlt and len(dlt):
+        dlt_code = dlt.get("Code")
+
+    olt = section_data.get("OnlineLearningType")
+    olt_code = None
+    if olt:
+       olt_code = olt.get("Code")
+
+    section.is_asynchronous = is_asynchronous(dlct_code, dlt_code, olt_code)
+    section.is_synchronous = is_synchronous(dlct_code, dlt_code, olt_code)
+    section.is_hybrid = is_hybrid(dlct_code, dlt_code, olt_code)
 
     return section
 
 
-def is_remote(comment_dict):
-    return (comment_dict.get("Text") and
-            "OFFERED VIA REMOTE" in comment_dict["Text"])
+def is_asynchronous(dlct_code, dlt_code, olt_code):
+    return (dlct_code == "3" and dlt_code == "3" and olt_code == "10")
+
+
+def is_synchronous(dlct_code, dlt_code, olt_code):
+    return (
+        (dlct_code == "1" or dlct_code == "2") and
+        dlt_code == "3" and olt_code == "10")
+
+
+def is_hybrid(dlct_code, dlt_code, olt_code):
+    return (
+        olt_code == "20" and
+        (dlt_code is None or dlt_code == "3") and
+        (dlct_code == "0" or dlct_code == "1"))
 
 
 def is_a_term(str):
