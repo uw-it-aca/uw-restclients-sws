@@ -25,6 +25,10 @@
     },
     "DeleteFlag": "active",
     "DistanceLearning": false,
+    "DistanceLearningCalendarType": {
+        "Code": "0",
+        "Description": "Not a Distance Learning section"
+    },
     "DistanceLearningType": {
         "Code": null,
         "Description": null
@@ -187,8 +191,8 @@
     "Metadata": "SectionSourceKey=SDB;",
     "MinimumTermCredit": "5.0",
     "OnlineLearningType": {
-        "Code": "00",
-        "Description": "No online learning component"
+        "Code": "20",
+        "Description": "Online Learning - Hybrid"
     },
     "PrimaryLMS": null,
     "PrimarySection": {
@@ -242,26 +246,7 @@
             "Lines": []
         },
         "CurriculumComments": {
-            "Lines": [
-                {
-                    "Text": "ENTRY CODES AVAILABLE IN PAUL ALLEN CTR 100R"
-                },
-                {
-                    "Text": "DUE TO LIMITED INSTRUCTIONAL RESOURCES, THE"
-                },
-                {
-                    "Text": "ELECTRICAL ENGINEERING DEPARTMENT RESERVES THE"
-                },
-                {
-                    "Text": "OPTION OF DROPPING A STUDENT FROM AN E E COURSE IF"
-                },
-                {
-                    "Text": "THEY DO NOT ATTEND ONE OR MORE SCHEDULED CLASS"
-                },
-                {
-                    "Text": "MEETINGS DURING THE FIRST WEEK OF THE QUARTER."
-                }
-            ]
+            "Lines": []
         },
         "DepartmentComments": {
             "Lines": []
@@ -272,26 +257,23 @@
         "SectionComments": {
             "Lines": [
                 {
-                    "Text": "OFFERED VIA REMOTE LEARNING"
+                    "Text": "HYBRID"
+                },
+                {
+                    "Text": "LECTURE IS ONLINE ASYNCHRONOUS"
+                },
+                {
+                    "Text": "DISCUSSION SECTIONS ARE IN PERSON"
+                },
+                {
+                    "Text": "MUST ENROLL IN A DISCUSSION SECTION"
                 }
             ]
         },
         "TimeScheduleGeneratedComments": {
             "Lines": [
                 {
-                    "Text": "$50 course fee - auditors exempt"
-                },
-                {
-                    "Text": "Fee purpose: Lab"
-                },
-                {
-                    "Text": "No Grads Period 1 (5/8/2020-6/21/2020)"
-                },
-                {
-                    "Text": "No Grads Period 2 (6/22/2020-9/29/2020)"
-                },
-                {
-                    "Text": "E E,CMP E,C SCI majors only Period 1 (5/8/2020-6/21/2020)"
+                    "Text": "Online Learning - Hybrid"
                 }
             ]
         }
