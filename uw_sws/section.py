@@ -530,7 +530,7 @@ def _json_to_section(section_data,
     olt = section_data.get("OnlineLearningType")
     olt_code = None
     if olt:
-       olt_code = olt.get("Code")
+        olt_code = olt.get("Code")
 
     section.is_asynchronous = is_asynchronous(dlct_code, dlt_code, olt_code)
     section.is_synchronous = is_synchronous(dlct_code, dlt_code, olt_code)
@@ -551,9 +551,7 @@ def is_synchronous(dlct_code, dlt_code, olt_code):
 
 def is_hybrid(dlct_code, dlt_code, olt_code):
     return (
-        olt_code == "20" and
-        (dlt_code is None or dlt_code == "3") and
-        (dlct_code == "0" or dlct_code == "1"))
+        olt_code == "20" and dlt_code is None and dlct_code == "0")
 
 
 def is_a_term(str):

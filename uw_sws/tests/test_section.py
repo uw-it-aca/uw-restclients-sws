@@ -708,7 +708,7 @@ class SWSTestSectionData(TestCase):
         self.assertEqual(person.uwregid, '1230A9206A7D11D5A4AE0004AC494123')
         self.assertEqual(person.display_name, 'PWS, FOUR OH FOUR')
 
-    def test_section_modality (self):
+    def test_section_modality(self):
         # MUWM-5099
         section = get_section_by_label('2020,autumn,E E,233/A')
         self.assertFalse(section.is_asynchronous)
@@ -717,5 +717,6 @@ class SWSTestSectionData(TestCase):
         self.assertTrue(is_asynchronous("3", "3", "10"))
         self.assertTrue(is_synchronous("1", "3", "10"))
         self.assertTrue(is_synchronous("2", "3", "10"))
-        self.assertTrue(is_hybrid("1", "3", "20"))
+        self.assertFalse(is_synchronous("0", "3", "10"))
         self.assertTrue(is_hybrid("0", None, "20"))
+        self.assertFalse(is_hybrid("1", "3", "20"))

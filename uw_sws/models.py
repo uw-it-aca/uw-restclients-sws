@@ -676,9 +676,13 @@ class Section(models.Model):
     grade_date = models.DateField(null=True, blank=True, default=None)
     grading_system = models.CharField(max_length=32, null=True, blank=True)
     course_description = models.TextField()
-    is_asynchronous = models.BooleanField(default=False)  # Asynchronous Online (A)
-    is_synchronous = models.BooleanField(default=False)  # Synchronous Online (O)
-    is_hybrid = models.BooleanField(default=False)  # Distance/Online Hybrid (B)
+
+    is_asynchronous = models.BooleanField(default=False)
+    # Asynchronous Online (A)
+    is_synchronous = models.BooleanField(default=False)
+    # Synchronous Online (O)
+    is_hybrid = models.BooleanField(default=False)
+    # Distance/Online Hybrid (B)
 
     def is_campus_seattle(self):
         return (self.course_campus is not None and
@@ -1155,13 +1159,13 @@ class SectionMeeting(models.Model):
         return self.meeting_type == SectionMeeting.NON_MEETING
 
     def no_meeting(self):
-        return not(self.meets_monday or
-                   self.meets_tuesday or
-                   self.meets_wednesday or
-                   self.meets_thursday or
-                   self.meets_friday or
-                   self.meets_saturday or
-                   self.meets_sunday)
+        return not (self.meets_monday or
+                    self.meets_tuesday or
+                    self.meets_wednesday or
+                    self.meets_thursday or
+                    self.meets_friday or
+                    self.meets_saturday or
+                    self.meets_sunday)
 
     def json_data(self):
         data = {
