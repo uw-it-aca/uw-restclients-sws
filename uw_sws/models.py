@@ -1448,6 +1448,13 @@ class Course(models.Model):
     course_title_long = models.CharField(max_length=50)
     course_campus = models.CharField(max_length=7)
     course_description = models.TextField()
+    gen_ed_req_diversity = models.NullBooleanField()
+    gen_ed_req_english_composition = models.NullBooleanField()
+    gen_ed_req_individuals_and_societies = models.NullBooleanField()
+    gen_ed_req_natural_world = models.NullBooleanField()
+    gen_ed_req_quantitative_and_symbolic_reasoning = models.NullBooleanField()
+    gen_ed_req_visual_literary_and_performing_arts = models.NullBooleanField()
+    gen_ed_req_writing = models.NullBooleanField()
 
     def json_data(self):
         data = {
@@ -1456,7 +1463,19 @@ class Course(models.Model):
             'course_title': self.course_title,
             'course_title_long': self.course_title_long,
             'course_campus': self.course_campus,
-            'course_description': self.course_description
+            'course_description': self.course_description,
+            'general_education_requirements': {
+                'diversity': self.gen_ed_req_diversity,
+                'english_composition': self.gen_ed_req_english_composition,
+                'individuals_and_societies':
+                    self.gen_ed_req_individuals_and_societies,
+                'natural_world': self.gen_ed_req_natural_world,
+                'quantitative_and_symbolic_reasoning':
+                    self.gen_ed_req_quantitative_and_symbolic_reasoning,
+                'visual_literary_and_performing_arts':
+                    self.gen_ed_req_visual_literary_and_performing_arts,
+                'writing': self.gen_ed_req_writing
+            }
         }
         return data
 

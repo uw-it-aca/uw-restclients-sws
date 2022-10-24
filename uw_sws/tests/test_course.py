@@ -36,7 +36,18 @@ class SWSTestCourseData(TestCase):
                                              " defining objects. Intended for"
                                              " students without prior "
                                              "programming experience. "
-                                             "Offered: AWSpS."}
+                                             "Offered: AWSpS.",
+                       'general_education_requirements': {
+                           'diversity': False,
+                           'english_composition': False,
+                           'individuals_and_societies': False,
+                           'natural_world': True,
+                           'quantitative_and_symbolic_reasoning': True,
+                           'visual_literary_and_performing_arts': False,
+                           'writing': False
+                       }
+                       }
+
         self.assertEqual(course.json_data(), course_resp)
 
         self.assertIsNone(get_course_by_label("2013,spring,FOO,123"))
