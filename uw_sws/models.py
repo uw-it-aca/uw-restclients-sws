@@ -1448,13 +1448,13 @@ class Course(models.Model):
     course_title_long = models.CharField(max_length=50)
     course_campus = models.CharField(max_length=7)
     course_description = models.TextField()
-    gen_ed_req_diversity = models.NullBooleanField()
-    gen_ed_req_english_composition = models.NullBooleanField()
-    gen_ed_req_individuals_and_societies = models.NullBooleanField()
-    gen_ed_req_natural_world = models.NullBooleanField()
-    gen_ed_req_quantitative_and_symbolic_reasoning = models.NullBooleanField()
-    gen_ed_req_visual_literary_and_performing_arts = models.NullBooleanField()
-    gen_ed_req_writing = models.NullBooleanField()
+    gen_ed_req_diversity = models.BooleanField(default=False)
+    gen_ed_req_english_composition = models.BooleanField(default=False)
+    gen_ed_req_individuals_and_societies = models.BooleanField(default=False)
+    gen_ed_req_natural_world = models.BooleanField(default=False)
+    gen_ed_req_quantitative_and_symbolic_reasoning = models.BooleanField(default=False)
+    gen_ed_req_visual_literary_and_performing_arts = models.BooleanField(default=False)
+    gen_ed_req_writing = models.BooleanField(default=False)
 
     def json_data(self):
         data = {
