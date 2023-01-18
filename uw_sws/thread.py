@@ -1,11 +1,12 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+from uw_sws import UWPWS
 from uw_sws.dao import SWS_DAO
 from restclients_core.thread import Thread
 
 
-class SWSThread(Thread):
+class SWSCourseThread(Thread):
     url = None  # the course url to send a request
     reg_url = None
     headers = None
@@ -14,7 +15,7 @@ class SWSThread(Thread):
 
     def run(self):
         if self.url is None:
-            raise Exception("SWSThread must have a url")
+            raise Exception("SWSCourseThread must have a url")
 
         args = self.headers or {}
 
@@ -22,3 +23,18 @@ class SWSThread(Thread):
             self.response = SWS_DAO().getURL(self.url, args)
         except Exception as ex:
             self.exception = ex
+
+        self.close_db_connection()
+
+
+class SWSPersonByRegIDThread(Thread):
+    regid = None
+    person = None
+
+    def run(self):
+        if self.regid is None:
+            raise Exception("SWSPersonByRegIDThread must have a regid")
+
+        self.person = UWPWS.get_person_by_regid(self.regid)
+
+        self.close_db_connection()
