@@ -60,7 +60,7 @@ def _notices_from_json(notice_data):
                     attribute._string_value = notice_attrib.get("Value")
                 else:
                     logger.warn(
-                        "Unkown attribute type: {}\nWith Value:{}".format(
+                        "Unknown attribute type '{}', with value '{}'".format(
                             attribute.data_type,
                             notice_attrib.get("Value")))
                     continue
