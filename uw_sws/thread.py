@@ -24,7 +24,7 @@ class SWSCourseThread(Thread):
         except Exception as ex:
             self.exception = ex
 
-        self.close_db_connection()
+        self.final()
 
 
 class SWSPersonByRegIDThread(Thread):
@@ -37,4 +37,4 @@ class SWSPersonByRegIDThread(Thread):
 
         self.person = UWPWS.get_person_by_regid(self.regid)
 
-        self.close_db_connection()
+        self.final()
