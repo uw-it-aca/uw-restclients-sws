@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import json
@@ -1370,6 +1370,20 @@ class Enrollment(models.Model):
                     len(self.unf_pce_courses) > 0)
         except AttributeError:
             return False
+
+    def json_data(self):
+        data = {
+            'is_honors': self.is_honors,
+            'class_level': self.class_level,
+            'regid': self.regid,
+            'is_enroll_src_pce': self.is_enroll_src_pce,
+            'is_registered': self.is_registered,
+            'has_pending_major_change': self.has_pending_major_change
+        }
+        if self.registrations:
+            data['registrations'] = [registration.json_data()
+                                     for registration in self.registrations]
+        return data
 
 
 class Major(models.Model):

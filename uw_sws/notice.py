@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -60,7 +60,7 @@ def _notices_from_json(notice_data):
                     attribute._string_value = notice_attrib.get("Value")
                 else:
                     logger.warn(
-                        "Unkown attribute type: {}\nWith Value:{}".format(
+                        "Unknown attribute type '{}', with value '{}'".format(
                             attribute.data_type,
                             notice_attrib.get("Value")))
                     continue
