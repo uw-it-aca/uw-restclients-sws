@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -12,13 +12,11 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from uw_sws.models import Registration, RegistrationBlock, ClassSchedule
 from restclients_core.exceptions import DataFailureException
-from restclients_core.thread import (
-    Thread, GenericPrefetchThread, generic_prefetch)
-from uw_sws import get_resource, put_resource, UWPWS
-from uw_sws.person import get_person_by_regid
+from restclients_core.thread import GenericPrefetchThread, generic_prefetch
+from uw_sws import get_resource, put_resource
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
-from uw_sws.thread import SWSThread
+from uw_sws.thread import SWSCourseThread, SWSPersonByRegIDThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
 
 
@@ -26,17 +24,6 @@ registration_res_url_prefix = "/student/v5/registration.json"
 registration_block_url = "/student/v5/person/{}/registrationblock.json"
 reg_credits_url_prefix = "/student/v5/registration/"
 logger = logging.getLogger(__name__)
-
-
-class SWSPersonByRegIDThread(Thread):
-    regid = None
-    person = None
-
-    def run(self):
-        if self.regid is None:
-            raise Exception("SWSPersonByRegIDThread must have a regid")
-
-        self.person = UWPWS.get_person_by_regid(self.regid)
 
 
 def get_active_registrations_by_section(section, transcriptable_course=""):
@@ -238,7 +225,7 @@ def _json_to_stud_reg_schedule(json_data, term, regid,
 
     try:
         for registration in json_data["Registrations"]:
-            thread = SWSThread()
+            thread = SWSCourseThread()
             thread.reg_json = registration
             thread.url = registration["Section"]["Href"]
             thread.headers = {"Accept": "application/json"}
