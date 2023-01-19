@@ -9,14 +9,15 @@ import re
 from urllib.parse import urlencode
 from uw_sws.models import (StudentGrades, StudentCourseGrade, Enrollment,
                            Major, Minor, SectionReference, Term, Registration)
-from uw_sws import get_resource, UWPWS
+from uw_sws import get_resource, UWPWS, DAO
 from uw_sws.section import get_section_by_url
-from uw_sws.term import get_term_by_year_and_quarter
+from uw_sws.term import get_term_by_year_and_quarter, get_current_term
 
 
 logger = logging.getLogger(__name__)
 enrollment_res_url_prefix = "/student/v5/enrollment"
 enrollment_search_url_prefix = "/student/v5/enrollment.json?reg_id="
+ENROLLMENT_CUTOFF_DELTA = 20   # SWS PROD limit
 
 
 def get_grades_by_regid_and_term(regid, term):
@@ -82,18 +83,24 @@ def enrollment_search_by_regid(regid,
 def _json_to_term_enrollment_dict(json_data,
                                   include_unfinished_pce_course_reg):
     term_enrollment_dict = {}
+    current_year = get_current_term().year
     if "Enrollments" not in json_data:
         return term_enrollment_dict
     for term_enro in json_data["Enrollments"]:
-        if "Term" in term_enro and\
-                "Year" in term_enro["Term"] and\
-                "Quarter" in term_enro["Term"]:
-            term = get_term_by_year_and_quarter(term_enro["Term"]["Year"],
-                                                term_enro["Term"]["Quarter"])
-            enrollment = _json_to_enrollment(term_enro,
-                                             term,
-                                             include_unfinished_pce_course_reg)
+        if ("Term" in term_enro and
+                "Year" in term_enro["Term"] and
+                "Quarter" in term_enro["Term"]):
+
+            term_year = int(term_enro["Term"]["Year"])
+            if (DAO.get_implementation().is_live() and
+                    current_year - term_year > ENROLLMENT_CUTOFF_DELTA):
+                continue
+            term = get_term_by_year_and_quarter(
+                term_year, term_enro["Term"]["Quarter"])
+            enrollment = _json_to_enrollment(
+                term_enro, term, include_unfinished_pce_course_reg)
             term_enrollment_dict[term] = enrollment
+
     return term_enrollment_dict
 
 

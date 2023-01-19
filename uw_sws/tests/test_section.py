@@ -17,7 +17,8 @@ from uw_sws.section import (
     get_sections_by_building_and_term, get_changed_sections_by_term,
     get_last_section_by_instructor_and_terms, validate_section_label,
     get_sections_by_delegate_and_term, is_a_term, is_b_term,
-    is_full_summer_term, is_valid_sln, is_remote)
+    is_full_summer_term, is_valid_sln, is_asynchronous, is_synchronous,
+    is_hybrid)
 
 
 @fdao_pws_override
@@ -707,13 +708,15 @@ class SWSTestSectionData(TestCase):
         self.assertEqual(person.uwregid, '1230A9206A7D11D5A4AE0004AC494123')
         self.assertEqual(person.display_name, 'PWS, FOUR OH FOUR')
 
-    def test_remote_section(self):
-        # MUWM-4728, MUWM-4989
+    def test_section_modality(self):
+        # MUWM-5099
         section = get_section_by_label('2020,autumn,E E,233/A')
-        self.assertFalse(section.is_remote)
-        self.assertFalse(section.json_data()['is_remote'])
-        self.assertTrue(section.is_source_sdb())
-
-        self.assertTrue(is_remote({"Text": "OFFERED VIA REMOTE LEARNING"}))
-        self.assertTrue(is_remote({"Text": "LECTURES ARE OFFERED VIA REMOTE"}))
-        self.assertFalse(is_remote({"Text": "PERSON"}))
+        self.assertFalse(section.is_asynchronous)
+        self.assertFalse(section.is_synchronous)
+        self.assertTrue(section.is_hybrid)
+        self.assertTrue(is_asynchronous("3", "3", "10"))
+        self.assertTrue(is_synchronous("1", "3", "10"))
+        self.assertTrue(is_synchronous("2", "3", "10"))
+        self.assertFalse(is_synchronous("0", "3", "10"))
+        self.assertTrue(is_hybrid("0", None, "20"))
+        self.assertFalse(is_hybrid("1", "3", "20"))

@@ -60,4 +60,21 @@ def _json_to_courseref(data):
     course.course_title_long = data['CourseTitleLong']
     course.course_campus = data['CourseCampus']
     course.course_description = data['CourseDescription']
+
+    gen_ed_req = data.get('GeneralEducationRequirements', {})
+    course.gen_ed_req_diversity = gen_ed_req.get(
+        'Diversity', False)
+    course.gen_ed_req_english_composition = gen_ed_req.get(
+        'EnglishComposition', False)
+    course.gen_ed_req_individuals_and_societies = gen_ed_req.get(
+        'IndividualsAndSocieties', False)
+    course.gen_ed_req_natural_world = gen_ed_req.get(
+        'NaturalWorld', False)
+    course.gen_ed_req_quantitative_and_symbolic_reasoning = gen_ed_req.get(
+        'QuantitativeAndSymbolicReasoning', False)
+    course.gen_ed_req_visual_literary_and_performing_arts = gen_ed_req.get(
+        'VisualLiteraryAndPerformingArts', False)
+    course.gen_ed_req_writing = gen_ed_req.get(
+        'Writing', False)
+
     return course

@@ -101,6 +101,7 @@ class SwsPerson(models.Model):
     permanent_phone = models.CharField(max_length=64, null=True, blank=True)
     visa_type = models.CharField(max_length=2, null=True, blank=True)
     veteran_code = models.CharField(max_length=2)
+    resident_code = models.SmallIntegerField(null=True)
 
     def is_veteran(self):
         return self.veteran_code != "0"
@@ -130,7 +131,8 @@ class SwsPerson(models.Model):
                 self.permanent_address),
             'permanent_phone': self.permanent_phone,
             'visa_type': self.visa_type,
-            'veteran_code': self.veteran_code
+            'veteran_code': self.veteran_code,
+            'resident_code': self.resident_code
                 }
 
     def __str__(self):
@@ -676,7 +678,13 @@ class Section(models.Model):
     grade_date = models.DateField(null=True, blank=True, default=None)
     grading_system = models.CharField(max_length=32, null=True, blank=True)
     course_description = models.TextField()
-    is_remote = models.BooleanField(default=False)
+
+    is_asynchronous = models.BooleanField(default=False)
+    # Asynchronous Online (A)
+    is_synchronous = models.BooleanField(default=False)
+    # Synchronous Online (O)
+    is_hybrid = models.BooleanField(default=False)
+    # Distance/Online Hybrid (B)
 
     def is_campus_seattle(self):
         return (self.course_campus is not None and
@@ -908,7 +916,9 @@ class Section(models.Model):
             'grade': self.student_grade,
             'grade_date': date_to_str(self.grade_date),
             'grading_system': self.grading_system,
-            'is_remote': self.is_remote
+            'is_asynchronous': self.is_asynchronous,
+            'is_synchronous': self.is_synchronous,
+            'is_hybrid': self.is_hybrid
         }
 
         if self.final_exam is not None:
@@ -1151,13 +1161,13 @@ class SectionMeeting(models.Model):
         return self.meeting_type == SectionMeeting.NON_MEETING
 
     def no_meeting(self):
-        return not(self.meets_monday or
-                   self.meets_tuesday or
-                   self.meets_wednesday or
-                   self.meets_thursday or
-                   self.meets_friday or
-                   self.meets_saturday or
-                   self.meets_sunday)
+        return not (self.meets_monday or
+                    self.meets_tuesday or
+                    self.meets_wednesday or
+                    self.meets_thursday or
+                    self.meets_friday or
+                    self.meets_saturday or
+                    self.meets_sunday)
 
     def json_data(self):
         data = {
@@ -1452,6 +1462,15 @@ class Course(models.Model):
     course_title_long = models.CharField(max_length=50)
     course_campus = models.CharField(max_length=7)
     course_description = models.TextField()
+    gen_ed_req_diversity = models.BooleanField(default=False)
+    gen_ed_req_english_composition = models.BooleanField(default=False)
+    gen_ed_req_individuals_and_societies = models.BooleanField(default=False)
+    gen_ed_req_natural_world = models.BooleanField(default=False)
+    gen_ed_req_quantitative_and_symbolic_reasoning = models.BooleanField(
+        default=False)
+    gen_ed_req_visual_literary_and_performing_arts = models.BooleanField(
+        default=False)
+    gen_ed_req_writing = models.BooleanField(default=False)
 
     def json_data(self):
         data = {
@@ -1460,7 +1479,19 @@ class Course(models.Model):
             'course_title': self.course_title,
             'course_title_long': self.course_title_long,
             'course_campus': self.course_campus,
-            'course_description': self.course_description
+            'course_description': self.course_description,
+            'general_education_requirements': {
+                'diversity': self.gen_ed_req_diversity,
+                'english_composition': self.gen_ed_req_english_composition,
+                'individuals_and_societies':
+                    self.gen_ed_req_individuals_and_societies,
+                'natural_world': self.gen_ed_req_natural_world,
+                'quantitative_and_symbolic_reasoning':
+                    self.gen_ed_req_quantitative_and_symbolic_reasoning,
+                'visual_literary_and_performing_arts':
+                    self.gen_ed_req_visual_literary_and_performing_arts,
+                'writing': self.gen_ed_req_writing
+            }
         }
         return data
 
