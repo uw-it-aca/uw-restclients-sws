@@ -1371,6 +1371,20 @@ class Enrollment(models.Model):
         except AttributeError:
             return False
 
+    def json_data(self):
+        data = {
+            'is_honors': self.is_honors,
+            'class_level': self.class_level,
+            'regid': self.regid,
+            'is_enroll_src_pce': self.is_enroll_src_pce,
+            'is_registered': self.is_registered,
+            'has_pending_major_change': self.has_pending_major_change
+        }
+        if self.registrations:
+            data['registrations'] = [registration.json_data()
+                                     for registration in self.registrations]
+        return data
+
 
 class Major(models.Model):
     degree_abbr = models.CharField(max_length=50)
