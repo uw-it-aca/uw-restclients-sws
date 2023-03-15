@@ -20,6 +20,9 @@ CANVAS_COURSE_ID = "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}"
 CANVAS_IND_STUDY_COURSE_ID = (
     "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
 
+ENROLLMENT_SOURCE_PCE = re.compile('^EnrollmentSourceLocation=', re.I)
+REGISTRATION_SOURCE_PCE = re.compile('^RegistrationSourceLocation=', re.I)
+
 
 class LastEnrolled(models.Model):
     href = models.CharField(max_length=200)
@@ -1351,38 +1354,106 @@ class Finance(models.Model):
 
 class Enrollment(models.Model):
     CLASS_LEVEL_NON_MATRIC = "non_matric"
+
     is_honors = models.NullBooleanField()
-    class_level = models.CharField(max_length=100)
-    regid = models.CharField(max_length=32,
-                             db_index=True,
-                             unique=True)
+    class_code = models.CharField(max_length=10)
+    class_level = models.CharField(max_length=60)
+    class_description = models.CharField(max_length=60)
+    enrollment_status = models.CharField(max_length=20)
+    enrollment_status_date = models.DateField(blank=True)
+    qtr_grade_points = models.FloatField()
+    qtr_graded_attmp = models.IntegerField()
+    qtr_non_grd_earned = models.IntegerField()
+    regid = models.CharField(max_length=32)
     is_enroll_src_pce = models.NullBooleanField()
+
     is_registered = models.NullBooleanField()
     has_pending_major_change = models.NullBooleanField()
-    # will have a list of Registrations if verbose is true
+
+    def __init__(self, *args, **kwargs):
+        self.registrations = []
+        self.majors = []
+        self.minors = []
+        self.unf_pce_courses = {}
+
+        json_data = kwargs.get("data")
+        if json_data is None:
+            return super(Enrollment, self).__init__(*args, **kwargs)
+
+        self.regid = json_data.get('RegID')
+        self.class_level = json_data.get('ClassLevel')
+        self.class_code = json_data.get('ClassCode')
+        self.class_description = json_data.get('ClassDescription')
+        self.enrollment_status = json_data.get('EnrollmentStatus')
+        self.enrollment_status_date = str_to_date(
+            json_data.get('EnrollmentStatusDate'))
+        self.qtr_grade_points = json_data.get('QtrGradePoints')
+        self.qtr_graded_attmp = json_data.get('QtrGradedAttmp')
+        self.qtr_non_grd_earned = json_data.get('QtrNonGrdEarned')
+        self.is_honors = json_data.get('HonorsProgram', False)
+        self.has_pending_major_change = json_data.get(
+            'PendingMajorChange', False)
+        self.is_enroll_src_pce = self._is_src_location_pce(
+            json_data.get('Metadata', ''), ENROLLMENT_SOURCE_PCE)
+
+        self.term = Term(year=int(json_data["Term"]["Year"]),
+                         quarter=json_data["Term"]["Quarter"])
+
+        registrations = json_data.get('Registrations', [])
+        self.is_registered = len(registrations) > 0
+        for json_reg in registrations:
+            registration = Registration(data=json_reg)
+            registration.section_ref = SectionReference(
+                term=self.term,
+                curriculum_abbr=json_reg['Section']['CurriculumAbbreviation'],
+                course_number=json_reg['Section']['CourseNumber'],
+                section_id=json_reg['Section']['SectionID'],
+                url=json_reg['Section']['Href'])
+            self.registrations.append(registration)
+
+            if kwargs.get('include_unfinished_pce_course_reg'):
+                metadata = json_reg.get('Metadata', '')
+                if (registration.start_date and registration.end_date and
+                        self._is_src_location_pce(
+                            metadata, REGISTRATION_SOURCE_PCE)):
+                    key = registration.section_ref.section_label()
+                    self.unf_pce_courses[key] = registration
+
+        for major in json_data.get('Majors', []):
+            self.majors.append(Major(data=major))
+
+        for minor in json_data.get('Minors', []):
+            self.minors.append(Minor(data=minor))
+
+    def _is_src_location_pce(self, s, pattern):
+        return (re.search(pattern, s) is not None and 'EOS' in s)
 
     def is_non_matric(self):
         return self.class_level.lower() == Enrollment.CLASS_LEVEL_NON_MATRIC
 
     def has_unfinished_pce_course(self):
-        try:
-            return (self.unf_pce_courses and
-                    len(self.unf_pce_courses) > 0)
-        except AttributeError:
-            return False
+        return len(self.unf_pce_courses) > 0
 
     def json_data(self):
         data = {
             'is_honors': self.is_honors,
             'class_level': self.class_level,
+            'class_code': self.class_code,
+            'class_description': self.class_description,
+            'enrollment_status': self.enrollment_status,
+            'enrollment_status_date': date_to_str(self.enrollment_status_date),
+            'qtr_grade_points': self.qtr_grade_points,
+            'qtr_graded_attmp': self.qtr_graded_attmp,
+            'qtr_non_grd_earned': self.qtr_non_grd_earned,
             'regid': self.regid,
             'is_enroll_src_pce': self.is_enroll_src_pce,
             'is_registered': self.is_registered,
-            'has_pending_major_change': self.has_pending_major_change
+            'has_pending_major_change': self.has_pending_major_change,
+            'registrations': [r.json_data() for r in self.registrations],
+            'majors': [m.json_data() for m in self.majors],
+            'minors': [m.json_data() for m in self.minors],
+            'term': {'year': self.term.year, 'quarter': self.term.quarter},
         }
-        if self.registrations:
-            data['registrations'] = [registration.json_data()
-                                     for registration in self.registrations]
         return data
 
 
@@ -1396,6 +1467,21 @@ class Major(models.Model):
     major_name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=50)
     campus = models.CharField(max_length=8)
+
+    def __init__(self, *args, **kwargs):
+        json_data = kwargs.get('data')
+        if json_data is None:
+            return super(Major, self).__init__(*args, **kwargs)
+
+        self.degree_abbr = json_data.get('Abbreviation')
+        self.college_abbr = json_data.get('CollegeAbbreviation')
+        self.college_full_name = json_data.get('CollegeFullName')
+        self.degree_name = json_data.get('DegreeName')
+        self.degree_level = int(json_data.get('DegreeLevel', 0))
+        self.full_name = json_data.get('FullName')
+        self.major_name = json_data.get('MajorName')
+        self.short_name = json_data.get('ShortName')
+        self.campus = json_data.get('Campus')
 
     def __eq__(self, other):
         return (other is not None and
@@ -1430,6 +1516,17 @@ class Minor(models.Model):
     name = models.CharField(max_length=100)
     full_name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=50)
+
+    def __init__(self, *args, **kwargs):
+        json_data = kwargs.get('data')
+        if json_data is None:
+            return super(Minor, self).__init__(*args, **kwargs)
+
+        self.abbr = json_data.get('Abbreviation')
+        self.campus = json_data.get('CampusName')
+        self.name = json_data.get('Name')
+        self.full_name = json_data.get('FullName')
+        self.short_name = json_data.get('ShortName')
 
     def __eq__(self, other):
         return (other is not None and
