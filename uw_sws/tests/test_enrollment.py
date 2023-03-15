@@ -4,13 +4,13 @@
 from unittest import TestCase
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
-from uw_sws.models import Term
-from uw_sws.term import get_current_term, get_next_term,\
-    get_term_by_year_and_quarter, get_term_after, get_term_before
-from uw_sws.enrollment import get_grades_by_regid_and_term,\
-    is_src_location_pce, ENROLLMENT_SOURCE_PCE, has_start_end_dates,\
-    get_enrollment_by_regid_and_term, enrollment_search_by_regid,\
-    get_enrollment_history_by_regid
+from uw_sws.models import Enrollment, Term, ENROLLMENT_SOURCE_PCE
+from uw_sws.term import (
+    get_current_term, get_next_term, get_term_by_year_and_quarter,
+    get_term_after, get_term_before)
+from uw_sws.enrollment import (
+    get_grades_by_regid_and_term, get_enrollment_by_regid_and_term,
+    enrollment_search_by_regid, get_enrollment_history_by_regid)
 from restclients_core.exceptions import DataFailureException
 
 
@@ -53,18 +53,15 @@ class SWSTestEnrollments(TestCase):
         self.assertFalse(enrollment.has_pending_major_change)
 
     def test_is_src_location_pce(self):
-        self.assertFalse(is_src_location_pce(
-                {'Metadata': ''},
-                ENROLLMENT_SOURCE_PCE))
-        self.assertFalse(is_src_location_pce(
-                {'Metadata': "EnrollmentSourceLocation=SDB;"},
-                ENROLLMENT_SOURCE_PCE))
-        self.assertTrue(is_src_location_pce(
-                {'Metadata': "EnrollmentSourceLocation=SDB_EOS"},
-                ENROLLMENT_SOURCE_PCE))
-        self.assertTrue(is_src_location_pce(
-                {'Metadata': "EnrollmentSourceLocation=EOS"},
-                ENROLLMENT_SOURCE_PCE))
+        enr = Enrollment()
+        self.assertFalse(enr._is_src_location_pce(
+            "", ENROLLMENT_SOURCE_PCE))
+        self.assertFalse(enr._is_src_location_pce(
+            "EnrollmentSourceLocation=SDB;", ENROLLMENT_SOURCE_PCE))
+        self.assertTrue(enr._is_src_location_pce(
+            "EnrollmentSourceLocation=SDB_EOS", ENROLLMENT_SOURCE_PCE))
+        self.assertTrue(enr._is_src_location_pce(
+            "EnrollmentSourceLocation=EOS", ENROLLMENT_SOURCE_PCE))
 
     def test_offterm_enrolled_courses(self):
         term = get_term_by_year_and_quarter(2013, 'winter')
@@ -177,8 +174,8 @@ class SWSTestEnrollments(TestCase):
         self.assertEquals(len(enrollment.majors), 1)
         self.assertEquals(len(enrollment.minors), 1)
         enroll_major = enrollment.majors[0]
-        self.assertEquals(enroll_major.college_abbr, "")
-        self.assertEquals(enroll_major.college_full_name, "")
+        self.assertEquals(enroll_major.college_abbr, None)
+        self.assertEquals(enroll_major.college_full_name, None)
         self.assertEquals(enroll_major.degree_level, 1)
         self.assertEquals(len(enrollment.minors), 1)
         enroll_minor = enrollment.minors[0]
@@ -241,15 +238,6 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(registartion1.is_pending_status())
         self.assertFalse(registartion1.is_dropped_status())
         self.assertFalse(registartion1.is_standby_status())
-
-    def test_has_start_end_dates(self):
-        json_data = {u'StartDate': u'01/29/2013',
-                     u'EndDate': u'06/22/2013'}
-        self.assertTrue(has_start_end_dates(json_data))
-        json_data = {"FeeBaseType": ""}
-        self.assertFalse(has_start_end_dates(json_data))
-        json_data = {"FeeBaseType": "", "StartDate": "", "EndDate": ""}
-        self.assertFalse(has_start_end_dates(json_data))
 
     def test_comparing_majors_minors(self):
         result_dict = enrollment_search_by_regid(
