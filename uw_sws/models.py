@@ -1420,7 +1420,7 @@ class Enrollment(models.Model):
                 if (registration.start_date and registration.end_date and
                         self._is_src_location_pce(
                             metadata, REGISTRATION_SOURCE_PCE)):
-                    key = registration.section_ref.section_label()
+                    key = registration.section.section_label()
                     self.unf_pce_courses[key] = registration
 
         for major in json_data.get('Majors', []):
