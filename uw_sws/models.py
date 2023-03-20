@@ -1076,8 +1076,8 @@ class Registration(models.Model):
     def is_withdrew(self):
         return (WITHDREW_GRADE_PATTERN.match(self.grade) is not None)
 
-    def json_data(self):
-        return {
+    def json_data(self, include_section=False):
+        data = {
             'credits': self.credits,
             'duplicate_code': self.duplicate_code,
             'grade': self.grade,
@@ -1098,7 +1098,11 @@ class Registration(models.Model):
             'is_pending': self.is_pending_status(),
             'is_standby': self.is_standby_status(),
             'is_withdrew': self.is_withdrew(),
-            'is_eos_only': self.eos_only()}
+            'is_eos_only': self.eos_only(),
+        }
+        if include_section and self.section is not None:
+            data['section'] = self.section.json_data()
+        return data
 
     def __str__(self):
         return json.dumps(self.json_data())
@@ -1403,7 +1407,7 @@ class Enrollment(models.Model):
         self.is_registered = len(registrations) > 0
         for json_reg in registrations:
             registration = Registration(data=json_reg)
-            registration.section_ref = SectionReference(
+            registration.section = SectionReference(
                 term=self.term,
                 curriculum_abbr=json_reg['Section']['CurriculumAbbreviation'],
                 course_number=json_reg['Section']['CourseNumber'],
@@ -1416,7 +1420,7 @@ class Enrollment(models.Model):
                 if (registration.start_date and registration.end_date and
                         self._is_src_location_pce(
                             metadata, REGISTRATION_SOURCE_PCE)):
-                    key = registration.section_ref.section_label()
+                    key = registration.section.section_label()
                     self.unf_pce_courses[key] = registration
 
         for major in json_data.get('Majors', []):
@@ -1435,7 +1439,7 @@ class Enrollment(models.Model):
         return len(self.unf_pce_courses) > 0
 
     def json_data(self):
-        data = {
+        return {
             'is_honors': self.is_honors,
             'class_level': self.class_level,
             'class_code': self.class_code,
@@ -1449,12 +1453,12 @@ class Enrollment(models.Model):
             'is_enroll_src_pce': self.is_enroll_src_pce,
             'is_registered': self.is_registered,
             'has_pending_major_change': self.has_pending_major_change,
-            'registrations': [r.json_data() for r in self.registrations],
+            'registrations': [r.json_data(
+                include_section=True) for r in self.registrations],
             'majors': [m.json_data() for m in self.majors],
             'minors': [m.json_data() for m in self.minors],
             'term': {'year': self.term.year, 'quarter': self.term.quarter},
         }
-        return data
 
 
 class Major(models.Model):
