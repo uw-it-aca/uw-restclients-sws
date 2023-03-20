@@ -73,10 +73,10 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(enrollment.is_registered)
         self.assertEqual(len(enrollment.registrations), 2)
         self.assertEqual(
-            enrollment.registrations[0].section_ref.section_label(),
+            enrollment.registrations[0].section.section_label(),
             "2013,winter,COM,201/A")
         self.assertEqual(
-            enrollment.registrations[1].section_ref.section_label(),
+            enrollment.registrations[1].section.section_label(),
             "2013,winter,PSYCH,203/A")
         self.assertTrue(enrollment.has_unfinished_pce_course())
         self.assertEqual(len(enrollment.unf_pce_courses), 2)
@@ -96,7 +96,7 @@ class SWSTestEnrollments(TestCase):
         self.assertFalse(reg1.is_pending_status())
         self.assertTrue(len(reg1.json_data()) > 0)
         self.assertEqual(
-            reg1.section_ref.json_data(),
+            reg1.section.json_data(),
             {'course_number': u'201',
              'curriculum_abbr': u'COM',
              'quarter': u'winter',
@@ -114,7 +114,7 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(reg2.meta_data,
                          "RegistrationSourceLocation=SDB_EOS;")
         self.assertEqual(
-            reg2.section_ref.json_data(),
+            reg2.section.json_data(),
             {'course_number': u'203',
              'curriculum_abbr': u'PSYCH',
              'quarter': u'winter',
