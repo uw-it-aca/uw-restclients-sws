@@ -1400,8 +1400,7 @@ class Enrollment(models.Model):
         self.is_enroll_src_pce = self._is_src_location_pce(
             json_data.get('Metadata', ''), ENROLLMENT_SOURCE_PCE)
 
-        self.term = Term(year=int(json_data["Term"]["Year"]),
-                         quarter=json_data["Term"]["Quarter"])
+        self.term = kwargs.get("term")
 
         registrations = json_data.get('Registrations', [])
         self.is_registered = len(registrations) > 0
