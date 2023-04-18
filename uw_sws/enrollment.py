@@ -4,17 +4,18 @@
 """
 Interfacing with the Student Web Service, Enrollment resource.
 """
+import logging
 from urllib.parse import urlencode
+from restclients_core.exceptions import DataFailureException
 from uw_sws.models import StudentGrades, StudentCourseGrade, Enrollment
-from uw_sws import get_resource, UWPWS, DAO
+from uw_sws import get_resource, UWPWS
 from uw_sws.section import get_section_by_url
-from uw_sws.term import (
-    Term, get_term_by_year_and_quarter, get_current_term)
+from uw_sws.term import Term, get_term_by_year_and_quarter
 
 
+logger = logging.getLogger(__name__)
 enrollment_res_url_prefix = "/student/v5/enrollment"
 enrollment_search_url_prefix = "/student/v5/enrollment.json"
-ENROLLMENT_CUTOFF_DELTA = 20   # SWS PROD limit
 
 
 def get_grades_by_regid_and_term(regid, term):
@@ -83,16 +84,16 @@ def enrollment_search_by_regid(regid,
 
 
 def _get_term(term_enro_json_data):
-    current_year = get_current_term().year
     if ("Term" in term_enro_json_data and
             "Year" in term_enro_json_data["Term"] and
             "Quarter" in term_enro_json_data["Term"]):
         term_quarter = term_enro_json_data["Term"]["Quarter"]
         term_year = int(term_enro_json_data["Term"]["Year"])
-        if (DAO.get_implementation().is_live() and
-                current_year - term_year > ENROLLMENT_CUTOFF_DELTA):
+        try:
+            return get_term_by_year_and_quarter(term_year, term_quarter)
+        except DataFailureException as ex:
+            logger.error("Invalid Term in Enrollment record: {}".format(ex))
             return Term(term_year, term_quarter)
-        return get_term_by_year_and_quarter(term_year, term_quarter)
     return None
 
 
@@ -114,7 +115,8 @@ def _json_to_term_enrollment_dict(json_data,
     enrollment_dict = {}
     for enrollment in _json_to_enrollment_list(
             json_data, include_unfinished_pce_course_reg):
-        enrollment_dict[enrollment.term] = enrollment
+        if enrollment.term:
+            enrollment_dict[enrollment.term] = enrollment
     return enrollment_dict
 
 
