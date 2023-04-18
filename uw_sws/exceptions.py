@@ -32,3 +32,8 @@ class InvalidSectionURL(Exception):
 class InvalidCourseID(Exception):
     """Exception for invalid section id."""
     pass
+
+
+class InvalidTerm(Exception):
+    """Exception for invalid term"""
+    pass
