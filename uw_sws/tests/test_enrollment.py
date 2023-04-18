@@ -275,3 +275,4 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(t.year, 2013)
         self.assertEqual(t.quarter, "spring")
         self.assertIsNotNone(t.last_final_exam_date)
+        self.assertIsNone(_get_term({"Term": {}}))
