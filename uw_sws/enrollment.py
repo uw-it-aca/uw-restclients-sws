@@ -109,7 +109,7 @@ def _json_to_enrollment_list(json_data,
         if term:
             enrollment = Enrollment(
                 data=term_enr,
-                term=_get_term(term_enr),
+                term=term,
                 include_unfinished_pce_course_reg=include_unfinished_pce_course_reg
             )
         enrollment_list.append(enrollment)
