@@ -5,8 +5,7 @@ import json
 import re
 from uw_pws.models import Person
 from uw_sws.exceptions import (
-    InvalidCanvasIndependentStudyCourse, InvalidCanvasSection,
-    InvalidTerm)
+    InvalidCanvasIndependentStudyCourse, InvalidCanvasSection)
 from uw_sws.util import (
     abbr_week_month_day_str, convert_to_begin_of_day, convert_to_end_of_day,
     str_to_datetime, str_to_date, date_to_str)
@@ -1402,9 +1401,6 @@ class Enrollment(models.Model):
             json_data.get('Metadata', ''), ENROLLMENT_SOURCE_PCE)
 
         self.term = kwargs.get("term")
-        if self.term is None:
-            raise InvalidTerm(
-                "Enrollment: Term: {}".format(json_data["Term"]))
 
         registrations = json_data.get('Registrations', [])
         self.is_registered = len(registrations) > 0

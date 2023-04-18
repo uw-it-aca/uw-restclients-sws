@@ -92,8 +92,11 @@ def _get_term(term_enro_json_data):
         try:
             return get_term_by_year_and_quarter(term_year, term_quarter)
         except DataFailureException as ex:
-            logger.error("Invalid Term in Enrollment record: {}".format(ex))
+            logger.error("Invalid Term in Enrollment payload: {}".format(ex))
             return Term(term_year, term_quarter)
+    logger.error(
+        "Invalid Term in Enrollment payload: {}".format(
+            term_enro_json_data))
     return None
 
 
@@ -101,11 +104,14 @@ def _json_to_enrollment_list(json_data,
                              include_unfinished_pce_course_reg):
     enrollment_list = []
     for term_enr in json_data.get("Enrollments", []):
-        enrollment = Enrollment(
-            data=term_enr,
-            term=_get_term(term_enr),
-            include_unfinished_pce_course_reg=include_unfinished_pce_course_reg
-        )
+        term = _get_term(term_enr)
+        # no longer a meaningful enrollment record without the term
+        if term:
+            enrollment = Enrollment(
+                data=term_enr,
+                term=_get_term(term_enr),
+                include_unfinished_pce_course_reg=include_unfinished_pce_course_reg
+            )
         enrollment_list.append(enrollment)
     return enrollment_list
 
@@ -115,8 +121,7 @@ def _json_to_term_enrollment_dict(json_data,
     enrollment_dict = {}
     for enrollment in _json_to_enrollment_list(
             json_data, include_unfinished_pce_course_reg):
-        if enrollment.term:
-            enrollment_dict[enrollment.term] = enrollment
+        enrollment_dict[enrollment.term] = enrollment
     return enrollment_dict
 
 
