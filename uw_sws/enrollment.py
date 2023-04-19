@@ -4,11 +4,16 @@
 """
 Interfacing with the Student Web Service, Enrollment resource.
 """
+import logging
 from urllib.parse import urlencode
+from restclients_core.exceptions import DataFailureException
 from uw_sws.models import StudentGrades, StudentCourseGrade, Enrollment
-from uw_sws import get_resource, UWPWS, DAO
+from uw_sws import get_resource, UWPWS
 from uw_sws.section import get_section_by_url
+from uw_sws.term import Term, get_term_by_year_and_quarter
 
+
+logger = logging.getLogger(__name__)
 enrollment_res_url_prefix = "/student/v5/enrollment"
 enrollment_search_url_prefix = "/student/v5/enrollment.json"
 
@@ -78,14 +83,35 @@ def enrollment_search_by_regid(regid,
         results, include_unfinished_pce_course_reg)
 
 
+def _get_term(term_enro_json_data):
+    if ("Term" in term_enro_json_data and
+            "Year" in term_enro_json_data["Term"] and
+            "Quarter" in term_enro_json_data["Term"]):
+        term_quarter = term_enro_json_data["Term"]["Quarter"]
+        term_year = int(term_enro_json_data["Term"]["Year"])
+        try:
+            return get_term_by_year_and_quarter(term_year, term_quarter)
+        except DataFailureException as ex:
+            logger.error("Invalid Term in Enrollment payload: {}".format(ex))
+            return Term(term_year, term_quarter)
+    logger.error(
+        "Invalid Term in Enrollment payload: {}".format(
+            term_enro_json_data))
+    return None
+
+
 def _json_to_enrollment_list(json_data,
-                             include_unfinished_pce_course_reg):
+                             include_unfinished_pce_course):
     enrollment_list = []
-    for datum in json_data.get("Enrollments", []):
-        enrollment = Enrollment(
-            data=datum,
-            include_unfinished_pce_course_reg=include_unfinished_pce_course_reg
-        )
+    for term_enr in json_data.get("Enrollments", []):
+        term = _get_term(term_enr)
+        # no longer a meaningful enrollment record without the term
+        if term:
+            enrollment = Enrollment(
+                data=term_enr,
+                term=term,
+                include_unfinished_pce_course_reg=include_unfinished_pce_course
+            )
         enrollment_list.append(enrollment)
     return enrollment_list
 
@@ -100,13 +126,8 @@ def _json_to_term_enrollment_dict(json_data,
 
 
 def get_enrollment_by_regid_and_term(regid, term):
-    url = "{}/{},{},{}.json".format(enrollment_res_url_prefix,
-                                    term.year,
-                                    term.quarter,
-                                    regid)
-    return Enrollment(
-        data=get_resource(url),
-        include_unfinished_pce_course_reg=True)
+    term_enrollment_dict = enrollment_search_by_regid(regid)
+    return term_enrollment_dict.get(term)
 
 
 def get_enrollment_history_by_regid(regid,

@@ -6,11 +6,10 @@ from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.models import Enrollment, Term, ENROLLMENT_SOURCE_PCE
 from uw_sws.term import (
-    get_current_term, get_next_term, get_term_by_year_and_quarter,
-    get_term_after, get_term_before)
+    get_current_term, get_term_by_year_and_quarter, get_term_before)
 from uw_sws.enrollment import (
     get_grades_by_regid_and_term, get_enrollment_by_regid_and_term,
-    enrollment_search_by_regid, get_enrollment_history_by_regid)
+    enrollment_search_by_regid, get_enrollment_history_by_regid, _get_term)
 from restclients_core.exceptions import DataFailureException
 
 
@@ -160,7 +159,7 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(term0 in result_dict)
         enrollment0 = result_dict.get(term0)
         self.assertEquals(enrollment.majors[0], enrollment0.majors[0])
-        self.assertEqual(len(enrollment0.unf_pce_courses), 1)
+        self.assertEqual(len(enrollment0.unf_pce_courses), 2)
 
         # regular course
         result_dict = enrollment_search_by_regid(
@@ -266,3 +265,14 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(result_list[-2].term.year, 2013)
         self.assertEqual(result_list[-2].term.quarter, "summer")
         self.assertEqual(result_list[-2].majors[0].major_name, "ENGLISH")
+
+    def test_get_term(self):
+        t = _get_term(
+            {"Term": {
+                "Year": 2013,
+                "Quarter": "spring"
+            }})
+        self.assertEqual(t.year, 2013)
+        self.assertEqual(t.quarter, "spring")
+        self.assertIsNotNone(t.last_final_exam_date)
+        self.assertIsNone(_get_term({"Term": {}}))
