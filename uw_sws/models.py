@@ -1076,7 +1076,7 @@ class Registration(models.Model):
     def is_withdrew(self):
         return (WITHDREW_GRADE_PATTERN.match(self.grade) is not None)
 
-    def json_data(self, include_section=False):
+    def json_data(self, include_section_ref=False):
         data = {
             'credits': self.credits,
             'duplicate_code': self.duplicate_code,
@@ -1100,8 +1100,8 @@ class Registration(models.Model):
             'is_withdrew': self.is_withdrew(),
             'is_eos_only': self.eos_only(),
         }
-        if include_section and self.section is not None:
-            data['section'] = self.section.json_data()
+        if include_section_ref and self.section_ref is not None:
+            data['section_ref'] = self.section_ref.json_data()
         return data
 
     def __str__(self):
@@ -1406,7 +1406,7 @@ class Enrollment(models.Model):
         self.is_registered = len(registrations) > 0
         for json_reg in registrations:
             registration = Registration(data=json_reg)
-            registration.section = SectionReference(
+            registration.section_ref = SectionReference(
                 term=self.term,
                 curriculum_abbr=json_reg['Section']['CurriculumAbbreviation'],
                 course_number=json_reg['Section']['CourseNumber'],
@@ -1419,7 +1419,7 @@ class Enrollment(models.Model):
                 if (registration.start_date and registration.end_date and
                         self._is_src_location_pce(
                             metadata, REGISTRATION_SOURCE_PCE)):
-                    key = registration.section.section_label()
+                    key = registration.section_ref.section_label()
                     self.unf_pce_courses[key] = registration
 
         for major in json_data.get('Majors', []):
@@ -1453,7 +1453,7 @@ class Enrollment(models.Model):
             'is_registered': self.is_registered,
             'has_pending_major_change': self.has_pending_major_change,
             'registrations': [r.json_data(
-                include_section=True) for r in self.registrations],
+                include_section_ref=True) for r in self.registrations],
             'majors': [m.json_data() for m in self.majors],
             'minors': [m.json_data() for m in self.minors],
             'term': {'year': self.term.year, 'quarter': self.term.quarter},
