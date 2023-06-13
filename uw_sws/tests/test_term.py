@@ -56,7 +56,7 @@ class SWSTestTerm(TestCase):
         now = datetime(2013, 4, 15, 0, 0, 1)
         self.assertFalse(term.is_grading_period_open(now))
         self.assertFalse(term.is_grading_period_past(now))
-        
+
         now = datetime(2013, 5, 27, 8, 0, 1)
         self.assertTrue(term.is_grading_period_open(now))
         self.assertFalse(term.is_grading_period_past(now))
