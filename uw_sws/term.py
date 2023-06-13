@@ -26,18 +26,11 @@ def get_term_by_year_and_quarter(year, quarter):
 
 def get_current_term():
     """
-    Returns a uw_sws.models.Term object,
-    for the current term.
+    Returns a uw_sws.models.Term object for the current term.
+    The sws current term will end after 2 days before the start of classes.
     """
     url = "{}/current.json".format(term_res_url_prefix)
-    term = Term(data=get_resource(url))
-
-    # A term doesn't become "current" until 2 days before the start of
-    # classes.  That's too late to be useful, so if we're after the last
-    # day of grade submission window, use the next term resource.
-    if term.is_grading_period_past():
-        return get_next_term()
-    return term
+    return Term(data=get_resource(url))
 
 
 def get_next_term():
@@ -113,10 +106,7 @@ def get_term_by_date(date):
     term_after = get_term_after(term)
     if term_after.first_day_quarter > date:
         return term
-    else:
-        return term_after
-
-    pass
+    return term_after
 
 
 def get_specific_term(year, quarter):

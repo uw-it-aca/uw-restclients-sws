@@ -9,7 +9,6 @@ from uw_sws.exceptions import (
 from uw_sws.util import (
     abbr_week_month_day_str, convert_to_begin_of_day, convert_to_end_of_day,
     str_to_datetime, str_to_date, date_to_str)
-from uw_sws.dao import sws_now
 from restclients_core import models
 
 SWS_TERM_LABEL = "{year},{quarter}"
@@ -391,10 +390,7 @@ class Term(models.Model):
     def __key(self):
         return (str(self.year), self.quarter)
 
-    def is_grading_period_open(self, cmp_dt=None):
-        if cmp_dt is None:
-            cmp_dt = sws_now()
-
+    def is_grading_period_open(self, cmp_dt):
         if self.is_summer_quarter():
             open_date = self.aterm_grading_period_open
         else:
@@ -404,19 +400,15 @@ class Term(models.Model):
                 self.grade_submission_deadline is not None and
                 open_date <= cmp_dt <= self.grade_submission_deadline)
 
-    def is_grading_period_past(self, cmp_dt=None):
-        if cmp_dt is None:
-            cmp_dt = sws_now()
+    def is_grading_period_past(self, cmp_dt):
         return (self.grade_submission_deadline is None or
                 cmp_dt > self.grade_submission_deadline)
 
-    def get_week_of_term(self, cmp_dt=None):
-        if cmp_dt is None:
-            cmp_dt = sws_now()
+    def get_week_of_term(self, cmp_dt):
         return self.get_week_of_term_for_date(cmp_dt)
 
-    def get_week_of_term_for_date(self, date):
-        days = (date.date() - self.first_day_quarter).days
+    def get_week_of_term_for_date(self, cmp_dt):
+        days = (cmp_dt.date() - self.first_day_quarter).days
         if days >= 0:
             return (days // 7) + 1
 
@@ -761,10 +753,7 @@ class Section(models.Model):
                 return True
         return False
 
-    def is_grading_period_open(self, cmp_dt=None):
-        if cmp_dt is None:
-            cmp_dt = sws_now()
-
+    def is_grading_period_open(self, cmp_dt):
         if self.is_summer_a_term():
             open_date = self.term.aterm_grading_period_open
         else:

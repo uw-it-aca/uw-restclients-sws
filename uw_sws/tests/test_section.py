@@ -479,8 +479,8 @@ class SWSTestSectionData(TestCase):
 
     def test_grading_period_open(self):
         section = get_section_by_label('2012,summer,PHYS,121/A')
-
-        self.assertEquals(section.is_grading_period_open(), False,
+        now = datetime(2013, 4, 15, 0, 0, 1)
+        self.assertEquals(section.is_grading_period_open(now), False,
                           "Grading window is not open")
 
         # Using passed datetimes
@@ -495,8 +495,9 @@ class SWSTestSectionData(TestCase):
         # Spring 2013 is 'current' term
         section = get_section_by_label('2013,spring,MATH,125/G')
 
-        self.assertEquals(section.is_grading_period_open(), True,
-                          "Grading window is open")
+        self.assertEquals(
+            section.is_grading_period_open(now),
+            section.term.is_grading_period_open(now))
 
     def test_grading_system(self):
         section = get_section_by_label('2012,summer,PHYS,121/A')

@@ -57,28 +57,8 @@ class SWS_DAO(DAO):
             'Content-Type': 'application/json; charset=utf-8',
             'ETag': '"1/01234567890123456789="',
         }
-
         if "/student/v5/notice" in url:
             self._make_notice_date(response)
-
-        # This is to enable mock data grading.
-        if (re.match(r'/student/v\d/term/current.json', url) or
-                re.match(r'/student/v\d/term/2013,spring.json', url)):
-            now = sws_now()
-            tomorrow = now + timedelta(days=1)
-            yesterday = now - timedelta(days=1)
-            json_data = json.loads(response.data)
-
-            json_data["GradeSubmissionDeadline"] =\
-                tomorrow.strftime("%Y-%m-%dT17:00:00")
-            json_data["GradingPeriodClose"] =\
-                tomorrow.strftime("%Y-%m-%dT17:00:00")
-            json_data["GradingPeriodOpen"] =\
-                yesterday.strftime("%Y-%m-%dT17:00:00")
-            json_data["GradingPeriodOpenATerm"] =\
-                yesterday.strftime("%Y-%m-%dT17:00:00")
-
-            response.data = json.dumps(json_data)
 
     def _make_notice_date(self, response):
         """
@@ -116,11 +96,3 @@ class SWS_DAO(DAO):
                             pass   # use original
 
         response.data = json.dumps(json_data)
-
-
-# For testing MUWM-2411
-class TestBadResponse(MockDAO):
-    def load(self, method, url, headers, body):
-        if url == "/student/v5/course/2012,summer,PHYS,121/AQ.json":
-            raise Exception("Uh oh!")
-        return super(TestBadResponse, self).load(method, url, headers, body)
