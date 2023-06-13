@@ -479,6 +479,8 @@ class SWSTestSectionData(TestCase):
 
     def test_grading_period_open(self):
         section = get_section_by_label('2012,summer,PHYS,121/A')
+        self.assertEquals(section.is_grading_period_open(), False,
+                          "Grading window is not open")
         now = datetime(2013, 4, 15, 0, 0, 1)
         self.assertEquals(section.is_grading_period_open(now), False,
                           "Grading window is not open")

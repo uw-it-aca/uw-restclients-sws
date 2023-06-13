@@ -49,9 +49,14 @@ class SWSTestTerm(TestCase):
     def test_mock_data_fake_grading_window(self):
         # This rounds down to 0 days, so check by seconds :(
         term = get_current_term()
+        self.assertEquals(term.is_grading_period_open(),
+                          False, "Grading period is open")
+        self.assertEquals(term.is_grading_period_past(),
+                          True, "Grading period is not past")
         now = datetime(2013, 4, 15, 0, 0, 1)
         self.assertFalse(term.is_grading_period_open(now))
         self.assertFalse(term.is_grading_period_past(now))
+        
         now = datetime(2013, 5, 27, 8, 0, 1)
         self.assertTrue(term.is_grading_period_open(now))
         self.assertFalse(term.is_grading_period_past(now))
