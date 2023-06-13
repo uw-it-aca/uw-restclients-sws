@@ -1,9 +1,8 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-import json
+from datetime import datetime
 from unittest import TestCase
-from uw_sws.dao import sws_now
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from datetime import datetime, timedelta
@@ -49,70 +48,20 @@ class SWSTestTerm(TestCase):
 
     def test_mock_data_fake_grading_window(self):
         # This rounds down to 0 days, so check by seconds :(
-        hour1_delta = timedelta(hours=-1)
-        hour48_delta = timedelta(hours=-48)
-        now = sws_now()
-
         term = get_current_term()
-        self.assertEquals(term.is_grading_period_open(),
-                          True, "Grading period is open")
-        self.assertEquals(term.is_grading_period_past(),
-                          False, "Grading period is not past")
-
-        self.assertEquals(term.is_grading_period_open(now + hour1_delta),
-                          True, "Grading period is open using passed dt")
-
-        day100_delta = timedelta(days=100)
-        self.assertEquals(term.is_grading_period_open(now + day100_delta),
-                          False, "Grading period is not open using passed dt")
-
-        deadline = term.grade_submission_deadline
-        self.assertEquals(deadline + hour1_delta > now,
-                          True, "Deadline is in the future")
-        self.assertEquals(deadline + hour48_delta < now,
-                          True, "But not too far in the future")
-
-        open_diff_all = now - term.grading_period_open
-
-        # Timezone configuration can mess this up, so using seconds
-        self.assertEquals(open_diff_all.seconds > 0,
-                          True, "Open date is in the past")
-        self.assertEquals(open_diff_all.days < 2,
-                          True, "But not too far in the past")
-
-        open_diff_summer_a = now - term.aterm_grading_period_open
-        self.assertEquals(open_diff_summer_a.seconds > 0,
-                          True, "Open date is in the past")
-        self.assertEquals(open_diff_summer_a.days < 2,
-                          True, "But not too far in the past")
+        now = datetime(2013, 4, 15, 0, 0, 1)
+        self.assertFalse(term.is_grading_period_open(now))
+        self.assertFalse(term.is_grading_period_past(now))
+        now = datetime(2013, 5, 27, 8, 0, 1)
+        self.assertTrue(term.is_grading_period_open(now))
+        self.assertFalse(term.is_grading_period_past(now))
+        now = datetime(2013, 6, 18, 17, 0, 1)
+        self.assertFalse(term.is_grading_period_open(now))
+        self.assertTrue(term.is_grading_period_past(now))
 
         # Also test for Spring 2013, as that's the "current" quarter
-        term = get_term_by_year_and_quarter(2013, 'spring')
-
-        self.assertEquals(term.is_grading_period_open(),
-                          True, "Grading period is open")
-        self.assertEquals(term.is_grading_period_past(),
-                          False, "Grading period is not past")
-
-        deadline = term.grade_submission_deadline
-        self.assertEquals(deadline + hour1_delta > now,
-                          True, "Deadline is in the future")
-        self.assertEquals(deadline + hour48_delta < now,
-                          True, "But not too far in the future")
-
-        open_diff_all = now - term.grading_period_open
-
-        # Timezone configuration can mess this up, so using seconds
-        self.assertEquals(open_diff_all.seconds > 0,
-                          True, "Open date is in the past")
-        self.assertEquals(open_diff_all.days < 2, True,
-                          "But not too far in the past")
-
-        open_diff_summer_a = now - term.aterm_grading_period_open
-        self.assertEquals(open_diff_summer_a.seconds > 0,
-                          True, "Open date is in the past")
-        self.assertEquals(open_diff_summer_a.days < 2, True,
-                          "But not too far in the past")
+        term1 = get_term_by_year_and_quarter(2013, 'spring')
+        self.assertEquals(term, term1)
 
     def test_current_quarter(self):
         term = get_current_term()
@@ -240,10 +189,8 @@ class SWSTestTerm(TestCase):
         self.assertEquals(len(term.time_schedule_published), 3)
         self.assertEquals(term.time_schedule_published['seattle'], True)
 
-        self.assertEquals(term.is_grading_period_open(), False,
-                          "Grading period is not open")
-        self.assertEquals(term.is_grading_period_past(), True,
-                          "Grading period is past")
+        self.assertFalse(term.is_grading_period_open(comparison_datetime))
+        self.assertTrue(term.is_grading_period_past(comparison_datetime))
         self.assertEquals(term.term_label(), "2013,winter", "Term label")
 
     # Expected values will have to change when the json files are updated
@@ -341,11 +288,9 @@ class SWSTestTerm(TestCase):
 
         self.assertEquals(len(term.time_schedule_published), 3)
         self.assertTrue(term.time_schedule_published['bothell'])
-
-        self.assertEquals(term.is_grading_period_open(), False,
-                          "Grading period is not open")
-        self.assertEquals(term.is_grading_period_past(), True,
-                          "Grading period is past")
+        comparison_datetime = datetime(2013, 9, 18, 0, 0, 0)
+        self.assertFalse(term.is_grading_period_open(comparison_datetime))
+        self.assertTrue(term.is_grading_period_past(comparison_datetime))
         self.assertEquals(term.term_label(), "2013,summer", "Term label")
 
     def test_term_before(self):
@@ -429,11 +374,12 @@ class SWSTestTerm(TestCase):
         self.assertIsNone(term.grading_period_close)
         self.assertIsNone(term.grade_submission_deadline)
         self.assertIsNone(term.aterm_grading_period_open)
-        self.assertFalse(term.is_grading_period_open())
-        self.assertTrue(term.is_grading_period_past())
-        self.assertTrue(term.is_past(sws_now()))
-        self.assertFalse(term.is_current(sws_now()))
-        self.assertFalse(term.is_future(sws_now()))
+        now = datetime(2013, 4, 15, 0, 0, 1)
+        self.assertFalse(term.is_grading_period_open(now))
+        self.assertTrue(term.is_grading_period_past(now))
+        self.assertTrue(term.is_past(now))
+        self.assertFalse(term.is_current(now))
+        self.assertFalse(term.is_future(now))
         self.maxDiff = None
         self.assertEquals(
             term.json_data(),
@@ -458,84 +404,37 @@ class SWSTestTerm(TestCase):
         )
 
     def test_week_of_term(self):
-        now = sws_now()
         term = get_current_term()
-
         # First day of class
-        start_date = now
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), 1,
+        start_date = datetime(2013, 4, 1, 0, 0, 1)
+        self.assertEquals(term.get_week_of_term(start_date), 1,
                           "Term starting now in first week")
-        self.assertEquals(term.get_week_of_term_for_date(now), 1,
-                          "Term starting now in first week, by date")
+        self.assertEquals(term.get_week_of_term_for_date(start_date),
+                          term.get_week_of_term(start_date))
 
         # Middle of the term
-        start_date = now + timedelta(days=-6)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), 1, "6 days in")
-        self.assertEquals(term.get_week_of_term_for_date(now),
-                          1, "6 days in")
+        start_date = start_date + timedelta(days=6)
+        self.assertEquals(term.get_week_of_term(start_date), 1)
 
-        start_date = now + timedelta(days=-7)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), 2, "7 days in")
-        self.assertEquals(term.get_week_of_term_for_date(now),
-                          2, "7 days in")
+        start_date = start_date + timedelta(days=7)
+        self.assertEquals(term.get_week_of_term(start_date), 2)
 
-        start_date = now + timedelta(days=-8)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), 2, "8 days in")
-        self.assertEquals(term.get_week_of_term_for_date(now),
-                          2, "8 days in")
+        start_date = start_date + timedelta(days=9)
+        self.assertEquals(term.get_week_of_term(start_date), 4)
 
-        start_date = now + timedelta(days=-13)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), 2, "13 days in")
-        self.assertEquals(term.get_week_of_term_for_date(now), 2,
-                          "13 days in")
-
-        start_date = now + timedelta(days=-14)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), 3, "14 days in")
-        self.assertEquals(term.get_week_of_term_for_date(now), 3,
-                          "14 days in")
+        start_date = datetime(2013, 4, 1, 0, 0, 1) + timedelta(weeks=11)
+        self.assertEquals(term.get_week_of_term(start_date), 12)
 
         # Before the term
-        start_date = now + timedelta(days=1)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), -1, "-1 days")
-        self.assertEquals(term.get_week_of_term_for_date(now), -1,
-                          "-1 days")
+        start_date = datetime(2013, 4, 1, 0, 0, 1) - timedelta(days=1)
+        self.assertEquals(term.get_week_of_term(start_date), -1)
+        self.assertEquals(term.get_week_of_term_for_date(start_date), -1)
 
-        start_date = now + timedelta(days=7)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), -1, "-7 days")
-        self.assertEquals(term.get_week_of_term_for_date(now), -1,
-                          "-7 days")
-
-        start_date = now + timedelta(days=8)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), -2, "-8 days")
-        self.assertEquals(term.get_week_of_term_for_date(now), -2,
-                          "-8 days")
-
-        start_date = now + timedelta(days=9)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), -2, "-9 days")
-        self.assertEquals(term.get_week_of_term_for_date(now), -2,
-                          "-9 days")
-
-        start_date = now + timedelta(days=14)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), -2, "-14 days")
-        self.assertEquals(term.get_week_of_term_for_date(now), -2,
-                          "-14 days")
-
-        start_date = now + timedelta(days=15)
-        term.first_day_quarter = start_date.date()
-        self.assertEquals(term.get_week_of_term(), -3, "-15 days")
-        self.assertEquals(term.get_week_of_term_for_date(now), -3,
-                          "-15 days")
+        start_date = start_date - timedelta(days=7)
+        self.assertEquals(term.get_week_of_term(start_date), -2)
+        self.assertEquals(term.get_week_of_term_for_date(start_date), -2)
+        start_date = start_date - timedelta(days=1)
+        self.assertEquals(term.get_week_of_term(start_date), -2)
 
     def test_canvas_sis_id(self):
         term = get_term_by_year_and_quarter(2013, 'spring')
