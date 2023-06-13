@@ -106,10 +106,7 @@ def get_term_by_date(date):
     term_after = get_term_after(term)
     if term_after.first_day_quarter > date:
         return term
-    else:
-        return term_after
-
-    pass
+    return term_after
 
 
 def get_specific_term(year, quarter):

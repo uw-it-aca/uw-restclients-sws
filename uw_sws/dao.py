@@ -96,11 +96,3 @@ class SWS_DAO(DAO):
                             pass   # use original
 
         response.data = json.dumps(json_data)
-
-
-# For testing MUWM-2411
-class TestBadResponse(MockDAO):
-    def load(self, method, url, headers, body):
-        if url == "/student/v5/course/2012,summer,PHYS,121/AQ.json":
-            raise Exception("Uh oh!")
-        return super(TestBadResponse, self).load(method, url, headers, body)
