@@ -5,6 +5,7 @@
 This class interfaces with the Student Web Service, Term resource.
 """
 import logging
+import warnings
 from uw_sws import get_resource, QUARTER_SEQ
 from uw_sws.models import Term
 from restclients_core.exceptions import DataFailureException
@@ -26,11 +27,21 @@ def get_term_by_year_and_quarter(year, quarter):
 
 def get_current_term():
     """
-    Returns a uw_sws.models.Term object for the current term.
-    The sws current term will end after 2 days before the start of classes.
+    Returns a uw_sws.models.Term object,
+    for the current term.
     """
+    warnings.warn(
+        "term.get_current_term function will be deprecated soon",
+        DeprecationWarning, stacklevel=2)
     url = "{}/current.json".format(term_res_url_prefix)
-    return Term(data=get_resource(url))
+    term = Term(data=get_resource(url))
+
+    # A term doesn't become "current" until 2 days before the start of
+    # classes.  That's too late to be useful, so if we're after the last
+    # day of grade submission window, use the next term resource.
+    if term.is_grading_period_past():
+        return get_next_term()
+    return term
 
 
 def get_next_term():
@@ -38,6 +49,9 @@ def get_next_term():
     Returns a uw_sws.models.Term object,
     for the next term.
     """
+    warnings.warn(
+        "term.get_next_term function will be deprecated soon",
+        DeprecationWarning, stacklevel=2)
     url = "{}/next.json".format(term_res_url_prefix)
     return Term(data=get_resource(url))
 
@@ -47,6 +61,9 @@ def get_previous_term():
     Returns a uw_sws.models.Term object,
     for the previous term.
     """
+    warnings.warn(
+        "term.get_previous_term function will be deprecated soon",
+        DeprecationWarning, stacklevel=2)
     url = "{}/previous.json".format(term_res_url_prefix)
     return Term(data=get_resource(url))
 
@@ -106,7 +123,10 @@ def get_term_by_date(date):
     term_after = get_term_after(term)
     if term_after.first_day_quarter > date:
         return term
-    return term_after
+    else:
+        return term_after
+
+    pass
 
 
 def get_specific_term(year, quarter):
