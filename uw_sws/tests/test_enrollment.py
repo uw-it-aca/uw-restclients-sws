@@ -6,7 +6,7 @@ from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.models import Enrollment, Term, ENROLLMENT_SOURCE_PCE
 from uw_sws.term import (
-    get_current_term, get_term_by_year_and_quarter, get_term_before)
+    get_term_by_year_and_quarter, get_term_before)
 from uw_sws.enrollment import (
     get_grades_by_regid_and_term, get_enrollment_by_regid_and_term,
     enrollment_search_by_regid, get_enrollment_history_by_regid, _get_term)
@@ -17,7 +17,7 @@ from restclients_core.exceptions import DataFailureException
 @fdao_sws_override
 class SWSTestEnrollments(TestCase):
     def test_javerage_grades(self):
-        term = get_current_term()
+        term = get_term_by_year_and_quarter(2013, "spring")
         grades = get_grades_by_regid_and_term(
             '9136CCB8F66711D5BE060004AC494FFE', term)
 
@@ -34,7 +34,7 @@ class SWSTestEnrollments(TestCase):
         self.assertEquals(grades.grades[2].section.course_number, '121')
 
     def test_javerage_major(self):
-        term = get_current_term()
+        term = get_term_by_year_and_quarter(2013, "spring")
         enrollment = get_enrollment_by_regid_and_term(
             '9136CCB8F66711D5BE060004AC494FFE', term)
         self.assertEquals(enrollment.class_level, "SENIOR")
@@ -131,7 +131,7 @@ class SWSTestEnrollments(TestCase):
             'AABBCCDDEEFFAABBCCDDEEFFAABBCCDC')
         self.assertEqual(len(result_dict), 2)
 
-        term = get_current_term()
+        term = get_term_by_year_and_quarter(2013, "spring")
         self.assertTrue(term in result_dict)
         enrollment = result_dict.get(term)
         self.assertTrue(enrollment.is_registered)
@@ -165,7 +165,7 @@ class SWSTestEnrollments(TestCase):
         result_dict = enrollment_search_by_regid(
             '9136CCB8F66711D5BE060004AC494FFE')
         self.assertEqual(len(result_dict), 7)
-        term = get_current_term()
+        term = get_term_by_year_and_quarter(2013, "spring")
         self.assertTrue(term in result_dict)
         self.assertIsNotNone(result_dict.get(term))
         enrollment = result_dict.get(term)
@@ -242,7 +242,8 @@ class SWSTestEnrollments(TestCase):
         result_dict = enrollment_search_by_regid(
             '9136CCB8F66711D5BE060004AC494FFE')
 
-        enroll = result_dict.get(get_current_term())
+        enroll = result_dict.get(
+            get_term_by_year_and_quarter(2013, "spring"))
         self.assertTrue(enroll.majors[0] in enroll.majors)
         self.assertTrue(enroll.minors[0] in enroll.minors)
 
