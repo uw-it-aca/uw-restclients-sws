@@ -25,7 +25,7 @@ def get_all_colleges(term=None):
 
     url = "{}?{}".format(
         college_search_url,
-        urlencode({"year": term.year, "quarter": term.quarter}))
+        urlencode([("year", term.year,), ("quarter", term.quarter,)]))
     return _json_to_colleges(get_resource(url))
 
 

@@ -23,10 +23,11 @@ def get_departments_by_college(college, term=None):
     if term is None:
         term = get_current_term()
 
-    url = "{}?{}".format(dept_search_url_prefix, urlencode({
-        "college_abbreviation": college.label,
-        "year": term.year,
-        "quarter": term.quarter}))
+    url = "{}?{}".format(dept_search_url_prefix, urlencode([
+        ("college_abbreviation", college.label,),
+        ("year", term.year,),
+        ("quarter", term.quarter,)
+    ]))
     return _json_to_departments(get_resource(url), college)
 
 
