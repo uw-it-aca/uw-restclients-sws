@@ -36,23 +36,39 @@ def get_current_term():
     # classes.  That's too late to be useful, so if we're after the last
     # day of grade submission window, use the next term resource.
     if term.is_grading_period_past():
-        return get_next_term()
+        return get_next_term_sws()
     return term
 
 
 def get_next_term():
     """
     Returns a uw_sws.models.Term object,
-    for the next term.
+    for the term after the current term.
     """
-    url = "{}/next.json".format(term_res_url_prefix)
-    return Term(data=get_resource(url))
+    return get_term_after(get_current_term())
 
 
 def get_previous_term():
     """
     Returns a uw_sws.models.Term object,
-    for the previous term.
+    for the term before the current term.
+    """
+    return get_term_before(get_current_term())
+
+
+def get_next_term_sws():
+    """
+    Returns a uw_sws.models.Term object,
+    for the term in next.json.
+    """
+    url = "{}/next.json".format(term_res_url_prefix)
+    return Term(data=get_resource(url))
+
+
+def get_previous_term_sws():
+    """
+    Returns a uw_sws.models.Term object,
+    for the term in previous.json.
     """
     url = "{}/previous.json".format(term_res_url_prefix)
     return Term(data=get_resource(url))
