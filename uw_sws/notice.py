@@ -6,6 +6,7 @@ Interfaceing with the Student Web Service,
  for notice resource
 """
 import copy
+from datetime import datetime
 from dateutil import parser
 import logging
 from backports.zoneinfo import ZoneInfo
