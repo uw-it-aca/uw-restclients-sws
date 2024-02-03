@@ -9,7 +9,7 @@ import copy
 from datetime import datetime
 from dateutil import parser
 import logging
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 from dateutil import parser
 from uw_sws.models import Notice, NoticeAttribute
 from uw_sws import get_resource, SWS_TIMEZONE

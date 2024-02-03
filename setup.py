@@ -20,15 +20,13 @@ setup(
     name='UW-RestClients-SWS',
     version=VERSION,
     packages=['uw_sws'],
-    author="UW-IT AXDD",
+    author="UW-IT T&LS",
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=['UW-RestClients-Core',
                       'UW-RestClients-PWS',
-                      'commonconf',
+                      'zoneinfo',
                       'mock',
-                      'backports.zoneinfo',
-                      'python-dateutil',
                      ],
     license='Apache License, Version 2.0',
     description=('A library for connecting to the SWS at the University '
@@ -40,7 +38,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.8',
     ],
 )
 

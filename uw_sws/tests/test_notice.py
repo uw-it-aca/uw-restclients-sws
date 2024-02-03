@@ -3,7 +3,7 @@
 
 from unittest import TestCase
 from datetime import datetime
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.notice import get_notices_by_regid

@@ -8,11 +8,11 @@ import json
 import os
 import re
 from datetime import datetime, timedelta
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 from os.path import abspath, dirname
 from restclients_core.dao import DAO, MockDAO
 
-SWS_TIMEZONE = ZoneInfo("US/Pacific")
+SWS_TIMEZONE = ZoneInfo("America/Los_Angeles")
 
 
 def sws_now():
@@ -20,10 +20,9 @@ def sws_now():
     Return a naive datetime corresponding to the natural SWS timezone.
     """
     utc_now = datetime.utcnow()
-    local_now = datetime.fromtimestamp(
+    return datetime.fromtimestamp(
         utc_now.timestamp() + SWS_TIMEZONE.utcoffset(utc_now).total_seconds()
     )
-    return local_now
 
 
 class SWS_DAO(DAO):
