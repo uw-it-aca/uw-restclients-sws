@@ -5,17 +5,14 @@
 Contains SWS DAO implementations.
 """
 import json
-import time
-import re
-import random
-from datetime import datetime, timedelta
-from pytz import timezone
-from commonconf import settings
-from os.path import abspath, dirname
 import os
+import re
+from datetime import datetime, timedelta
+from backports.zoneinfo import ZoneInfo
+from os.path import abspath, dirname
 from restclients_core.dao import DAO, MockDAO
 
-SWS_TIMEZONE = timezone("US/Pacific")
+SWS_TIMEZONE = ZoneInfo("US/Pacific")
 
 
 def sws_now():
