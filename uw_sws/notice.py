@@ -9,6 +9,7 @@ import copy
 from dateutil import parser
 import logging
 from backports.zoneinfo import ZoneInfo
+from dateutil import parser
 from uw_sws.models import Notice, NoticeAttribute
 from uw_sws import get_resource, SWS_TIMEZONE
 
@@ -28,7 +29,8 @@ def get_notices_by_regid(regid):
 
 def _str_to_utc(date_str):
     date = parser.parse(date_str)
-    localized_datetime = SWS_TIMEZONE.localize(date)
+    localized_datetime = datetime.combine(
+        date.date(), date.time(), tzinfo=SWS_TIMEZONE)
     utc_datetime = localized_datetime.astimezone(ZoneInfo("UTC"))
     return utc_datetime
 
