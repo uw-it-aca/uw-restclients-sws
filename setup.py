@@ -28,6 +28,7 @@ setup(
                       'commonconf',
                       'mock',
                       'backports.zoneinfo',
+                      'python-dateutil',
                      ],
     license='Apache License, Version 2.0',
     description=('A library for connecting to the SWS at the University '
