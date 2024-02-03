@@ -7,6 +7,7 @@ Interfacing with the Student Web Service, Department Search.
 import logging
 from urllib.parse import urlencode
 from uw_sws.models import Department
+from uw_sws.term import get_current_term
 from uw_sws import get_resource
 
 
@@ -14,14 +15,19 @@ logger = logging.getLogger(__name__)
 dept_search_url_prefix = "/student/v5/department.json"
 
 
-def get_departments_by_college(college):
+def get_departments_by_college(college, term=None):
     """
     Returns a list of restclients.Department models, for the passed
     College model.
     """
-    url = "{}?{}".format(
-        dept_search_url_prefix,
-        urlencode({"college_abbreviation": college.label}))
+    if term is None:
+        term = get_current_term()
+
+    url = "{}?{}".format(dept_search_url_prefix, urlencode([
+        ("college_abbreviation", college.label,),
+        ("year", term.year,),
+        ("quarter", term.quarter,)
+    ]))
     return _json_to_departments(get_resource(url), college)
 
 

@@ -11,8 +11,14 @@ from restclients_core.exceptions import DataFailureException
 from uw_sws.models import Term
 from uw_sws.term import (
     get_term_by_year_and_quarter, get_term_before, get_term_after,
-    get_current_term, get_next_term, get_previous_term, get_term_by_date,
+    get_current_term, get_next_term_sws, get_previous_term_sws, get_next_term,
+    get_previous_term, get_term_by_date,
     get_specific_term, get_next_autumn_term, get_next_non_summer_term)
+from mock import patch
+
+
+def mock_is_grading_period_past(self):
+    return True
 
 
 @fdao_sws_override
@@ -113,9 +119,16 @@ class SWSTestTerm(TestCase):
         self.assertEquals(term.year, 2013)
         self.assertEquals(term.quarter, "summer")
 
+    @patch.object(Term, 'is_grading_period_past')
+    def test_current_term_past_grading(self, mock):
+        mock.return_value = True
+        term = get_current_term()
+        self.assertEqual(term.quarter, 'summer')
+        self.assertEqual(term.year, 2013)
+
     # Expected values will have to change when the json files are updated
-    def test_previous_quarter(self):
-        term = get_previous_term()
+    def test_previous_quarter_sws(self):
+        term = get_previous_term_sws()
         expected_quarter = "winter"
         expected_year = 2013
 
@@ -183,9 +196,19 @@ class SWSTestTerm(TestCase):
                           "Grading period is past")
         self.assertEquals(term.term_label(), "2013,winter", "Term label")
 
-    # Expected values will have to change when the json files are updated
-    def test_next_quarter(self):
+    def test_next_term(self):
         term = get_next_term()
+        self.assertEquals(term.year, 2013)
+        self.assertEquals(term.quarter, 'summer')
+
+    def test_previous_term(self):
+        term = get_previous_term()
+        self.assertEquals(term.year, 2013)
+        self.assertEquals(term.quarter, 'winter')
+
+    # Expected values will have to change when the json files are updated
+    def test_next_quarter_sws(self):
+        term = get_next_term_sws()
         self.assertTrue(term.is_summer_quarter())
         expected_quarter = "summer"
         expected_year = 2013

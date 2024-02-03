@@ -372,14 +372,16 @@ class Term(models.Model):
         return not self.__eq__(other)
 
     def __lt__(self, other):
-        return (isinstance(other, Term) and
+        return (other is not None and
+                isinstance(other, Term) and
                 self.int_key() < other.int_key())
 
     def __le__(self, other):
         return self.__lt__(other) or self.__eq__(other)
 
     def __gt__(self, other):
-        return (isinstance(other, Term) and
+        return (other is not None and
+                isinstance(other, Term) and
                 self.int_key() > other.int_key())
 
     def __ge__(self, other):
@@ -1373,6 +1375,7 @@ class Enrollment(models.Model):
 
     is_registered = models.NullBooleanField()
     has_pending_major_change = models.NullBooleanField()
+    has_pending_resident_change = models.NullBooleanField()
 
     def __init__(self, *args, **kwargs):
         self.registrations = []
@@ -1399,6 +1402,8 @@ class Enrollment(models.Model):
             'PendingMajorChange', False)
         self.is_enroll_src_pce = self._is_src_location_pce(
             json_data.get('Metadata', ''), ENROLLMENT_SOURCE_PCE)
+        self.has_pending_resident_change = json_data.get(
+            'PendingResidentChange', False)
 
         self.term = kwargs.get("term")
 
@@ -1452,6 +1457,7 @@ class Enrollment(models.Model):
             'is_enroll_src_pce': self.is_enroll_src_pce,
             'is_registered': self.is_registered,
             'has_pending_major_change': self.has_pending_major_change,
+            'has_pending_resident_change': self.has_pending_resident_change,
             'registrations': [r.json_data(
                 include_section_ref=True) for r in self.registrations],
             'majors': [m.json_data() for m in self.majors],

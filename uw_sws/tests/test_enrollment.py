@@ -277,3 +277,19 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(t.quarter, "spring")
         self.assertIsNotNone(t.last_final_exam_date)
         self.assertIsNone(_get_term({"Term": {}}))
+
+    def test_pending_resident(self):
+        t1 = _get_term(
+            {"Term": {
+                "Year": 2013,
+                "Quarter": "spring"
+            }})
+        t2 = _get_term(
+            {"Term": {
+                "Year": 2013,
+                "Quarter": "summer"
+            }})
+        result_dict = enrollment_search_by_regid(
+            '9136CCB8F66711D5BE060004AC494FFE')
+        self.assertFalse(result_dict[t1].has_pending_resident_change)
+        self.assertTrue(result_dict[t2].has_pending_resident_change)
