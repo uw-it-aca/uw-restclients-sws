@@ -19,9 +19,11 @@ def sws_now():
     """
     Return a naive datetime corresponding to the natural SWS timezone.
     """
-    return datetime.fromtimestamp(
-        int(datetime.utcnow().strftime('%s')) +
-        int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
+    utc_now = datetime.utcnow()
+    local_now = datetime.fromtimestamp(
+        utc_now.timestamp() + SWS_TIMEZONE.utcoffset(utc_now).total_seconds()
+    )
+    return local_now
 
 
 class SWS_DAO(DAO):

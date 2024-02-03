@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from datetime import date, datetime
-import pytz
+from datetime import datetime
+from backports.zoneinfo import ZoneInfo
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.notice import get_notices_by_regid
@@ -13,10 +13,10 @@ from datetime import timedelta
 
 
 def date_to_dtime(adate):
-    return SWS_TIMEZONE.localize(
-        datetime(
-            year=adate.year, month=adate.month, day=adate.day)
-        ).astimezone(pytz.utc).isoformat()
+    local_datetime = datetime.combine(adate, datetime.min.time())
+    localized_datetime = local_datetime.replace(tzinfo=SWS_TIMEZONE)
+    utc_datetime = localized_datetime.astimezone(ZoneInfo("UTC"))
+    return utc_datetime.isoformat()
 
 
 @fdao_pws_override

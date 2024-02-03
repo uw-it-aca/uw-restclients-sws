@@ -8,7 +8,7 @@ Interfaceing with the Student Web Service,
 import copy
 from dateutil import parser
 import logging
-import pytz
+from backports.zoneinfo import ZoneInfo
 from uw_sws.models import Notice, NoticeAttribute
 from uw_sws import get_resource, SWS_TIMEZONE
 
@@ -28,7 +28,9 @@ def get_notices_by_regid(regid):
 
 def _str_to_utc(date_str):
     date = parser.parse(date_str)
-    return SWS_TIMEZONE.localize(date).astimezone(pytz.utc)
+    localized_datetime = SWS_TIMEZONE.localize(date)
+    utc_datetime = localized_datetime.astimezone(ZoneInfo("UTC"))
+    return utc_datetime
 
 
 def _notices_from_json(notice_data):
