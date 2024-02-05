@@ -24,6 +24,7 @@ name: tests
 
 env:
   APP_NAME: uw_sws
+  COVERAGE_PYTHON_VERSION: '3.10'
 
 on:
   push:
@@ -39,14 +40,21 @@ jobs:
   test:
     runs-on: ubuntu-22.04
 
+    strategy:
+      matrix:
+        python-version:
+          - '3.8'
+          - '3.9'
+          - '3.10'
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Setup Python
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Dependencies
         run: |
@@ -65,6 +73,7 @@ jobs:
           coverage run ${APP_NAME}/test.py -v
 
       - name: Report Test Coverage
+        if: matrix.python-version == env.COVERAGE_PYTHON_VERSION
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash

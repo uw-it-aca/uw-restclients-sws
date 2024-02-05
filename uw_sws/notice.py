@@ -6,10 +6,9 @@ Interfaceing with the Student Web Service,
  for notice resource
 """
 import copy
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil import parser
 import logging
-from zoneinfo import ZoneInfo
 from dateutil import parser
 from uw_sws.models import Notice, NoticeAttribute
 from uw_sws import get_resource, SWS_TIMEZONE
@@ -24,16 +23,12 @@ def get_notices_by_regid(regid):
     for the passed regid.
     """
     url = notice_res_url_prefix + regid + ".json"
-
     return _notices_from_json(get_resource(url))
 
 
 def _str_to_utc(date_str):
     date = parser.parse(date_str)
-    localized_datetime = datetime.combine(
-        date.date(), date.time(), tzinfo=SWS_TIMEZONE)
-    utc_datetime = localized_datetime.astimezone(ZoneInfo("UTC"))
-    return utc_datetime
+    return SWS_TIMEZONE.localize(date).astimezone(timezone.utc)
 
 
 def _notices_from_json(notice_data):
