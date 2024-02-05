@@ -1,21 +1,18 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """
 Contains SWS DAO implementations.
 """
 import json
-import time
-import re
-import random
-from datetime import datetime, timedelta
-from pytz import timezone
-from commonconf import settings
-from os.path import abspath, dirname
 import os
+import re
+import pytz
+from datetime import datetime, timedelta, timezone
+from os.path import abspath, dirname
 from restclients_core.dao import DAO, MockDAO
 
-SWS_TIMEZONE = timezone("US/Pacific")
+SWS_TIMEZONE = pytz.timezone('America/Los_Angeles')
 
 
 def sws_now():
@@ -23,7 +20,7 @@ def sws_now():
     Return a naive datetime corresponding to the natural SWS timezone.
     """
     return datetime.fromtimestamp(
-        int(datetime.utcnow().strftime('%s')) +
+        int(datetime.now(timezone.utc).strftime('%s')) +
         int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
 

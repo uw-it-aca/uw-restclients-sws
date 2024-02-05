@@ -1,3 +1,6 @@
+# Copyright 2024 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 from setuptools import setup
 
@@ -17,13 +20,13 @@ setup(
     name='UW-RestClients-SWS',
     version=VERSION,
     packages=['uw_sws'],
-    author="UW-IT AXDD",
+    author="UW-IT T&LS",
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=['UW-RestClients-Core',
                       'UW-RestClients-PWS',
-                      'mock',
                       'pytz',
+                      'mock',
                      ],
     license='Apache License, Version 2.0',
     description=('A library for connecting to the SWS at the University '
@@ -35,7 +38,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
     ],
 )
 

@@ -1,14 +1,14 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """
 Interfaceing with the Student Web Service,
  for notice resource
 """
-import copy
+
+from datetime import timezone
 from dateutil import parser
 import logging
-import pytz
 from uw_sws.models import Notice, NoticeAttribute
 from uw_sws import get_resource, SWS_TIMEZONE
 
@@ -22,13 +22,12 @@ def get_notices_by_regid(regid):
     for the passed regid.
     """
     url = notice_res_url_prefix + regid + ".json"
-
     return _notices_from_json(get_resource(url))
 
 
 def _str_to_utc(date_str):
     date = parser.parse(date_str)
-    return SWS_TIMEZONE.localize(date).astimezone(pytz.utc)
+    return SWS_TIMEZONE.localize(date).astimezone(timezone.utc)
 
 
 def _notices_from_json(notice_data):
