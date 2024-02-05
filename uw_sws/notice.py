@@ -5,11 +5,10 @@
 Interfaceing with the Student Web Service,
  for notice resource
 """
-import copy
-from datetime import datetime, timezone
+
+from datetime import timezone
 from dateutil import parser
 import logging
-from dateutil import parser
 from uw_sws.models import Notice, NoticeAttribute
 from uw_sws import get_resource, SWS_TIMEZONE
 
