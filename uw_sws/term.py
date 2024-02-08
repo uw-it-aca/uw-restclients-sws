@@ -5,6 +5,7 @@
 This class interfaces with the Student Web Service, Term resource.
 """
 import logging
+import warnings
 from uw_sws import get_resource, QUARTER_SEQ
 from uw_sws.models import Term
 from restclients_core.exceptions import DataFailureException
@@ -24,36 +25,38 @@ def get_term_by_year_and_quarter(year, quarter):
     return Term(data=get_resource(url))
 
 
-def get_current_term():
+def get_current_term(cmp_dt=None):
     """
     Returns a uw_sws.models.Term object,
     for the current term.
     """
-    url = "{}/current.json".format(term_res_url_prefix)
-    term = Term(data=get_resource(url))
-
+    if cmp_dt is None:
+        url = "{}/current.json".format(term_res_url_prefix)
+        term = Term(data=get_resource(url))
+    else:
+        term = get_term_by_date(cmp_dt)
     # A term doesn't become "current" until 2 days before the start of
     # classes.  That's too late to be useful, so if we're after the last
     # day of grade submission window, use the next term resource.
-    if term.is_grading_period_past():
+    if term.is_grading_period_past(cmp_dt):
         return get_next_term_sws()
     return term
 
 
-def get_next_term():
+def get_next_term(cmp_dt=None):
     """
     Returns a uw_sws.models.Term object,
     for the term after the current term.
     """
-    return get_term_after(get_current_term())
+    return get_term_after(get_current_term(cmp_dt))
 
 
-def get_previous_term():
+def get_previous_term(cmp_dt=None):
     """
     Returns a uw_sws.models.Term object,
     for the term before the current term.
     """
-    return get_term_before(get_current_term())
+    return get_term_before(get_current_term(cmp_dt))
 
 
 def get_next_term_sws():
@@ -61,6 +64,9 @@ def get_next_term_sws():
     Returns a uw_sws.models.Term object,
     for the term in next.json.
     """
+    warnings.warn(
+        "term.get_next_term function will be deprecated soon",
+        DeprecationWarning, stacklevel=2)
     url = "{}/next.json".format(term_res_url_prefix)
     return Term(data=get_resource(url))
 
@@ -70,6 +76,9 @@ def get_previous_term_sws():
     Returns a uw_sws.models.Term object,
     for the term in previous.json.
     """
+    warnings.warn(
+        "term.get_previous_term function will be deprecated soon",
+        DeprecationWarning, stacklevel=2)
     url = "{}/previous.json".format(term_res_url_prefix)
     return Term(data=get_resource(url))
 

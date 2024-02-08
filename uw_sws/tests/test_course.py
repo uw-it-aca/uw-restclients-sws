@@ -53,3 +53,6 @@ class SWSTestCourseData(TestCase):
         self.assertIsNone(get_course_by_label("2013,spring,FOO,123"))
 
         self.assertIsNotNone(get_course_by_label("2013,spring,ATMO S,142"))
+
+        self.assertRaises(
+            KeyError, get_course_by_label, "2012,summer,PHYS,121/AQ")

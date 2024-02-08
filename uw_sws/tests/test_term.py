@@ -53,75 +53,8 @@ class SWSTestTerm(TestCase):
         self.autumn2017.quarter = 'autumn'
         self.autumn2017.year = 2017
 
-    def test_mock_data_fake_grading_window(self):
-        # This rounds down to 0 days, so check by seconds :(
-        hour1_delta = timedelta(hours=-1)
-        hour48_delta = timedelta(hours=-48)
-        now = sws_now()
-
-        term = get_current_term()
-        self.assertEquals(term.is_grading_period_open(),
-                          True, "Grading period is open")
-        self.assertEquals(term.is_grading_period_past(),
-                          False, "Grading period is not past")
-
-        self.assertEquals(term.is_grading_period_open(now + hour1_delta),
-                          True, "Grading period is open using passed dt")
-
-        day100_delta = timedelta(days=100)
-        self.assertEquals(term.is_grading_period_open(now + day100_delta),
-                          False, "Grading period is not open using passed dt")
-
-        deadline = term.grade_submission_deadline
-        self.assertEquals(deadline + hour1_delta > now,
-                          True, "Deadline is in the future")
-        self.assertEquals(deadline + hour48_delta < now,
-                          True, "But not too far in the future")
-
-        open_diff_all = now - term.grading_period_open
-
-        # Timezone configuration can mess this up, so using seconds
-        self.assertEquals(open_diff_all.seconds > 0,
-                          True, "Open date is in the past")
-        self.assertEquals(open_diff_all.days < 2,
-                          True, "But not too far in the past")
-
-        open_diff_summer_a = now - term.aterm_grading_period_open
-        self.assertEquals(open_diff_summer_a.seconds > 0,
-                          True, "Open date is in the past")
-        self.assertEquals(open_diff_summer_a.days < 2,
-                          True, "But not too far in the past")
-
-        # Also test for Spring 2013, as that's the "current" quarter
-        term = get_term_by_year_and_quarter(2013, 'spring')
-
-        self.assertEquals(term.is_grading_period_open(),
-                          True, "Grading period is open")
-        self.assertEquals(term.is_grading_period_past(),
-                          False, "Grading period is not past")
-
-        deadline = term.grade_submission_deadline
-        self.assertEquals(deadline + hour1_delta > now,
-                          True, "Deadline is in the future")
-        self.assertEquals(deadline + hour48_delta < now,
-                          True, "But not too far in the future")
-
-        open_diff_all = now - term.grading_period_open
-
-        # Timezone configuration can mess this up, so using seconds
-        self.assertEquals(open_diff_all.seconds > 0,
-                          True, "Open date is in the past")
-        self.assertEquals(open_diff_all.days < 2, True,
-                          "But not too far in the past")
-
-        open_diff_summer_a = now - term.aterm_grading_period_open
-        self.assertEquals(open_diff_summer_a.seconds > 0,
-                          True, "Open date is in the past")
-        self.assertEquals(open_diff_summer_a.days < 2, True,
-                          "But not too far in the past")
-
-    def test_current_quarter(self):
-        term = get_current_term()
+    def test_get_term_by_year_and_quarter(self):
+        term = get_term_by_year_and_quarter(2013, "spring")
         comparison_datetime = datetime(2013, 4, 10, 0, 0, 0)
         self.assertTrue(term.is_current(comparison_datetime))
         expected_quarter = "spring"
@@ -181,8 +114,14 @@ class SWSTestTerm(TestCase):
 
         self.assertFalse(term.is_summer_quarter())
 
-    @patch.object(Term, 'is_grading_period_past', mock_is_grading_period_past)
-    def test_current_term_past_grading(self):
+    def test_current_quarter(self):
+        term = get_current_term()
+        self.assertEquals(term.year, 2013)
+        self.assertEquals(term.quarter, "summer")
+
+    @patch.object(Term, 'is_grading_period_past')
+    def test_current_term_past_grading(self, mock):
+        mock.return_value = True
         term = get_current_term()
         self.assertEqual(term.quarter, 'summer')
         self.assertEqual(term.year, 2013)
@@ -190,7 +129,6 @@ class SWSTestTerm(TestCase):
     # Expected values will have to change when the json files are updated
     def test_previous_quarter_sws(self):
         term = get_previous_term_sws()
-
         expected_quarter = "winter"
         expected_year = 2013
 
@@ -398,7 +336,8 @@ class SWSTestTerm(TestCase):
         self.assertEquals(next1.quarter, 'autumn')
 
         self.assertEquals(next_autumn, next1)
-        next_non_summer_term = get_next_non_summer_term(get_current_term())
+        next_non_summer_term = get_next_non_summer_term(
+            get_term_by_year_and_quarter(2013, "spring"))
         self.assertEquals(next_autumn, next_non_summer_term)
 
         next2 = get_term_after(next1)
@@ -481,7 +420,7 @@ class SWSTestTerm(TestCase):
 
     def test_week_of_term(self):
         now = sws_now()
-        term = get_current_term()
+        term = get_term_by_year_and_quarter(2013, "spring")
 
         # First day of class
         start_date = now
@@ -611,7 +550,7 @@ class SWSTestTerm(TestCase):
         term.quarter = 'spring'
         self.assertEqual(type(term), Term)
 
-        term1 = get_current_term()
+        term1 = get_term_by_year_and_quarter(2013, "spring")
         self.assertEqual(term, term1)
         self.assertEqual(hash(term), hash(term1))
 

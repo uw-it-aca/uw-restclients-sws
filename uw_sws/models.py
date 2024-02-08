@@ -365,21 +365,23 @@ class Term(models.Model):
 
     def __eq__(self, other):
         return (other is not None and
-                type(self) is type(other) and
+                isinstance(other, Term) and
                 self.int_key() == other.int_key())
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __lt__(self, other):
-        return (type(self) is type(other) and
+        return (other is not None and
+                isinstance(other, Term) and
                 self.int_key() < other.int_key())
 
     def __le__(self, other):
         return self.__lt__(other) or self.__eq__(other)
 
     def __gt__(self, other):
-        return (type(self) is type(other) and
+        return (other is not None and
+                isinstance(other, Term) and
                 self.int_key() > other.int_key())
 
     def __ge__(self, other):
@@ -947,7 +949,7 @@ class SectionReference(models.Model):
 
     def __eq__(self, other):
         return (other is not None and
-                type(self) is type(other) and
+                isinstance(other, SectionReference) and
                 self.section_label() == other.section_label())
 
     def section_label(self):
@@ -1492,7 +1494,7 @@ class Major(models.Model):
 
     def __eq__(self, other):
         return (other is not None and
-                type(self) is type(other) and
+                isinstance(other, Major) and
                 self.__key() == other.__key())
 
     def __key(self):
@@ -1537,7 +1539,7 @@ class Minor(models.Model):
 
     def __eq__(self, other):
         return (other is not None and
-                type(self) is type(other) and
+                isinstance(other, Minor) and
                 self.__key() == other.__key())
 
     def __key(self):
