@@ -3,6 +3,8 @@
 
 import json
 import re
+from warnings import warn
+import datetime
 from uw_pws.models import Person
 from uw_sws.exceptions import (
     InvalidCanvasIndependentStudyCourse, InvalidCanvasSection)
@@ -411,12 +413,33 @@ class Term(models.Model):
                 cmp_dt > self.grade_submission_deadline)
 
     def get_week_of_term(self, cmp_dt=None):
+        depr_msg = 'get_week_of_term is deprecated; ' \
+         'use get_calendar_week_of_term'
+        warn(depr_msg, DeprecationWarning, stacklevel=2)
         if cmp_dt is None:
             cmp_dt = sws_now()
         return self.get_week_of_term_for_date(cmp_dt)
 
     def get_week_of_term_for_date(self, date):
+        depr_msg = 'get_week_of_term_for_date is deprecated; ' \
+         'use get_calendar_week_of_term_for_date'
+        warn(depr_msg, DeprecationWarning, stacklevel=2)
         days = (date.date() - self.first_day_quarter).days
+        if days >= 0:
+            return (days // 7) + 1
+
+        return (days // 7)
+
+    def get_calendar_week_of_term(self, cmp_dt=None):
+        if cmp_dt is None:
+            cmp_dt = sws_now()
+        return self.get_calendar_week_of_term_for_date(cmp_dt)
+
+    def get_calendar_week_of_term_for_date(self, date):
+        start_date = self.first_day_quarter
+        start_of_first_week = start_date - datetime.timedelta(
+            days=start_date.isoweekday() % 7)
+        days = (date.date() - start_of_first_week).days
         if days >= 0:
             return (days // 7) + 1
 
