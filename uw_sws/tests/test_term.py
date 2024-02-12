@@ -6,7 +6,7 @@ from unittest import TestCase
 from uw_sws.dao import sws_now
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from restclients_core.exceptions import DataFailureException
 from uw_sws.models import Term
 from uw_sws.term import (
@@ -558,6 +558,54 @@ class SWSTestTerm(TestCase):
         self.assertEquals(term.get_week_of_term(), -3, "-15 days")
         self.assertEquals(term.get_week_of_term_for_date(now), -3,
                           "-15 days")
+
+    def test_calendar_week_of_term(self):
+        term = get_current_term()
+
+        start_dates = [date(2013, 3, 31), date(2013, 4, 1), date(2013, 4, 2),
+                       date(2013, 4, 3), date(2013, 4, 4), date(2013, 4, 5),
+                       date(2013, 4, 6)]
+        for start_date in start_dates:
+            with self.subTest("First day of class", i=start_date):
+                term.first_day_quarter = start_date
+                # Before the term
+                now = datetime(2013, 3, 30, 1, 0, 0)
+                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
+                                  -1,
+                                  "Sat before")
+
+                now = datetime(2013, 3, 20, 1, 0, 0)
+                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
+                                  -2,
+                                  "two weeks before")
+
+                # First day of class
+                now = datetime(2013, 4, 1, 1, 0, 0)
+                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
+                                  1,
+                                  "Term starting now in first week, by date")
+
+                # Week switch
+                now = datetime(2013, 4, 1, 1, 0, 0)
+                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
+                                  1, "first Sat")
+
+                now = datetime(2013, 4, 7, 1, 0, 0)
+                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
+                                  2, "first Sun")
+
+                now = datetime(2013, 4, 16, 1, 0, 0)
+                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
+                                  3, "three weeks in")
+
+                now = datetime(2013, 5, 16, 1, 0, 0)
+                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
+                                  7, "seven weeks in")
+
+        term.first_day_quarter = start_dates[0]
+        now = datetime(2013, 4, 7, 1, 0, 0)
+        self.assertEqual(term.get_calendar_week_of_term(cmp_dt=now),
+                         term.get_calendar_week_of_term_for_date(now))
 
     def test_canvas_sis_id(self):
         term = get_term_by_year_and_quarter(2013, 'spring')
