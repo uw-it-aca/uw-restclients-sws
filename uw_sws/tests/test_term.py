@@ -559,37 +559,37 @@ class SWSTestTerm(TestCase):
                 term.first_day_quarter = start_date
                 # Before the term
                 now = datetime(2013, 3, 30, 1, 0, 0)
-                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
-                                  -1,
-                                  "Sat before")
+                self.assertEqual(term.get_calendar_week_of_term_for_date(now),
+                                 -1,
+                                 "Sat before")
 
                 now = datetime(2013, 3, 20, 1, 0, 0)
-                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
-                                  -2,
-                                  "two weeks before")
+                self.assertEqual(term.get_calendar_week_of_term_for_date(now),
+                                 -2,
+                                 "two weeks before")
 
                 # First day of class
                 now = datetime(2013, 4, 1, 1, 0, 0)
-                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
-                                  1,
-                                  "Term starting now in first week, by date")
+                self.assertEqual(term.get_calendar_week_of_term_for_date(now),
+                                 1,
+                                 "Term starting now in first week, by date")
 
                 # Week switch
                 now = datetime(2013, 4, 1, 1, 0, 0)
-                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
-                                  1, "first Sat")
+                self.assertEqual(term.get_calendar_week_of_term_for_date(now),
+                                 1, "first Sat")
 
                 now = datetime(2013, 4, 7, 1, 0, 0)
-                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
-                                  2, "first Sun")
+                self.assertEqual(term.get_calendar_week_of_term_for_date(now),
+                                 2, "first Sun")
 
                 now = datetime(2013, 4, 16, 1, 0, 0)
-                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
-                                  3, "three weeks in")
+                self.assertEqual(term.get_calendar_week_of_term_for_date(now),
+                                 3, "three weeks in")
 
                 now = datetime(2013, 5, 16, 1, 0, 0)
-                self.assertEquals(term.get_calendar_week_of_term_for_date(now),
-                                  7, "seven weeks in")
+                self.assertEqual(term.get_calendar_week_of_term_for_date(now),
+                                 7, "seven weeks in")
 
         term.first_day_quarter = start_dates[0]
         now = datetime(2013, 4, 7, 1, 0, 0)
