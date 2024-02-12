@@ -19,13 +19,13 @@ class SWSTestSectionStatusData(TestCase):
         section_status = get_section_status_by_label('2012,autumn,CSE,100/W')
 
         self.assertFalse(section_status.add_code_required)
-        self.assertEquals(section_status.current_enrollment, 305)
-        self.assertEquals(section_status.current_registration_period, 3)
+        self.assertEqual(section_status.current_enrollment, 305)
+        self.assertEqual(section_status.current_registration_period, 3)
         self.assertFalse(section_status.faculty_code_required)
-        self.assertEquals(section_status.limit_estimated_enrollment, 345)
-        self.assertEquals(
+        self.assertEqual(section_status.limit_estimated_enrollment, 345)
+        self.assertEqual(
             section_status.limit_estimate_enrollment_indicator, 'limit')
-        self.assertEquals(section_status.room_capacity, 345)
-        self.assertEquals(section_status.sln, 12588)
-        self.assertEquals(section_status.space_available, 40)
-        self.assertEquals(section_status.is_open, True)
+        self.assertEqual(section_status.room_capacity, 345)
+        self.assertEqual(section_status.sln, 12588)
+        self.assertEqual(section_status.space_available, 40)
+        self.assertEqual(section_status.is_open, True)
