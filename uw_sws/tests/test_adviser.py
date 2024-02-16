@@ -12,10 +12,10 @@ class AdviserTest(TestCase):
     def test_get_advisers(self):
         advisers = get_advisers_by_regid(
             "9136CCB8F66711D5BE060004AC494FFE")
-        self.assertEquals(len(advisers), 1)
-        self.assertEquals(advisers[0].uwnetid, "uwhonors")
+        self.assertEqual(len(advisers), 1)
+        self.assertEqual(advisers[0].uwnetid, "uwhonors")
         self.assertTrue(advisers[0].is_honors_program())
-        self.assertEquals(
+        self.assertEqual(
             advisers[0].json_data(),
             {'booking_url': 'https://honors.uw.edu/advising/',
              'email_address': 'uwhonors@uw.edu',

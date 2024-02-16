@@ -12,8 +12,8 @@ class AdviserTest(TestCase):
     def test_get_degrees(self):
         degrees = get_degrees_by_regid(
             "9136CCB8F66711D5BE060004AC494FFE")
-        self.assertEquals(len(degrees), 1)
-        self.assertEquals(
+        self.assertEqual(len(degrees), 1)
+        self.assertEqual(
             degrees[0].json_data(),
             {
                 'campus': 'SEATTLE',

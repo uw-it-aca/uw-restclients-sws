@@ -17,7 +17,7 @@ class SWSTestDepartment(TestCase):
         college = College(label="MED")
         depts = get_departments_by_college(college)
 
-        self.assertEquals(len(depts), 30)
+        self.assertEqual(len(depts), 30)
 
         # Valid department labels, no files for them
         self.assertRaises(DataFailureException,
