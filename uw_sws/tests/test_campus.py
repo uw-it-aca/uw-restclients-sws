@@ -14,5 +14,4 @@ class SWSTestCampus(TestCase):
 
     def test_all_campuses(self):
         campuses = get_all_campuses()
-
-        self.assertEquals(len(campuses), 3)
+        self.assertEqual(len(campuses), 3)

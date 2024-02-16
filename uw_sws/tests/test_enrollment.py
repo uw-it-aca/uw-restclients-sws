@@ -21,31 +21,31 @@ class SWSTestEnrollments(TestCase):
         grades = get_grades_by_regid_and_term(
             '9136CCB8F66711D5BE060004AC494FFE', term)
 
-        self.assertEquals(grades.term.year, 2013)
-        self.assertEquals(grades.term.quarter, "spring")
-        self.assertEquals(grades.user.uwnetid, "javerage")
-        self.assertEquals(grades.grade_points, 30)
-        self.assertEquals(grades.credits_attempted, 10)
-        self.assertEquals(grades.non_grade_credits, 2)
+        self.assertEqual(grades.term.year, 2013)
+        self.assertEqual(grades.term.quarter, "spring")
+        self.assertEqual(grades.user.uwnetid, "javerage")
+        self.assertEqual(grades.grade_points, 30)
+        self.assertEqual(grades.credits_attempted, 10)
+        self.assertEqual(grades.non_grade_credits, 2)
 
-        self.assertEquals(grades.grades[0].grade, 'CR')
-        self.assertEquals(grades.grades[2].grade, '3.1')
-        self.assertEquals(grades.grades[2].credits, '3.0')
-        self.assertEquals(grades.grades[2].section.course_number, '121')
+        self.assertEqual(grades.grades[0].grade, 'CR')
+        self.assertEqual(grades.grades[2].grade, '3.1')
+        self.assertEqual(grades.grades[2].credits, '3.0')
+        self.assertEqual(grades.grades[2].section.course_number, '121')
 
     def test_javerage_major(self):
         term = get_current_term()
         enrollment = get_enrollment_by_regid_and_term(
             '9136CCB8F66711D5BE060004AC494FFE', term)
-        self.assertEquals(enrollment.class_level, "SENIOR")
-        self.assertEquals(enrollment.is_honors, False)
-        self.assertEquals(len(enrollment.majors), 1)
-        self.assertEquals(enrollment.majors[0].campus, "Seattle")
-        self.assertEquals(
+        self.assertEqual(enrollment.class_level, "SENIOR")
+        self.assertEqual(enrollment.is_honors, False)
+        self.assertEqual(len(enrollment.majors), 1)
+        self.assertEqual(enrollment.majors[0].campus, "Seattle")
+        self.assertEqual(
             enrollment.majors[0].degree_name,
             "BACHELOR OF SCIENCE (APPLIED & COMPUTATIONAL MATH SCIENCES)")
-        self.assertEquals(enrollment.minors[0].campus, "Seattle")
-        self.assertEquals(enrollment.minors[0].name, "AMERICAN SIGN LANGUAGE")
+        self.assertEqual(enrollment.minors[0].campus, "Seattle")
+        self.assertEqual(enrollment.minors[0].name, "AMERICAN SIGN LANGUAGE")
         self.assertFalse(enrollment.is_non_matric())
         self.assertFalse(enrollment.has_unfinished_pce_course())
         self.assertFalse(enrollment.is_enroll_src_pce)
@@ -66,7 +66,7 @@ class SWSTestEnrollments(TestCase):
         term = get_term_by_year_and_quarter(2013, 'winter')
         enrollment = get_enrollment_by_regid_and_term(
             'AABBCCDDEEFFAABBCCDDEEFFAABBCCDC', term)
-        self.assertEquals(enrollment.class_level, u'NON_MATRIC')
+        self.assertEqual(enrollment.class_level, u'NON_MATRIC')
         self.assertTrue(enrollment.is_enroll_src_pce)
         self.assertTrue(enrollment.is_non_matric())
         self.assertTrue(enrollment.is_registered)
@@ -136,10 +136,10 @@ class SWSTestEnrollments(TestCase):
         enrollment = result_dict.get(term)
         self.assertTrue(enrollment.is_registered)
         self.assertTrue(enrollment.is_non_matric())
-        self.assertEquals(enrollment.majors[0].college_abbr, "INDUG")
-        self.assertEquals(enrollment.majors[0].college_full_name,
-                          "INTERDISCIPLINARY UNDERGRADUATE PROGRAMS")
-        self.assertEquals(enrollment.majors[0].degree_level, 0)
+        self.assertEqual(enrollment.majors[0].college_abbr, "INDUG")
+        self.assertEqual(enrollment.majors[0].college_full_name,
+                         "INTERDISCIPLINARY UNDERGRADUATE PROGRAMS")
+        self.assertEqual(enrollment.majors[0].degree_level, 0)
         self.assertEqual(len(enrollment.unf_pce_courses), 3)
         self.assertTrue(
             "2013,spring,AAES,150/A" in enrollment.unf_pce_courses)
@@ -158,7 +158,7 @@ class SWSTestEnrollments(TestCase):
         term0 = get_term_before(term)
         self.assertTrue(term0 in result_dict)
         enrollment0 = result_dict.get(term0)
-        self.assertEquals(enrollment.majors[0], enrollment0.majors[0])
+        self.assertEqual(enrollment.majors[0], enrollment0.majors[0])
         self.assertEqual(len(enrollment0.unf_pce_courses), 2)
 
         # regular course
@@ -169,14 +169,14 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(term in result_dict)
         self.assertIsNotNone(result_dict.get(term))
         enrollment = result_dict.get(term)
-        self.assertEquals(enrollment.class_level, "SENIOR")
-        self.assertEquals(len(enrollment.majors), 1)
-        self.assertEquals(len(enrollment.minors), 1)
+        self.assertEqual(enrollment.class_level, "SENIOR")
+        self.assertEqual(len(enrollment.majors), 1)
+        self.assertEqual(len(enrollment.minors), 1)
         enroll_major = enrollment.majors[0]
-        self.assertEquals(enroll_major.college_abbr, None)
-        self.assertEquals(enroll_major.college_full_name, None)
-        self.assertEquals(enroll_major.degree_level, 1)
-        self.assertEquals(len(enrollment.minors), 1)
+        self.assertEqual(enroll_major.college_abbr, None)
+        self.assertEqual(enroll_major.college_full_name, None)
+        self.assertEqual(enroll_major.degree_level, 1)
+        self.assertEqual(len(enrollment.minors), 1)
         enroll_minor = enrollment.minors[0]
 
         term1 = get_term_by_year_and_quarter(2013, 'summer')
@@ -195,7 +195,7 @@ class SWSTestEnrollments(TestCase):
         self.assertIsNotNone(result_dict.get(term3))
         enroll3 = result_dict.get(term3)
         self.assertTrue(enroll3.is_registered)
-        self.assertEquals(len(enroll3.minors), 1)
+        self.assertEqual(len(enroll3.minors), 1)
         enroll3_minor = enroll3.minors[0]
         self.assertTrue(enroll3_minor != enroll_minor)
 

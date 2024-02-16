@@ -38,10 +38,8 @@ class SWSTestSectionData(TestCase):
         self.assertTrue(section.is_clinic())
         section = get_section_by_label('2013,spring,BIGDATA,230/A')
         self.assertFalse(section.is_ind_study())
-        self.assertEqual(str(section.meetings[0].eos_start_date),
-                         '2013-04-02')
-        self.assertEqual(str(section.meetings[0].eos_end_date),
-                         '2013-06-04')
+        self.assertEqual(str(section.meetings[0].eos_start_date), '2013-04-02')
+        self.assertEqual(str(section.meetings[0].eos_end_date), '2013-06-04')
         self.assertTrue(section.is_source_eos())
 
         section = get_section_by_label('2013,summer,PHIL,495/A')
@@ -55,46 +53,46 @@ class SWSTestSectionData(TestCase):
     def test_non_credit_certificate_couse_section(self):
         section = get_section_by_label('2013,winter,BIGDATA,220/A')
         self.assertTrue(section.is_campus_pce())
-        self.assertEquals(str(section.start_date), "2013-01-09")
-        self.assertEquals(str(section.end_date), "2013-03-27")
-        self.assertEquals(section.metadata, "SectionSourceKey=EOS;")
-        self.assertEquals(section.is_active(), False)
-        self.assertEquals(section.is_withdrawn(), False)
-        self.assertEquals(section.is_suspended(), True)
+        self.assertEqual(str(section.start_date), "2013-01-09")
+        self.assertEqual(str(section.end_date), "2013-03-27")
+        self.assertEqual(section.metadata, "SectionSourceKey=EOS;")
+        self.assertEqual(section.is_active(), False)
+        self.assertEqual(section.is_withdrawn(), False)
+        self.assertEqual(section.is_suspended(), True)
 
         section = get_section_by_label('2013,spring,BIGDATA,230/A')
         self.assertTrue(section.is_campus_pce())
-        self.assertEquals(str(section.start_date), "2013-04-03")
-        self.assertEquals(str(section.end_date), "2013-06-12")
+        self.assertEqual(str(section.start_date), "2013-04-03")
+        self.assertEqual(str(section.end_date), "2013-06-12")
         self.assertIsNotNone(section.json_data())
-        self.assertEquals(section.is_active(), True)
-        self.assertEquals(section.is_withdrawn(), False)
-        self.assertEquals(section.is_suspended(), False)
+        self.assertEqual(section.is_active(), True)
+        self.assertEqual(section.is_withdrawn(), False)
+        self.assertEqual(section.is_suspended(), False)
 
     def test_final_exams(self):
         section = get_section_by_label('2013,summer,B BIO,180/A')
-        self.assertEquals(section.final_exam, None,
-                          "No final exam for B BIO 180")
+        self.assertEqual(section.final_exam, None,
+                         "No final exam for B BIO 180")
 
         section = get_section_by_label('2013,summer,MATH,125/G')
         final_exam = section.final_exam
 
-        self.assertEquals(final_exam.is_confirmed, False,
-                          "Final exam for Math 125 isn't confirmed")
-        self.assertEquals(final_exam.no_exam_or_nontraditional, False,
-                          "Final exam for Math 125 isn't non-traditional")
+        self.assertEqual(final_exam.is_confirmed, False,
+                         "Final exam for Math 125 isn't confirmed")
+        self.assertEqual(final_exam.no_exam_or_nontraditional, False,
+                         "Final exam for Math 125 isn't non-traditional")
         section = get_section_by_label('2013,summer,TRAIN,101/A')
         final_exam = section.final_exam
 
-        self.assertEquals(final_exam.is_confirmed, True,
-                          "Final exam for Train 101 is confirmed")
-        self.assertEquals(final_exam.no_exam_or_nontraditional, False,
-                          "Final exam for Train 101 isn't non-traditional")
-        self.assertEquals(final_exam.building, "KNE",
-                          "Has right final building")
-        self.assertEquals(final_exam.room_number, "012",
-                          "Has right room #")
-        self.assertEquals(
+        self.assertEqual(final_exam.is_confirmed, True,
+                         "Final exam for Train 101 is confirmed")
+        self.assertEqual(final_exam.no_exam_or_nontraditional, False,
+                         "Final exam for Train 101 isn't non-traditional")
+        self.assertEqual(final_exam.building, "KNE",
+                         "Has right final building")
+        self.assertEqual(final_exam.room_number, "012",
+                         "Has right room #")
+        self.assertEqual(
             final_exam.json_data(),
             {'building': 'KNE',
              'end_date': '2013-06-02T16:20:00',
@@ -107,8 +105,8 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2013,spring,MATH,125/H')
         final_exam = section.final_exam
 
-        self.assertEquals(final_exam.end_date, None,
-                          "Bad final exam time for MATH 125 H")
+        self.assertEqual(final_exam.end_date, None,
+                         "Bad final exam time for MATH 125 H")
 
     def test_is_valid_sln(self):
         self.assertFalse(is_valid_sln(None))
@@ -209,54 +207,54 @@ class SWSTestSectionData(TestCase):
     def test_instructors_in_section(self):
         section = get_section_by_label('2013,winter,ASIAN,203/A')
 
-        self.assertEquals(len(section.get_instructors()), 1,
-                          "Correct number of instructors")
+        self.assertEqual(len(section.get_instructors()), 1,
+                         "Correct number of instructors")
 
         person1 = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
-        self.assertEquals(section.is_instructor(person1), False,
-                          "Person is not instructor")
+        self.assertEqual(section.is_instructor(person1), False,
+                         "Person is not instructor")
 
         person2 = Person(uwregid="6DF0A9206A7D11D5A4AE0004AC494FFE")
-        self.assertEquals(section.is_instructor(person2), True,
-                          "Person is instructor")
+        self.assertEqual(section.is_instructor(person2), True,
+                         "Person is instructor")
 
         section2 = get_section_by_label('2013,summer,TRAIN,101/A')
-        self.assertEquals(len(section2.get_instructors()), 2,
-                          "Correct number of instructors")
+        self.assertEqual(len(section2.get_instructors()), 2,
+                         "Correct number of instructors")
 
         section3 = get_section_by_label('2013,spring,PHYS,121/A')
-        self.assertEquals(len(section3.get_instructors()), 2,
-                          "Course with duplicate instructors")
+        self.assertEqual(len(section3.get_instructors()), 2,
+                         "Course with duplicate instructors")
 
         section3 = get_section_by_label('2013,spring,PHYS,121/A', False)
-        self.assertEquals(len(section3.get_instructors()), 1,
-                          "Correct number of TSPrinted instructors")
+        self.assertEqual(len(section3.get_instructors()), 1,
+                         "Correct number of TSPrinted instructors")
 
     def test_delegates_in_section(self):
         section = get_section_by_label('2013,winter,ASIAN,203/A')
 
-        self.assertEquals(
+        self.assertEqual(
             len(section.grade_submission_delegates), 3,
             "Correct number of delegates")
 
         person1 = Person(uwregid="6DF0A9206A7D11D5A4AE0004AC494FFE")
-        self.assertEquals(section.is_grade_submission_delegate(person1),
-                          False, "Person is not delegate")
+        self.assertEqual(section.is_grade_submission_delegate(person1),
+                         False, "Person is not delegate")
 
         person2 = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
-        self.assertEquals(section.is_grade_submission_delegate(person2),
-                          True, "Person is delegate")
+        self.assertEqual(section.is_grade_submission_delegate(person2),
+                         True, "Person is delegate")
 
     def test_joint_sections(self):
         section = get_section_by_label('2013,winter,ASIAN,203/A')
         joint_sections = get_joint_sections(section)
 
-        self.assertEquals(len(joint_sections), 1)
+        self.assertEqual(len(joint_sections), 1)
 
         section = get_section_by_label('2013,winter,EMBA,503/A')
         joint_sections = get_joint_sections(section)
 
-        self.assertEquals(len(joint_sections), 0)
+        self.assertEqual(len(joint_sections), 0)
 
     # Failing because linked section json files haven't been made
     # (Train 100 AA/AB)
@@ -353,38 +351,38 @@ class SWSTestSectionData(TestCase):
         term = Term(quarter="summer", year=2013)
         instructor = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
         sections = get_sections_by_instructor_and_term(instructor, term)
-        self.assertEquals(len(sections), 1)
+        self.assertEqual(len(sections), 1)
 
         # test delete_flag
         term = Term(quarter="spring", year=2013)
         sections = get_sections_by_instructor_and_term(
             instructor, term, delete_flag=['active', 'suspended'])
-        self.assertEquals(len(sections), 2)
+        self.assertEqual(len(sections), 2)
 
         # test different setting for transcriptable_course
         term = Term(quarter="spring", year=2013)
         instructor = Person(uwregid="260A0DEC95CB11D78BAA000629C31437")
         sections = get_sections_by_instructor_and_term(
             instructor, term, transcriptable_course="all")
-        self.assertEquals(len(sections), 3)
-        self.assertEquals(sections[1].curriculum_abbr, "BIGDATA")
+        self.assertEqual(len(sections), 3)
+        self.assertEqual(sections[1].curriculum_abbr, "BIGDATA")
 
         term = Term(quarter="autumn", year=2012)
         sections = get_sections_by_instructor_and_term(
             instructor, term, future_terms=4, include_secondaries=False,
             transcriptable_course="all")
-        self.assertEquals(len(sections), 5)
-        self.assertEquals(sections[0].term.year, 2013)
-        self.assertEquals(sections[0].term.quarter, "spring")
-        self.assertEquals(sections[-1].term.year, 2013)
-        self.assertEquals(sections[-1].term.quarter, "summer")
+        self.assertEqual(len(sections), 5)
+        self.assertEqual(sections[0].term.year, 2013)
+        self.assertEqual(sections[0].term.quarter, "spring")
+        self.assertEqual(sections[-1].term.year, 2013)
+        self.assertEqual(sections[-1].term.quarter, "summer")
 
     def test_get_last_section_by_instructor_and_terms(self):
         instructor = Person(uwregid="260A0DEC95CB11D78BAA000629C31437")
         term = Term(quarter="autumn", year=2012)
         section = get_last_section_by_instructor_and_terms(instructor, term, 4)
-        self.assertEquals(section.term.year, 2013)
-        self.assertEquals(section.term.quarter, "summer")
+        self.assertEqual(section.term.year, 2013)
+        self.assertEqual(section.term.quarter, "summer")
 
         term = Term(quarter="autumn", year=2014)
         section = get_last_section_by_instructor_and_terms(instructor, term, 2)
@@ -395,17 +393,17 @@ class SWSTestSectionData(TestCase):
         delegate = Person(uwregid="FBB38FE46A7C11D5A4AE0004AC494FFE")
 
         sections = get_sections_by_delegate_and_term(delegate, term)
-        self.assertEquals(len(sections), 2)
+        self.assertEqual(len(sections), 2)
 
         # with delete_flag
         sections = get_sections_by_delegate_and_term(
             delegate, term, delete_flag=['active', 'suspended'])
-        self.assertEquals(len(sections), 2)
+        self.assertEqual(len(sections), 2)
 
         # test delete_flag ordering
         sections = get_sections_by_delegate_and_term(
             delegate, term, delete_flag=['suspended', 'active'])
-        self.assertEquals(len(sections), 2)
+        self.assertEqual(len(sections), 2)
 
         # incorrect delete_flag
         self.assertRaises(ValueError, get_sections_by_delegate_and_term,
@@ -416,7 +414,7 @@ class SWSTestSectionData(TestCase):
         curriculum = Curriculum(label="ENDO")
         sections = get_sections_by_curriculum_and_term(curriculum, term)
 
-        self.assertEquals(len(sections), 2)
+        self.assertEqual(len(sections), 2)
 
         # Valid curriculum, with no file
         self.assertRaises(DataFailureException,
@@ -429,7 +427,7 @@ class SWSTestSectionData(TestCase):
         building = "KNE"
         sections = get_sections_by_building_and_term(building, term)
 
-        self.assertEquals(len(sections), 2)
+        self.assertEqual(len(sections), 2)
 
         # Valid building, with no file
         self.assertRaises(DataFailureException,
@@ -442,7 +440,7 @@ class SWSTestSectionData(TestCase):
         term = Term(quarter="winter", year=2013)
         sections = get_changed_sections_by_term(changed_date, term)
 
-        self.assertEquals(len(sections), 2)
+        self.assertEqual(len(sections), 2)
 
     def test_changed_sections_by_term_and_kwargs(self):
         changed_date = datetime(2013, 12, 12).date()
@@ -451,63 +449,63 @@ class SWSTestSectionData(TestCase):
             changed_date, term, curriculum_abbreviation="ENDO",
             transcriptable_course="all")
 
-        self.assertEquals(len(sections), 3)
+        self.assertEqual(len(sections), 3)
 
     def test_instructor_published(self):
         # Published Instructors
         pi_section = get_section_by_label('2013,summer,B BIO,180/A')
-        self.assertEquals(
+        self.assertEqual(
             pi_section.meetings[0].instructors[0].TSPrint, True)
 
         # Unpublished Instructors
         upi_section = get_section_by_label('2013,summer,MATH,125/G')
-        self.assertEquals(
+        self.assertEqual(
             upi_section.meetings[0].instructors[0].TSPrint, False)
 
     def test_secondary_grading(self):
         section1 = get_section_by_label('2012,summer,PHYS,121/A')
-        self.assertEquals(section1.allows_secondary_grading, True,
-                          "Allows secondary grading")
+        self.assertEqual(section1.allows_secondary_grading, True,
+                         "Allows secondary grading")
 
         for linked in get_linked_sections(section1):
-            self.assertEquals(linked.allows_secondary_grading, True,
-                              "Allows secondary grading")
+            self.assertEqual(linked.allows_secondary_grading, True,
+                             "Allows secondary grading")
 
         section2 = get_section_by_label('2013,winter,EMBA,503/A')
-        self.assertEquals(section2.allows_secondary_grading, False,
-                          "Does not allow secondary grading")
+        self.assertEqual(section2.allows_secondary_grading, False,
+                         "Does not allow secondary grading")
 
     def test_grading_period_open(self):
         section = get_section_by_label('2012,summer,PHYS,121/A')
 
-        self.assertEquals(section.is_grading_period_open(), False,
-                          "Grading window is not open")
+        self.assertEqual(section.is_grading_period_open(), False,
+                         "Grading window is not open")
 
         # Using passed datetimes
         dt = datetime(2012, 8, 20, 0, 0)
-        self.assertEquals(section.is_grading_period_open(dt), True,
-                          "Grading window is open using passed dt")
+        self.assertEqual(section.is_grading_period_open(dt), True,
+                         "Grading window is open using passed dt")
 
         dt = datetime(2012, 8, 22, 0, 0)
-        self.assertEquals(section.is_grading_period_open(dt), False,
-                          "Grading window is not open using passed dt")
+        self.assertEqual(section.is_grading_period_open(dt), False,
+                         "Grading window is not open using passed dt")
 
         # Spring 2013 is 'current' term
         section = get_section_by_label('2013,spring,MATH,125/G')
 
-        self.assertEquals(section.is_grading_period_open(), True,
-                          "Grading window is open")
+        self.assertEqual(section.is_grading_period_open(), True,
+                         "Grading window is open")
 
     def test_grading_system(self):
         section = get_section_by_label('2012,summer,PHYS,121/A')
 
-        self.assertEquals(section.grading_system, 'standard',
-                          "Grading system is not standard")
+        self.assertEqual(section.grading_system, 'standard',
+                         "Grading system is not standard")
 
     def test_canvas_sis_ids(self):
         # Primary section containing linked secondary sections
         section = get_section_by_label('2012,summer,PHYS,121/A')
-        self.assertEquals(
+        self.assertEqual(
             section.canvas_course_sis_id(),
             '2012-summer-PHYS-121-A',
             'Canvas course SIS ID')
@@ -516,22 +514,22 @@ class SWSTestSectionData(TestCase):
 
         # Primary section with no linked sections
         section = get_section_by_label('2013,autumn,REHAB,585/A')
-        self.assertEquals(
+        self.assertEqual(
             section.canvas_course_sis_id(),
             '2013-autumn-REHAB-585-A',
             'Canvas course SIS ID')
-        self.assertEquals(
+        self.assertEqual(
             section.canvas_section_sis_id(),
             '2013-autumn-REHAB-585-A--',
             'Canvas section SIS ID')
 
         # Secondary (linked) section
         section = get_section_by_label('2013,autumn,PHYS,121/AB')
-        self.assertEquals(
+        self.assertEqual(
             section.canvas_course_sis_id(),
             '2013-autumn-PHYS-121-A',
             'Canvas course SIS ID')
-        self.assertEquals(
+        self.assertEqual(
             section.canvas_section_sis_id(),
             '2013-autumn-PHYS-121-AB',
             'Canvas section SIS ID')
@@ -545,11 +543,11 @@ class SWSTestSectionData(TestCase):
 
         section.independent_study_instructor_regid = (
             'A9D2DDFA6A7D11D5A4AE0004AC494FFE')
-        self.assertEquals(
+        self.assertEqual(
             section.canvas_course_sis_id(),
             '2020-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE',
             'Canvas course SIS ID')
-        self.assertEquals(
+        self.assertEqual(
             section.canvas_section_sis_id(),
             '2020-summer-PHIL-600-A-A9D2DDFA6A7D11D5A4AE0004AC494FFE--',
             'Canvas section SIS ID')
@@ -584,13 +582,13 @@ class SWSTestSectionData(TestCase):
         start = section.start_date
         end = section.end_date
 
-        self.assertEquals(start.year, 2013)
-        self.assertEquals(start.month, 8)
-        self.assertEquals(start.day, 20)
+        self.assertEqual(start.year, 2013)
+        self.assertEqual(start.month, 8)
+        self.assertEqual(start.day, 20)
 
-        self.assertEquals(end.year, 2013)
-        self.assertEquals(end.month, 9)
-        self.assertEquals(end.day, 18)
+        self.assertEqual(end.year, 2013)
+        self.assertEqual(end.month, 9)
+        self.assertEqual(end.day, 18)
 
     def test_pce_course_section(self):
         section = get_section_by_label('2013,autumn,MATH,120/ZZ')
@@ -606,7 +604,7 @@ class SWSTestSectionData(TestCase):
 
         section = get_section_by_label('2018,winter,INFX,543/A')
         self.assertTrue(section.is_inst_pce())
-        self.assertEquals(section.eos_cid, '116878')
+        self.assertEqual(section.eos_cid, '116878')
         self.assertTrue(section.is_source_sdb_eos())
 
     def test_early_fall_start(self):

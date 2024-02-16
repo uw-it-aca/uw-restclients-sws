@@ -17,7 +17,7 @@ class SWSTestCurriculum(TestCase):
         department = Department(label="EDUC")
         curricula = get_curricula_by_department(department)
 
-        self.assertEquals(len(curricula), 7)
+        self.assertEqual(len(curricula), 7)
 
         # Valid department labels, no files for them
         self.assertRaises(DataFailureException,
@@ -38,7 +38,7 @@ class SWSTestCurriculum(TestCase):
         # Valid future_terms value
         curricula = get_curricula_by_department(department,
                                                 future_terms=0)
-        self.assertEquals(len(curricula), 7)
+        self.assertEqual(len(curricula), 7)
 
         # Invalid future_terms values
         self.assertRaises(ValueError,
@@ -59,10 +59,10 @@ class SWSTestCurriculum(TestCase):
     def test_curricula_for_term(self):
         term = Term(quarter='winter', year=2013)
         curricula = get_curricula_by_term(term)
-        self.assertEquals(len(curricula), 423)
+        self.assertEqual(len(curricula), 423)
 
         curricula = get_curricula_by_term(term, view_unpublished=True)
-        self.assertEquals(len(curricula), 423)
+        self.assertEqual(len(curricula), 423)
 
         # Valid terms, no files for them
         self.assertRaises(DataFailureException,

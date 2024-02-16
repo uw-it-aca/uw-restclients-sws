@@ -7,12 +7,11 @@ Contains SWS DAO implementations.
 import json
 import os
 import re
-import pytz
 from datetime import datetime, timedelta, timezone
 from os.path import abspath, dirname
 from restclients_core.dao import DAO, MockDAO
 
-SWS_TIMEZONE = pytz.timezone('America/Los_Angeles')
+SWS_TIMEZONE = timezone(timedelta(seconds=-8*60*60))
 
 
 def sws_now():
