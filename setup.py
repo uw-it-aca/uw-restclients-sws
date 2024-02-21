@@ -25,6 +25,7 @@ setup(
     include_package_data=True,
     install_requires=['UW-RestClients-Core',
                       'UW-RestClients-PWS',
+                      'pytz',
                       'mock',
                      ],
     license='Apache License, Version 2.0',
