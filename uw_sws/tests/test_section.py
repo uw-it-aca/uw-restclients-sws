@@ -45,9 +45,18 @@ class SWSTestSectionData(TestCase):
         section = get_section_by_label('2013,summer,PHIL,495/A')
         self.assertTrue(section.is_ind_study())
         self.assertTrue(section.is_primary_section)
+        self.assertEqual(section.primary_section_id, "A")
+        self.assertEqual(
+            section.primary_section_href,
+            "/student/v5/course/2013,summer,PHIL,495/A.json")
+        self.assertEqual(
+            section.primary_section_curriculum_abbr, "PHIL")
+        self.assertEqual(
+            section.primary_section_course_number, '495')
         section = get_section_by_label('2013,summer,PHYS,121/AK')
         self.assertTrue(section.is_quiz())
         self.assertFalse(section.is_primary_section)
+        self.assertEqual(section.primary_section_id, "A")
         section = get_section_by_label('2013,summer,PHYS,121/AQ')
         self.assertTrue(section.is_lab())
         self.assertIsNotNone(section.json_data())
