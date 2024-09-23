@@ -378,7 +378,8 @@ def _json_to_section(section_data,
         section.primary_section_id = primary_section.get("SectionID")
         section.is_primary_section = (
             section.primary_section_id == section.section_id)
-
+    else:
+        section.is_primary_section = True
     section.linked_section_urls = []
     for linked_section_type in section_data["LinkedSectionTypes"]:
         for linked_section_data in linked_section_type["LinkedSections"]:
