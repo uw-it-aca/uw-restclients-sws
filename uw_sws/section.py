@@ -367,19 +367,17 @@ def _json_to_section(section_data,
 
     section.auditors = int(section_data['Auditors'])
     section.allows_secondary_grading = section_data["SecondaryGradingOption"]
-
-    primary_section = section_data["PrimarySection"]
-    if (primary_section is not None and
-            primary_section["SectionID"] != section.section_id):
-        section.is_primary_section = False
-        section.primary_section_href = primary_section["Href"]
-        section.primary_section_id = primary_section["SectionID"]
-        section.primary_section_curriculum_abbr = primary_section[
-            "CurriculumAbbreviation"]
-        section.primary_section_course_number = primary_section[
-            "CourseNumber"]
-    else:
-        section.is_primary_section = True
+    section.is_primary_section = True
+    primary_section = section_data.get("PrimarySection")
+    if primary_section is not None:
+        section.primary_section_href = primary_section.get("Href")
+        section.primary_section_curriculum_abbr = primary_section.get(
+            "CurriculumAbbreviation")
+        section.primary_section_course_number = primary_section.get(
+            "CourseNumber")
+        section.primary_section_id = primary_section.get("SectionID")
+        section.is_primary_section = (
+            section.primary_section_id == section.section_id)
 
     section.linked_section_urls = []
     for linked_section_type in section_data["LinkedSectionTypes"]:
