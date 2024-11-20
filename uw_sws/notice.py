@@ -31,10 +31,11 @@ def _str_to_utc(date_str):
 
 
 def _notices_from_json(notice_data):
+    notices = []
     notices_list = notice_data.get("Notices")
     if notices_list is None:
-        return None
-    notices = []
+        return notices
+
     for notice in notices_list:
         notice_obj = Notice()
         notice_obj.notice_category = notice.get("NoticeCategory")

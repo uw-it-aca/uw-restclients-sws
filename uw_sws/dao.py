@@ -55,7 +55,8 @@ class SWS_DAO(DAO):
             'ETag': '"1/01234567890123456789="',
         }
 
-        if "/student/v5/notice" in url:
+        if ("/student/v5/notice" in url and
+                response.status == 200):
             self._make_notice_date(response)
 
         # This is to enable mock data grading.

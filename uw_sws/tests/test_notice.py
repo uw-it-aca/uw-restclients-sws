@@ -3,6 +3,7 @@
 
 from unittest import TestCase
 from datetime import datetime, timedelta, timezone
+from restclients_core.exceptions import DataFailureException
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.notice import get_notices_by_regid
@@ -21,6 +22,10 @@ def date_to_dtime(adate):
 class SWSNotice(TestCase):
 
     def test_notice_resource(self):
+        self.assertRaises(
+            DataFailureException, get_notices_by_regid,
+            "99999999999999999999999999999999")
+
         notices = get_notices_by_regid("9136CCB8F66711D5BE060004AC494FFE")
         self.assertEqual(len(notices), 17)
 
