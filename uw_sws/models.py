@@ -106,7 +106,8 @@ class SwsPerson(models.Model):
     permanent_phone = models.CharField(max_length=64, null=True, blank=True)
     visa_type = models.CharField(max_length=2, null=True, blank=True)
     veteran_code = models.CharField(max_length=2)
-    resident_code = models.SmallIntegerField(null=True)
+    resident_code = models.CharField(max_length=2, null=True, blank=True)
+    resident_desc = models.CharField(max_length=32, null=True, blank=True)
 
     def is_veteran(self):
         return self.veteran_code != "0"
@@ -135,9 +136,10 @@ class SwsPerson(models.Model):
             'permanent_address': get_student_address_json(
                 self.permanent_address),
             'permanent_phone': self.permanent_phone,
-            'visa_type': self.visa_type,
+            'resident_desc': self.resident_desc,
+            'resident_code': self.resident_code,
             'veteran_code': self.veteran_code,
-            'resident_code': self.resident_code
+            'visa_type': self.visa_type
                 }
 
     def __str__(self):
