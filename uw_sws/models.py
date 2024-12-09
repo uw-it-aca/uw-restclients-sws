@@ -1429,10 +1429,10 @@ class Enrollment(models.Model):
             json_data.get('Metadata', ''), ENROLLMENT_SOURCE_PCE)
         self.has_pending_resident_change = json_data.get(
             'PendingResidentChange', False)
-        self.pending_resident_desc = json_data.get(
-            'PendingResidencyDescription')
         self.pending_resident_code = json_data.get(
             'PendingResident')
+        self.pending_resident_desc = json_data.get(
+            'PendingResidencyDescription')
 
         self.term = kwargs.get("term")
 
@@ -1487,8 +1487,8 @@ class Enrollment(models.Model):
             'is_registered': self.is_registered,
             'has_pending_major_change': self.has_pending_major_change,
             'has_pending_resident_change': self.has_pending_resident_change,
-            'pending_resident_desc': self.pending_resident_desc,
             'pending_resident_code': self.pending_resident_code,
+            'pending_resident_desc': self.pending_resident_desc,
             'registrations': [r.json_data(
                 include_section_ref=True) for r in self.registrations],
             'majors': [m.json_data() for m in self.majors],
