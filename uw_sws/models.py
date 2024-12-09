@@ -106,8 +106,8 @@ class SwsPerson(models.Model):
     permanent_phone = models.CharField(max_length=64, null=True, blank=True)
     visa_type = models.CharField(max_length=2, null=True, blank=True)
     veteran_code = models.CharField(max_length=2)
-    resident_code = models.CharField(max_length=2, null=True, blank=True)
-    resident_desc = models.CharField(max_length=32, null=True, blank=True)
+    resident_code = models.CharField(max_length=2, null=True)
+    resident_desc = models.CharField(max_length=64, null=True)
 
     def is_veteran(self):
         return self.veteran_code != "0"
@@ -1399,6 +1399,8 @@ class Enrollment(models.Model):
     is_registered = models.NullBooleanField()
     has_pending_major_change = models.NullBooleanField()
     has_pending_resident_change = models.NullBooleanField()
+    pending_resident_code = models.CharField(max_length=2, null=True)
+    pending_resident_desc = models.CharField(max_length=64, null=True)
 
     def __init__(self, *args, **kwargs):
         self.registrations = []
@@ -1427,6 +1429,10 @@ class Enrollment(models.Model):
             json_data.get('Metadata', ''), ENROLLMENT_SOURCE_PCE)
         self.has_pending_resident_change = json_data.get(
             'PendingResidentChange', False)
+        self.pending_resident_desc = json_data.get(
+            'PendingResidencyDescription')
+        self.pending_resident_code = json_data.get(
+            'PendingResident')
 
         self.term = kwargs.get("term")
 
@@ -1481,6 +1487,8 @@ class Enrollment(models.Model):
             'is_registered': self.is_registered,
             'has_pending_major_change': self.has_pending_major_change,
             'has_pending_resident_change': self.has_pending_resident_change,
+            'pending_resident_desc': self.pending_resident_desc,
+            'pending_resident_code': self.pending_resident_code,
             'registrations': [r.json_data(
                 include_section_ref=True) for r in self.registrations],
             'majors': [m.json_data() for m in self.majors],
