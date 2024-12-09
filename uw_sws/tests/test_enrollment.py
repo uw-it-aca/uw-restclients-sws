@@ -294,4 +294,7 @@ class SWSTestEnrollments(TestCase):
         self.assertIsNone(result_dict[t2].pending_resident_desc)
         self.assertEqual(result_dict[t1].pending_resident_code, "0")
         self.assertFalse(result_dict[t2].has_pending_resident_change)
-        self.assertEqual(result_dict[t2].pending_resident_code, "0")
+        self.assertEqual(
+            result_dict[t2].json_data()["pending_resident_code"], "0")
+        self.assertIsNone(
+            result_dict[t2].json_data()["pending_resident_desc"])
