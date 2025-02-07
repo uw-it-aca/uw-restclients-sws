@@ -25,6 +25,8 @@
     "PendingHonorsChange": false,
     "PendingMajorChange": false,
     "PendingResidentChange": false,
+    "PendingResident": "0",
+    "PendingResidencyDescription": null,
     "PendingSpecialProgramChange": false,
     "Person": {
         "Href": "/student/v4/person/9136CCB8F66711D5BE060004AC494FFE.json",

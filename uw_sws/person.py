@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -80,5 +80,6 @@ def _process_json_data(person_data):
     person.uwnetid = person_data.get("UWNetID")
     person.visa_type = person_data.get("VisaType")
     person.resident_code = person_data.get("Resident")
+    person.resident_desc = person_data.get("ResidencyDescription")
 
     return person

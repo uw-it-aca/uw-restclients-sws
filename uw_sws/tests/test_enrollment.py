@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
@@ -291,4 +291,10 @@ class SWSTestEnrollments(TestCase):
         result_dict = enrollment_search_by_regid(
             '9136CCB8F66711D5BE060004AC494FFE')
         self.assertFalse(result_dict[t1].has_pending_resident_change)
-        self.assertTrue(result_dict[t2].has_pending_resident_change)
+        self.assertIsNone(result_dict[t2].pending_resident_desc)
+        self.assertEqual(result_dict[t1].pending_resident_code, "0")
+        self.assertFalse(result_dict[t2].has_pending_resident_change)
+        self.assertEqual(
+            result_dict[t2].json_data()["pending_resident_code"], "0")
+        self.assertIsNone(
+            result_dict[t2].json_data()["pending_resident_desc"])
