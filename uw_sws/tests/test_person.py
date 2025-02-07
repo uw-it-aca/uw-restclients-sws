@@ -51,7 +51,8 @@ class PersonTest(TestCase):
                          "/student/v5/term/2013,autumn.json")
         self.assertEqual(data.last_enrolled.quarter, "autumn")
         self.assertEqual(data.last_enrolled.year, 2013)
-        self.assertEqual(data.resident_code, 1)
+        self.assertEqual(data.resident_code, "1")
+        self.assertEqual(data.resident_desc, "RESIDENT")
 
     def test_person_jinter(self):
         data = get_person_by_regid("9136CCB8F66711D5BE060004AC494F31")
@@ -89,7 +90,8 @@ class PersonTest(TestCase):
         self.assertEqual(data.permanent_address.postal_code, "400001")
         self.assertEqual(data.permanent_address.state, "Mumbai")
         self.assertEqual(data.permanent_address.zip_code, "")
-        self.assertIsNone(data.resident_code)
+        self.assertEqual(data.resident_code, "5")
+        self.assertEqual(data.resident_desc, "NONRESIDENT STUDENT VISA")
 
         data = get_person_by_regid("12345678901234567890123456789012")
         self.assertTrue(data.is_J1())
@@ -118,8 +120,15 @@ class PersonTest(TestCase):
         self.assertIsNone(data.permanent_phone)
         self.assertIsNone(data.permanent_address)
         self.assertIsNone(data.resident_code)
+        self.assertIsNone(data.resident_desc)
 
-    def test_json_datat(self):
+    def test_json_data(self):
         data = get_person_by_regid("9136CCB8F66711D5BE060004AC494FFE")
         self.assertEqual(data.json_data()['email'],
                          "javerage@u.washington.edu")
+        self.assertEqual(data.json_data()['resident_code'],
+                         "1")
+        self.assertEqual(data.json_data()['resident_desc'],
+                         "RESIDENT")
+        self.assertEqual(data.json_data()['visa_type'],
+                         "")

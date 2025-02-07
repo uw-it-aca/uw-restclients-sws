@@ -80,5 +80,6 @@ def _process_json_data(person_data):
     person.uwnetid = person_data.get("UWNetID")
     person.visa_type = person_data.get("VisaType")
     person.resident_code = person_data.get("Resident")
+    person.resident_desc = person_data.get("ResidencyDescription")
 
     return person
