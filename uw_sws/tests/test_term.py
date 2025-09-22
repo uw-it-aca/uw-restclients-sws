@@ -438,8 +438,9 @@ class SWSTestTerm(TestCase):
         self.assertEqual(get_specific_term(2012, 'autumn'),
                          get_term_by_year_and_quarter(2012, 'autumn'))
 
-        self.assertNotEquals(get_specific_term(2012, 'autumn'),
-                             get_term_by_year_and_quarter(2013, 'winter'))
+        self.assertNotEqual(
+            get_specific_term(2012, 'autumn'),
+            get_term_by_year_and_quarter(2013, 'winter'))
 
         # Loading a term with null Registration Periods
         term = get_term_by_year_and_quarter(2015, 'autumn')
