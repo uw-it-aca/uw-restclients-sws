@@ -256,7 +256,7 @@ class SWSTestRegistrations(TestCase):
         self.assertEqual(section.student_grade, "RD")
         self.assertTrue(section.registration.is_withdrew())
         section = self._get_section_from_schedule(
-            class_schedule , "2013,winter,EMBA,533/A"
+            class_schedule, "2013,winter,EMBA,533/A"
         )
         self.assertEqual(section.student_grade, "W")
         self.assertTrue(section.registration.is_withdrew())
