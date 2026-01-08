@@ -1028,6 +1028,7 @@ class SectionStatus(models.Model):
 
 
 WITHDREW_GRADE_PATTERN = re.compile(r'^W')
+REGISTER_WITHDREW_GRADE = "RD"
 
 
 class Registration(models.Model):
@@ -1099,7 +1100,10 @@ class Registration(models.Model):
                 self.request_status.lower() == "added to standby")
 
     def is_withdrew(self):
-        return (WITHDREW_GRADE_PATTERN.match(self.grade) is not None)
+        return (
+            WITHDREW_GRADE_PATTERN.match(self.grade) is not None
+            or self.grade == REGISTER_WITHDREW_GRADE
+        )
 
     def json_data(self, include_section_ref=False):
         data = {

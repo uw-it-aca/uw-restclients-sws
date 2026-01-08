@@ -244,6 +244,23 @@ class SWSTestRegistrations(TestCase):
         self.assertTrue(class_schedule.sections[0].is_source_eos())
         self.assertEqual(class_schedule.registered_summer_terms, {})
 
+    def test_withdrew_registration(self):
+        term = Term(quarter="winter", year=2013)
+        class_schedule = get_schedule_by_regid_and_term(
+            "9136CCB8F66711D5BE060004AC494FFE", term
+        )
+        self.assertEqual(len(class_schedule.sections), 3)
+        section = self._get_section_from_schedule(
+            class_schedule, "2013,winter,EMBA,590/A"
+        )
+        self.assertEqual(section.student_grade, "RD")
+        self.assertTrue(section.registration.is_withdrew())
+        section = self._get_section_from_schedule(
+            class_schedule , "2013,winter,EMBA,533/A"
+        )
+        self.assertEqual(section.student_grade, "W")
+        self.assertTrue(section.registration.is_withdrew())
+
     def test_empty_request_date(self):
         section = get_section_by_label('2013,winter,DROP_T,100/A')
         registrations = get_all_registrations_by_section(section)
