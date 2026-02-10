@@ -28,7 +28,8 @@ class Worker(ABC):
 
     def run_tasks(self, concurrency=MAX_WORKERS):
         """
-        Run tasks concurrently and return a dictionary of results
+        Scalably run concurrent tasks
+        Return a dictionary of task-ids to results
         """
         results: Dict[str, Any] = {}
 
