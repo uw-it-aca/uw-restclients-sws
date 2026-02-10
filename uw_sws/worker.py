@@ -1,4 +1,5 @@
-
+# Copyright 2026 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
 import logging
@@ -9,6 +10,7 @@ from uw_pws import PWS
 MAX_WORKERS = 50
 logger = logging.getLogger(__name__)
 UWPWS = PWS()
+
 
 class Worker(ABC):
 
@@ -36,7 +38,7 @@ class Worker(ABC):
         with ThreadPoolExecutor(max_workers=concurrency) as executor:
             # Map futures to task_identifiers
             futures = {
-                executor.submit(self.task, tid): tid 
+                executor.submit(self.task, tid): tid
                 for tid in self.get_task_ids()}
 
             for future in as_completed(futures):

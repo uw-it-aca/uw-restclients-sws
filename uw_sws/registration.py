@@ -9,15 +9,15 @@ import json
 import re
 from urllib.parse import urlencode
 from decimal import Decimal, InvalidOperation
-from datetime import datetime
 from uw_sws.models import Registration, RegistrationBlock, ClassSchedule
 from restclients_core.exceptions import DataFailureException
 from restclients_core.thread import GenericPrefetchThread, generic_prefetch
 from uw_sws import get_resource, put_resource
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
-from uw_sws.thread import SWSCourseThread, SWSPersonByRegIDThread
+from uw_sws.thread import SWSCourseThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
+from uw_sws.worker import PWSPerson
 
 
 registration_res_url_prefix = "/student/v5/registration.json"
@@ -86,29 +86,23 @@ def _json_to_registrations(data, section):
     Returns a list of all uw_sws.models.Registration objects
     """
     registrations = []
-    person_threads = {}
+    regid_set = set()
     for reg_json in data.get("Registrations", []):
         registration = Registration(data=reg_json)
         registration._uwregid = reg_json["Person"]["RegID"]
         registration.section = section
         registrations.append(registration)
 
-        if registration._uwregid not in person_threads:
-            thread = SWSPersonByRegIDThread()
-            thread.regid = registration._uwregid
-            thread.start()
-            person_threads[registration._uwregid] = thread
+        if registration._uwregid not in regid_set:
+            regid_set.add(registration._uwregid)
 
-    _set_person_in_registrations(registrations, person_threads)
-    return registrations
+    if len(regid_set) > 0:
+        cworker = PWSPerson(regid_set)
+        regid_to_person = cworker.run_tasks()
 
-
-def _set_person_in_registrations(registrations, person_threads):
-    for registration in registrations:
-        thread = person_threads[registration._uwregid]
-        thread.join()
-        registration.person = thread.person
-        del registration._uwregid
+        for registration in registrations:
+            registration.person = regid_to_person.get(registration._uwregid)
+            del registration._uwregid
 
 
 def get_registration_block_by_regid(regid):
