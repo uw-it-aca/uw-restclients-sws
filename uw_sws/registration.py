@@ -77,7 +77,7 @@ def _registrations_for_section_with_active_flag(section, is_active,
         params.append(("transcriptable_course", transcriptable_course,))
 
     url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
-
+    logger.debug(f"Getting registration: {url}")
     return _json_to_registrations(get_resource(url), section)
 
 
@@ -95,6 +95,7 @@ def _json_to_registrations(data, section):
 
         if registration._uwregid not in regid_set:
             regid_set.add(registration._uwregid)
+            logger.debug(f"regid_set.add: {registration._uwregid}")
 
     if len(regid_set) > 0:
         cworker = PWSPerson(regid_set)
