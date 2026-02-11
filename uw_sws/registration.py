@@ -102,6 +102,7 @@ def _json_to_registrations(data, section):
         regid_to_person = cworker.run_tasks()
 
         for registration in registrations:
+            logger.debug(f"regid_to_person.get: {registration._uwregid}")
             registration.person = regid_to_person.get(registration._uwregid)
             del registration._uwregid
 
