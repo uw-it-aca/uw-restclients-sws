@@ -303,8 +303,9 @@ def get_prefetch_for_section_data(section_data):
             if "RegID" in pdata and pdata["RegID"] is not None:
                 prefetch.append(
                     ["person-{}".format(pdata["RegID"]),
-                    generic_prefetch(PWSPerson.UWPWS.get_person_by_regid,
-                                    [pdata["RegID"]])])
+                     generic_prefetch(
+                         PWSPerson.UWPWS.get_person_by_regid,
+                         [pdata["RegID"]])])
 
     return prefetch
 
