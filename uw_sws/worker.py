@@ -4,7 +4,6 @@
 from abc import ABC, abstractmethod
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, Iterable
 from uw_pws import PWS
 
 logger = logging.getLogger(__name__)
@@ -15,7 +14,7 @@ UWPWS = PWS()
 class Worker(ABC):
 
     @abstractmethod
-    def get_task_ids(self) -> Iterable[str]:
+    def get_task_ids(self):
         """
         Return an iterable of strings to process
         """
@@ -59,8 +58,8 @@ class Worker(ABC):
 
                     # Submit next task
                     try:
-                        next_tid = next(task_iter)
-                        futures[executor.submit(self.task, next_tid)] = next_tid
+                        ntid = next(task_iter)
+                        futures[executor.submit(self.task, ntid)] = ntid
                     except StopIteration:
                         pass
 
@@ -72,11 +71,11 @@ class PWSPerson(Worker):
     """
     Get PWS.Person object for a list of regids
     """
-    def __init__(self, regid_set: Iterable[str]):
+    def __init__(self, regid_set):
         self.regid_set = regid_set
 
-    def get_task_ids(self) -> Iterable[str]:
-        return self.regid_set
+    def get_task_ids(self):
+        return self.regid_set.list()
 
     def task(self, tid: str):
         return UWPWS.get_person_by_regid(tid)
