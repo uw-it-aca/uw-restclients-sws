@@ -16,33 +16,31 @@ class Worker(ABC):
     @abstractmethod
     def get_task_ids(self):
         """
-        Return an iterable of strings to process
+        Return an iterable of strings
         """
         raise NotImplementedError("Subclasses must implement get_task_ids")
 
     @abstractmethod
     def task(self, tid):
-        """
-        The function to be excuted for each regid
-        """
         raise NotImplementedError("Subclasses must implement task")
 
     def run_tasks(self):
         """
-        Scalably run concurrent tasks
+        Run concurrent tasks salable to thousands of task-ids.
         Return a dictionary of task-ids to results
         """
         results = {}
         task_ids = self.get_task_ids()
+        if not task_ids:
+            return results
         concurrency = min(MAX_POOL_SIZE, len(task_ids))
 
-        task_iter = iter(self.get_task_ids())
+        task_iter = iter(task_ids)
         with ThreadPoolExecutor(max_workers=concurrency) as executor:
             futures = {}
             for _ in range(concurrency):
-                try:
-                    tid = next(task_iter)
-                except StopIteration:
+                tid = next(task_iter, None)
+                if tid is None:
                     break
                 futures[executor.submit(self.task, tid)] = tid
 
@@ -52,18 +50,17 @@ class Worker(ABC):
 
                     try:
                         results[tid] = future.result()
-                    except Exception:
-                        logger.exception(f"Task failed for {tid}")
+                    except Exception as ex:
+                        logger.error(f"Task failed for {tid}: {ex}")
                         results[tid] = None
 
-                    # Submit next task
+                    # Submit next task i available
                     try:
                         ntid = next(task_iter)
-                        futures[executor.submit(self.task, ntid)] = ntid
                     except StopIteration:
-                        pass
+                        break
+                    futures[executor.submit(self.task, ntid)] = ntid
 
-                    break
         return results
 
 
