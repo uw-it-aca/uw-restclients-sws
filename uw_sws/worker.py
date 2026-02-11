@@ -38,7 +38,9 @@ class Worker(ABC):
         for i in range(0, len(task_ids), chunk_size):
             chunk = task_ids[i:i + chunk_size]
             with ThreadPoolExecutor(max_workers=len(chunk)) as executor:
-                futures = {executor.submit(self.task, tid): tid for tid in chunk}
+                futures = {
+                    executor.submit(self.task, tid): tid for tid in chunk
+                }
 
                 for future in as_completed(futures):
                     tid = futures[future]
