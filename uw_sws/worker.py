@@ -30,23 +30,27 @@ class Worker(ABC):
         """
         results = {}
         task_ids = self.get_task_ids()
-        if not task_ids or len(task_ids) == 0:
+        total_tasks = len(task_ids)
+        if not task_ids or total_tasks == 0:
             return results
 
-        chunk_size = min(MAX_POOL_SIZE, len(task_ids))
-        for i in range(0, len(task_ids), chunk_size):
-            chunk = task_ids[i:i + chunk_size]
-            with ThreadPoolExecutor(max_workers=len(chunk)) as executor:
+        max_workers = min(MAX_POOL_SIZE, total_tasks)
+        batch_size = min(total_tasks, max_workers * 4)
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            for i in range(0, total_tasks, batch_size):
+                chunk = task_ids[i:i + batch_size]
                 futures = {
-                    executor.submit(self.task, tid): tid for tid in chunk
+                    executor.submit(self.task, tid): tid
+                    for tid in chunk
                 }
 
                 for future in as_completed(futures):
                     tid = futures[future]
                     try:
                         results[tid] = future.result()
-                    except Exception as ex:
-                        logger.error(f"Task failed for {tid}: {ex}")
+                    except Exception:
+                        logger.exception(f"Task failed for {tid}")
                         results[tid] = None
         return results
 
