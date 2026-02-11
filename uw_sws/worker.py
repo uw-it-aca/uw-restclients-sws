@@ -7,8 +7,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, Iterable
 from uw_pws import PWS
 
-MAX_WORKERS = 50
 logger = logging.getLogger(__name__)
+MAX_WORKERS = 50
 UWPWS = PWS()
 
 
@@ -45,6 +45,7 @@ class Worker(ABC):
                 tid = futures[future]
                 try:
                     results[tid] = future.result()
+                    logger.debug(f"Completed task for {tid}")
                 except Exception as exc:
                     logger.error(f"Task for {tid} failed: {exc}")
 
