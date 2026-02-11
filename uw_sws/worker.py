@@ -8,7 +8,6 @@ from uw_pws import PWS
 
 logger = logging.getLogger(__name__)
 MAX_POOL_SIZE = 30
-UWPWS = PWS()
 
 
 class Worker(ABC):
@@ -53,6 +52,8 @@ class Worker(ABC):
 
 
 class PWSPerson(Worker):
+    UWPWS = PWS()
+
     """
     Get PWS.Person object for a list of regids
     """
@@ -63,4 +64,4 @@ class PWSPerson(Worker):
         return self.regid_list
 
     def task(self, tid):
-        return UWPWS.get_person_by_regid(tid)
+        return PWSPerson.UWPWS.get_person_by_regid(tid)
