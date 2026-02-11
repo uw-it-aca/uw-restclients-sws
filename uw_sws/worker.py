@@ -75,7 +75,7 @@ class PWSPerson(Worker):
         self.regid_set = regid_set
 
     def get_task_ids(self):
-        return self.regid_set.list()
+        return list(self.regid_set)
 
     def task(self, tid: str):
         return UWPWS.get_person_by_regid(tid)
