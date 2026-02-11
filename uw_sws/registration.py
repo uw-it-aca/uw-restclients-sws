@@ -98,12 +98,13 @@ def _json_to_registrations(data, section):
         registration.section = section
         registrations.append(registration)
 
-    cworker = PWSPerson(regid_set)
-    regid_to_person = cworker.run_tasks()
+    if len(regid_set):
+        cworker = PWSPerson(regid_set)
+        regid_to_person = cworker.run_tasks()
 
-    for registration in registrations:
-        registration.person = regid_to_person.get(registration._uwregid)
-        del registration._uwregid
+        for registration in registrations:
+            registration.person = regid_to_person.get(registration._uwregid)
+            del registration._uwregid
 
 
 def get_registration_block_by_regid(regid):

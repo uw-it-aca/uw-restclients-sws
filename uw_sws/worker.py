@@ -34,8 +34,6 @@ class Worker(ABC):
         """
         results = {}
         task_ids = self.get_task_ids()
-        if len(task_ids) == 0:
-            return results
         concurrency = min(MAX_POOL_SIZE, len(task_ids))
 
         task_iter = iter(self.get_task_ids())
