@@ -55,11 +55,9 @@ class Worker(ABC):
                         results[tid] = None
 
                     # Submit next task if available
-                    try:
-                        ntid = next(task_iter)
-                    except StopIteration:
-                        break
-                    futures[executor.submit(self.task, ntid)] = ntid
+                    ntid = next(task_iter, None)
+                    if ntid:
+                        futures[executor.submit(self.task, ntid)] = ntid
 
         return results
 
@@ -69,10 +67,10 @@ class PWSPerson(Worker):
     Get PWS.Person object for a list of regids
     """
     def __init__(self, regid_set):
-        self.regid_set = regid_set
+        self.regid_list = list(regid_set)
 
     def get_task_ids(self):
-        return list(self.regid_set)
+        return self.regid_list
 
     def task(self, tid):
         return UWPWS.get_person_by_regid(tid)
