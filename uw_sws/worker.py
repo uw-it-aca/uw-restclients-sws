@@ -54,7 +54,7 @@ class Worker(ABC):
                         logger.error(f"Task failed for {tid}: {ex}")
                         results[tid] = None
 
-                    # Submit next task i available
+                    # Submit next task if available
                     try:
                         ntid = next(task_iter)
                     except StopIteration:
