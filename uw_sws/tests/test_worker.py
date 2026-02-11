@@ -24,6 +24,7 @@ class WorkerTest(TestCase):
         }
         cworker = PWSPerson(regid_set)
         results = cworker.run_tasks()
+        self.assertIsNotNone(results)
         self.assertEqual(len(results), len(regid_set))
         for regid in regid_set:
             self.assertIn(regid, results)

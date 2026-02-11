@@ -16,7 +16,7 @@ class Worker(ABC):
     @abstractmethod
     def get_task_ids(self):
         """
-        Return an iterable of strings
+        Return a list of strings
         """
         raise NotImplementedError("Subclasses must implement get_task_ids")
 
@@ -31,7 +31,7 @@ class Worker(ABC):
         """
         results = {}
         task_ids = self.get_task_ids()
-        if not task_ids:
+        if not task_ids or len(task_ids) == 0:
             return results
         concurrency = min(MAX_POOL_SIZE, len(task_ids))
 

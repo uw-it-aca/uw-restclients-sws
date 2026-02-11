@@ -92,7 +92,7 @@ def _json_to_registrations(data, section):
         person = reg_json.get("Person", {})
         registration._uwregid = person.get("RegID")
         if not registration._uwregid:
-            logger.warning(f"Missing RegID in {person}")
+            logger.error(f"Missing RegID in {person}")
             continue
         regid_set.add(registration._uwregid)
         registration.section = section
