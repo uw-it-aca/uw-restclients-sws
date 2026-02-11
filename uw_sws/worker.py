@@ -21,7 +21,7 @@ class Worker(ABC):
         raise NotImplementedError("Subclasses must implement get_task_ids")
 
     @abstractmethod
-    def task(self, tid: str):
+    def task(self, tid):
         """
         The function to be excuted for each regid
         """
@@ -77,5 +77,5 @@ class PWSPerson(Worker):
     def get_task_ids(self):
         return list(self.regid_set)
 
-    def task(self, tid: str):
+    def task(self, tid):
         return UWPWS.get_person_by_regid(tid)
