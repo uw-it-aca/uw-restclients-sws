@@ -33,32 +33,20 @@ class Worker(ABC):
         task_ids = self.get_task_ids()
         if not task_ids or len(task_ids) == 0:
             return results
-        concurrency = min(MAX_POOL_SIZE, len(task_ids))
 
-        task_iter = iter(task_ids)
-        with ThreadPoolExecutor(max_workers=concurrency) as executor:
-            futures = {}
-            for _ in range(concurrency):
-                tid = next(task_iter, None)
-                if tid is None:
-                    break
-                futures[executor.submit(self.task, tid)] = tid
+        chunk_size = min(MAX_POOL_SIZE, len(task_ids))
+        for i in range(0, len(task_ids), chunk_size):
+            chunk = task_ids[i:i + chunk_size]
+            with ThreadPoolExecutor(max_workers=len(chunk)) as executor:
+                futures = {executor.submit(self.task, tid): tid for tid in chunk}
 
-            while futures:
                 for future in as_completed(futures):
-                    tid = futures.pop(future)
-
+                    tid = futures[future]
                     try:
                         results[tid] = future.result()
                     except Exception as ex:
                         logger.error(f"Task failed for {tid}: {ex}")
                         results[tid] = None
-
-                    # Submit next task if available
-                    ntid = next(task_iter, None)
-                    if ntid:
-                        futures[executor.submit(self.task, ntid)] = ntid
-
         return results
 
 

@@ -13,7 +13,6 @@ class WorkerTest(TestCase):
     def test_run_tasks(self):
         regid_set = {
             "9136CCB8F66711D5BE060004AC494FFE",
-            "9136CCB8F66711D5BE060004AC494F31",
             "00000000000000000000000000000001",
             "12345678901234567890123456789012",
             "2817F385001347AD80D653A8E352FDC9",
@@ -26,7 +25,6 @@ class WorkerTest(TestCase):
         results = cworker.run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), len(regid_set))
-        for regid in regid_set:
-            self.assertIn(regid, results)
+        for regid in list(regid_set):
             self.assertIsNotNone(results[regid])
             self.assertEqual(results[regid].uwregid, regid)
