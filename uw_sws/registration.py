@@ -89,22 +89,21 @@ def _json_to_registrations(data, section):
     regid_set = set()
     for reg_json in data.get("Registrations", []):
         registration = Registration(data=reg_json)
-        registration._uwregid = reg_json["Person"]["RegID"]
+        person = reg_json.get("Person", {})
+        registration._uwregid = person.get("RegID")
+        if not registration._uwregid:
+            logger.warning(f"Missing RegID in {person}")
+            continue
+        regid_set.add(registration._uwregid)
         registration.section = section
         registrations.append(registration)
 
-        if registration._uwregid not in regid_set:
-            regid_set.add(registration._uwregid)
-            logger.debug(f"regid_set.add: {registration._uwregid}")
+    cworker = PWSPerson(regid_set)
+    regid_to_person = cworker.run_tasks()
 
-    if len(regid_set) > 0:
-        cworker = PWSPerson(regid_set)
-        regid_to_person = cworker.run_tasks()
-
-        for registration in registrations:
-            logger.debug(f"regid_to_person.get: {registration._uwregid}")
-            registration.person = regid_to_person.get(registration._uwregid)
-            del registration._uwregid
+    for registration in registrations:
+        registration.person = regid_to_person.get(registration._uwregid)
+        del registration._uwregid
 
 
 def get_registration_block_by_regid(regid):

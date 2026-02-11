@@ -8,7 +8,7 @@ from typing import Any, Dict, Iterable
 from uw_pws import PWS
 
 logger = logging.getLogger(__name__)
-MAX_WORKERS = 50
+MAX_POOL_SIZE = 30
 UWPWS = PWS()
 
 
@@ -28,27 +28,43 @@ class Worker(ABC):
         """
         raise NotImplementedError("Subclasses must implement task")
 
-    def run_tasks(self, concurrency=MAX_WORKERS):
+    def run_tasks(self):
         """
         Scalably run concurrent tasks
         Return a dictionary of task-ids to results
         """
-        results: Dict[str, Any] = {}
+        results = {}
+        task_ids = self.get_task_ids()
+        concurrency = min(MAX_POOL_SIZE, len(task_ids))
 
+        task_iter = iter(self.get_task_ids())
         with ThreadPoolExecutor(max_workers=concurrency) as executor:
-            # Map futures to task_identifiers
-            futures = {
-                executor.submit(self.task, tid): tid
-                for tid in self.get_task_ids()}
-
-            for future in as_completed(futures):
-                tid = futures[future]
+            futures = {}
+            for _ in range(concurrency):
                 try:
-                    results[tid] = future.result()
-                    logger.debug(f"Completed task for {tid}")
-                except Exception as exc:
-                    logger.error(f"Task for {tid} failed: {exc}")
+                    tid = next(task_iter)
+                except StopIteration:
+                    break
+                futures[executor.submit(self.task, tid)] = tid
 
+            while futures:
+                for future in as_completed(futures):
+                    tid = futures.pop(future)
+
+                    try:
+                        results[tid] = future.result()
+                    except Exception:
+                        logger.exception(f"Task failed for {tid}")
+                        results[tid] = None
+
+                    # Submit next task
+                    try:
+                        next_tid = next(task_iter)
+                        futures[executor.submit(self.task, next_tid)] = next_tid
+                    except StopIteration:
+                        pass
+
+                    break
         return results
 
 
