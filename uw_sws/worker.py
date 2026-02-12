@@ -25,7 +25,6 @@ class Worker(ABC):
 
     def run_tasks(self):
         """
-        Run concurrent tasks salable to thousands of task-ids.
         Return a dictionary of task-ids to results
         """
         results = {}
@@ -64,7 +63,7 @@ class PWSPerson(Worker):
     Get PWS.Person object for a list of regids
     """
     def __init__(self, regid_set):
-        self.regid_list = list(regid_set)
+        self.regid_list = list(regid_set or [])
 
     def get_task_ids(self):
         return self.regid_list
