@@ -23,7 +23,7 @@ class Worker(ABC):
     def task(self, tid):
         raise NotImplementedError("Subclasses must implement task")
 
-    def run_tasks(self):
+    def run_tasks(self, concurrency=MAX_POOL_SIZE):
         """
         Return a dictionary of task-ids to results
         """
@@ -33,7 +33,7 @@ class Worker(ABC):
         if not task_ids or total_tasks == 0:
             return results
 
-        max_workers = min(MAX_POOL_SIZE, total_tasks)
+        max_workers = min(concurrency, total_tasks)
         batch_size = min(total_tasks, max_workers * 4)
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
