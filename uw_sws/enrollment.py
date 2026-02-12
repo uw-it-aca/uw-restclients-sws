@@ -8,9 +8,10 @@ import logging
 from urllib.parse import urlencode
 from restclients_core.exceptions import DataFailureException
 from uw_sws.models import StudentGrades, StudentCourseGrade, Enrollment
-from uw_sws import get_resource, UWPWS
+from uw_sws import get_resource
 from uw_sws.section import get_section_by_url
 from uw_sws.term import Term, get_term_by_year_and_quarter
+from uw_sws.worker import PWSPerson
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ def get_grades_by_regid_and_term(regid, term):
 def _json_to_grades(data, regid, term):
     grades = StudentGrades()
     grades.term = term
-    grades.user = UWPWS.get_person_by_regid(regid)
+    grades.user = PWSPerson.UWPWS.get_person_by_regid(regid)
 
     grades.grade_points = data["QtrGradePoints"]
     grades.credits_attempted = data["QtrGradedAttmp"]

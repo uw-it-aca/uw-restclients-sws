@@ -4,12 +4,10 @@
 import json
 from urllib.parse import quote
 from restclients_core.exceptions import DataFailureException
-from uw_pws import PWS
 from uw_sws.dao import SWS_DAO, SWS_TIMEZONE, sws_now
 
 QUARTER_SEQ = ["winter", "spring", "summer", "autumn"]
 DAO = SWS_DAO()
-UWPWS = PWS()
 
 
 def use_v5_resources():
