@@ -314,11 +314,15 @@ class SWSTestEnrollments(TestCase):
         self.assertEqual(
             result["majors"][0].full_name,
             "App & Comp Math Sci (Social & Behav Sci)"
+
         )
 
     def test_StudentMajors(self):
         term = get_term_by_year_and_quarter(2013, "spring")
-        regid_set = {"9136CCB8F66711D5BE060004AC494FFE", "FE36CCB8F66711D5BE060004AC494FCD"}
+        regid_set = {
+            "9136CCB8F66711D5BE060004AC494FFE",
+            "FE36CCB8F66711D5BE060004AC494FCD"
+            }
         results = StudentMajors(regid_set, term).run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), len(regid_set))
