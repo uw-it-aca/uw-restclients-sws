@@ -105,6 +105,7 @@ def _json_to_registrations(data, section):
         for registration in registrations:
             registration.person = regid_to_person.get(registration._uwregid)
             del registration._uwregid
+    return registrations
 
 
 def get_registration_block_by_regid(regid):
