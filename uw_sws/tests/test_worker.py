@@ -28,3 +28,18 @@ class WorkerTest(TestCase):
         for regid in list(regid_set):
             self.assertIsNotNone(results[regid])
             self.assertEqual(results[regid].uwregid, regid)
+
+        cworker = PWSPerson(None)
+        results = cworker.run_tasks()
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results), 0)
+
+        cworker = PWSPerson(
+            {
+                "0000000000000000000000000000000",
+                "00000000000000000000000000000002",
+            }
+        )
+        results = cworker.run_tasks()
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results), 0)
