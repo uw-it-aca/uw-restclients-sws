@@ -45,13 +45,15 @@ class Worker(ABC):
                     for tid in chunk
                 }
 
+                # Handle tasks in their completion order
                 for future in as_completed(futures):
+                    # As soon as any finishes, store its result immediately
                     tid = futures[future]
                     try:
                         results[tid] = future.result()
                     except Exception:
                         logger.exception(f"Task failed for {tid}")
-                        results[tid] = None
+        # Upon block exits, Python automatically shutdown the executor
         return results
 
 
