@@ -33,7 +33,7 @@ class Worker(ABC):
             return results
 
         max_workers = min(concurrency, total_tasks)
-        batch_size = min(total_tasks, max_workers * 4)
+        batch_size = min(max_workers * 4, total_tasks)
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             for i in range(0, total_tasks, batch_size):
