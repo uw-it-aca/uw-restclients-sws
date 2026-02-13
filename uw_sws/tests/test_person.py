@@ -147,12 +147,12 @@ class PersonTest(TestCase):
             self.assertIsNotNone(results[regid])
             self.assertEqual(results[regid].uwregid, regid)
 
-        cworker = PWSPerson(None)
+        cworker = SWSPersonGetter(None)
         results = cworker.run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), 0)
 
-        cworker = PWSPerson(
+        cworker = SWSPersonGetter(
             {
                 "0000000000000000000000000000000",
                 "00000000000000000000000000000002",

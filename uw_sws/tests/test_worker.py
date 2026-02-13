@@ -7,7 +7,7 @@ from uw_sws.worker import Worker
 
 class TestWorker(Worker):
 
-    def __init__(self, task_ids):
+    def __init__(self, task_ids=None):
         self._task_ids = task_ids
 
     def get_task_ids(self):
@@ -23,7 +23,7 @@ class WorkerTest(TestCase):
         for i in range(0, 2000):
             task_ids.append(f"regid-{i}")
 
-        results = TestWorker(task_ids).run_tasks()
+        results = TestWorker(task_ids=task_ids).run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), 2000)
         for i in range(0, 2000):
@@ -35,6 +35,6 @@ class WorkerTest(TestCase):
         self.assertIsNotNone(results)
         self.assertEqual(len(results), 0)
 
-        results = TestWorker([]).run_tasks()
+        results = TestWorker(task_ids=[]).run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), 0)

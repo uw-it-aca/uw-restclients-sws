@@ -100,7 +100,8 @@ def _json_to_registrations(data, section):
 
     if len(regid_set):
         regid_to_person = SWSPersonGetter(regid_set).run_tasks()
-        regid_to_majors = StudentMajorGetter(regid_set, section.term).run_tasks()
+        regid_to_majors = StudentMajorGetter(
+            regid_set, section.term).run_tasks()
 
         for registration in registrations:
             registration.person = regid_to_person.get(registration._uwregid)

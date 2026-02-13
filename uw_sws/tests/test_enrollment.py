@@ -13,7 +13,8 @@ from uw_sws.enrollment import (
     enrollment_search_by_regid,
     get_enrollment_history_by_regid,
     get_majors_by_regid_and_term,
-    StudentMajorGetter, _get_term,
+    StudentMajorGetter,
+    _get_term
 )
 from restclients_core.exceptions import DataFailureException
 

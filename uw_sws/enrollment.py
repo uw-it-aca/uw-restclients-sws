@@ -11,7 +11,7 @@ from uw_sws.models import StudentGrades, StudentCourseGrade, Enrollment, Major
 from uw_sws import get_resource, UWPWS
 from uw_sws.section import get_section_by_url
 from uw_sws.term import Term, get_term_by_year_and_quarter
-from uw_sws.worker import PWSPerson, Worker
+from uw_sws.worker import Worker
 
 
 logger = logging.getLogger(__name__)

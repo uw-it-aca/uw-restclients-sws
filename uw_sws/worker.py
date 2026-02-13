@@ -27,9 +27,9 @@ class Worker(ABC):
         Return a dictionary of task-ids to results
         """
         results = {}
-        task_ids = self.get_task_ids()
+        task_ids = self.get_task_ids() or []
         total_tasks = len(task_ids)
-        if not task_ids or total_tasks == 0:
+        if total_tasks == 0:
             return results
 
         max_workers = min(concurrency, total_tasks)
@@ -49,7 +49,7 @@ class Worker(ABC):
                     tid = futures[future]
                     try:
                         results[tid] = future.result()
-                    except Exception:
-                        logger.exception(f"Task failed for {tid}")
+                    except Exception as ex:
+                        logger.error(f"Task failed for {tid}: {ex}")
         # Upon block exits, Python automatically shutdown the executor
         return results
