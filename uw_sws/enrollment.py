@@ -27,6 +27,7 @@ def get_grades_by_regid_and_term(regid, term):
                                     term.year,
                                     term.quarter,
                                     regid)
+    logger.debug(f"Get grades {url}")
     return _json_to_grades(get_resource(url), regid, term)
 
 
@@ -67,6 +68,7 @@ def _enrollment_search(regid,
             changed_since_date is not None) else "",
     }
     url = "{}?{}".format(enrollment_search_url_prefix, urlencode(params))
+    logger.debug(f"Enrollment search {url}")
     return get_resource(url)
 
 
@@ -153,6 +155,7 @@ def get_majors_by_regid_and_term(regid, term):
     url = (
         f"{enrollment_res_url_prefix}/{term.year},{term.quarter},{regid}.json"
     )
+    logger.debug(f"Get majors {url}")
     return _json_to_majors(get_resource(url))
 
 

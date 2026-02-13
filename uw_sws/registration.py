@@ -77,7 +77,7 @@ def _registrations_for_section_with_active_flag(section, is_active,
         params.append(("transcriptable_course", transcriptable_course,))
 
     url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
-    logger.debug(f"Getting registration: {url}")
+    logger.debug(f"Get registration: {url}")
     return _json_to_registrations(get_resource(url), section)
 
 
