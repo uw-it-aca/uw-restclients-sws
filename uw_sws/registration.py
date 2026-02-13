@@ -89,12 +89,12 @@ def _json_to_registrations(data, section):
     regid_set = set()
     for reg_json in data.get("Registrations", []):
         registration = Registration(data=reg_json)
-        person = reg_json.get("Person", {})
-        registration._uwregid = person.get("RegID")
-        if not registration._uwregid:
-            logger.error(f"Missing RegID in {person}")
+        person_json = reg_json.get("Person", {})
+        registration.regid = person_json.get("RegID")
+        if not registration.regid:
+            logger.error(f"Missing RegID in {person_json}")
             continue
-        regid_set.add(registration._uwregid)
+        regid_set.add(registration.regid)
         registration.section = section
         registrations.append(registration)
 
@@ -104,14 +104,13 @@ def _json_to_registrations(data, section):
             regid_set, section.term).run_tasks()
 
         for registration in registrations:
-            registration.person = regid_to_person.get(registration._uwregid)
-            major_class = regid_to_majors.get(registration._uwregid)
+            registration.person = regid_to_person.get(registration.regid)
+            major_class = regid_to_majors.get(registration.regid)
             if major_class:
                 registration.majors = major_class.get("majors")
                 registration.class_code = major_class.get("class_code")
                 registration.class_level = major_class.get("class_level")
 
-            del registration._uwregid
     return registrations
 
 
