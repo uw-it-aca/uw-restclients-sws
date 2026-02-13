@@ -13,7 +13,7 @@ from uw_sws.enrollment import (
     enrollment_search_by_regid,
     get_enrollment_history_by_regid,
     get_majors_by_regid_and_term,
-    StudentMajors, _get_term,
+    StudentMajorGetter, _get_term,
 )
 from restclients_core.exceptions import DataFailureException
 
@@ -317,12 +317,12 @@ class SWSTestEnrollments(TestCase):
 
         )
 
-    def test_StudentMajors(self):
+    def test_StudentMajorGetter(self):
         term = get_term_by_year_and_quarter(2013, "spring")
         regid_set = {
             "9136CCB8F66711D5BE060004AC494FFE",
             "FE36CCB8F66711D5BE060004AC494FCD"
             }
-        results = StudentMajors(regid_set, term).run_tasks()
+        results = StudentMajorGetter(regid_set, term).run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), len(regid_set))

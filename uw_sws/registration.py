@@ -15,11 +15,10 @@ from restclients_core.thread import GenericPrefetchThread, generic_prefetch
 from uw_sws import get_resource, put_resource
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
-from uw_sws.enrollment import StudentMajors
+from uw_sws.enrollment import StudentMajorGetter
+from uw_sws.person import SWSPersonGetter
 from uw_sws.thread import SWSCourseThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
-from uw_sws.worker import PWSPerson
-
 
 registration_res_url_prefix = "/student/v5/registration.json"
 registration_block_url = "/student/v5/person/{}/registrationblock.json"
@@ -100,8 +99,8 @@ def _json_to_registrations(data, section):
         registrations.append(registration)
 
     if len(regid_set):
-        regid_to_person = PWSPerson(regid_set).run_tasks()
-        regid_to_majors = StudentMajors(regid_set, section.term).run_tasks()
+        regid_to_person = SWSPersonGetter(regid_set).run_tasks()
+        regid_to_majors = StudentMajorGetter(regid_set, section.term).run_tasks()
 
         for registration in registrations:
             registration.person = regid_to_person.get(registration._uwregid)

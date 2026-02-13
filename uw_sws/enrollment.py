@@ -8,7 +8,7 @@ import logging
 from urllib.parse import urlencode
 from restclients_core.exceptions import DataFailureException
 from uw_sws.models import StudentGrades, StudentCourseGrade, Enrollment, Major
-from uw_sws import get_resource
+from uw_sws import get_resource, UWPWS
 from uw_sws.section import get_section_by_url
 from uw_sws.term import Term, get_term_by_year_and_quarter
 from uw_sws.worker import PWSPerson, Worker
@@ -33,7 +33,7 @@ def get_grades_by_regid_and_term(regid, term):
 def _json_to_grades(data, regid, term):
     grades = StudentGrades()
     grades.term = term
-    grades.user = PWSPerson.UWPWS.get_person_by_regid(regid)
+    grades.user = UWPWS.get_person_by_regid(regid)
 
     grades.grade_points = data["QtrGradePoints"]
     grades.credits_attempted = data["QtrGradedAttmp"]
@@ -170,7 +170,7 @@ def _json_to_majors(data):
     }
 
 
-class StudentMajors(Worker):
+class StudentMajorGetter(Worker):
     """
     Get major and class level for each student in regid_set and the given term
     """

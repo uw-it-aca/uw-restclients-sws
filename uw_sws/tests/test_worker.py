@@ -2,44 +2,39 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override
-from uw_pws.util import fdao_pws_override
-from uw_sws.worker import PWSPerson
+from uw_sws.worker import Worker
 
 
-@fdao_pws_override
-@fdao_sws_override
+class TestWorker(Worker):
+
+    def __init__(self, task_ids):
+        self._task_ids = task_ids
+
+    def get_task_ids(self):
+        return self._task_ids
+
+    def task(self, tid):
+        return tid.replace("regid", "person")
+
+
 class WorkerTest(TestCase):
     def test_run_tasks(self):
-        regid_set = {
-            "9136CCB8F66711D5BE060004AC494FFE",
-            "00000000000000000000000000000001",
-            "12345678901234567890123456789012",
-            "2817F385001347AD80D653A8E352FDC9",
-            "260A0DEC95CB11D78BAA000629C31437",
-            "1914B1B26A7D11D5A4AE0004AC494FFE",
-            "357C15A6D5794648BE667830EF20E6D8",
-            "40B1BC0B6A7945219437C8585AEFCF63"
-        }
-        cworker = PWSPerson(regid_set)
-        results = cworker.run_tasks()
-        self.assertIsNotNone(results)
-        self.assertEqual(len(results), len(regid_set))
-        for regid in list(regid_set):
-            self.assertIsNotNone(results[regid])
-            self.assertEqual(results[regid].uwregid, regid)
+        task_ids = []
+        for i in range(0, 2000):
+            task_ids.append(f"regid-{i}")
 
-        cworker = PWSPerson(None)
-        results = cworker.run_tasks()
+        results = TestWorker(task_ids).run_tasks()
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results), 2000)
+        for i in range(0, 2000):
+            id = f"regid-{i}"
+            self.assertIsNotNone(results[id])
+            self.assertEqual(results[id], f"person-{i}")
+
+        results = TestWorker().run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), 0)
 
-        cworker = PWSPerson(
-            {
-                "0000000000000000000000000000000",
-                "00000000000000000000000000000002",
-            }
-        )
-        results = cworker.run_tasks()
+        results = TestWorker([]).run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), 0)

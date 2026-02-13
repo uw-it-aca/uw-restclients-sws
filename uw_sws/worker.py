@@ -4,7 +4,6 @@
 from abc import ABC, abstractmethod
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from uw_pws import PWS
 
 logger = logging.getLogger(__name__)
 MAX_POOL_SIZE = 30
@@ -54,19 +53,3 @@ class Worker(ABC):
                         logger.exception(f"Task failed for {tid}")
         # Upon block exits, Python automatically shutdown the executor
         return results
-
-
-class PWSPerson(Worker):
-    UWPWS = PWS()
-
-    """
-    Get PWS.Person object for a list of regids
-    """
-    def __init__(self, regid_set):
-        self.regid_list = list(regid_set or [])
-
-    def get_task_ids(self):
-        return self.regid_list
-
-    def task(self, tid):
-        return PWSPerson.UWPWS.get_person_by_regid(tid)
