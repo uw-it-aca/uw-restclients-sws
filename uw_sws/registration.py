@@ -9,16 +9,16 @@ import json
 import re
 from urllib.parse import urlencode
 from decimal import Decimal, InvalidOperation
-from datetime import datetime
 from uw_sws.models import Registration, RegistrationBlock, ClassSchedule
 from restclients_core.exceptions import DataFailureException
 from restclients_core.thread import GenericPrefetchThread, generic_prefetch
 from uw_sws import get_resource, put_resource
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
-from uw_sws.thread import SWSCourseThread, SWSPersonByRegIDThread
+from uw_sws.enrollment import StudentMajorGetter
+from uw_sws.person import SWSPersonGetter
+from uw_sws.thread import SWSCourseThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
-
 
 registration_res_url_prefix = "/student/v5/registration.json"
 registration_block_url = "/student/v5/person/{}/registrationblock.json"
@@ -77,7 +77,7 @@ def _registrations_for_section_with_active_flag(section, is_active,
         params.append(("transcriptable_course", transcriptable_course,))
 
     url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
-
+    logger.debug(f"Get registration: {url}")
     return _json_to_registrations(get_resource(url), section)
 
 
@@ -86,29 +86,32 @@ def _json_to_registrations(data, section):
     Returns a list of all uw_sws.models.Registration objects
     """
     registrations = []
-    person_threads = {}
+    regid_set = set()
     for reg_json in data.get("Registrations", []):
         registration = Registration(data=reg_json)
-        registration._uwregid = reg_json["Person"]["RegID"]
+        person_json = reg_json.get("Person", {})
+        registration.regid = person_json.get("RegID")
+        if not registration.regid:
+            logger.error(f"Missing RegID in {person_json}")
+            continue
+        regid_set.add(registration.regid)
         registration.section = section
         registrations.append(registration)
 
-        if registration._uwregid not in person_threads:
-            thread = SWSPersonByRegIDThread()
-            thread.regid = registration._uwregid
-            thread.start()
-            person_threads[registration._uwregid] = thread
+    if len(regid_set):
+        regid_to_person = SWSPersonGetter(regid_set).run_tasks()
+        regid_to_majors = StudentMajorGetter(
+            regid_set, section.term).run_tasks()
 
-    _set_person_in_registrations(registrations, person_threads)
+        for registration in registrations:
+            registration.person = regid_to_person.get(registration.regid)
+            major_class = regid_to_majors.get(registration.regid)
+            if major_class:
+                registration.majors = major_class.get("majors")
+                registration.class_code = major_class.get("class_code")
+                registration.class_level = major_class.get("class_level")
+
     return registrations
-
-
-def _set_person_in_registrations(registrations, person_threads):
-    for registration in registrations:
-        thread = person_threads[registration._uwregid]
-        thread.join()
-        registration.person = thread.person
-        del registration._uwregid
 
 
 def get_registration_block_by_regid(regid):

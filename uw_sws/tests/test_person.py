@@ -1,11 +1,11 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 from unittest import TestCase
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
-from uw_sws.person import get_person_by_regid
-import datetime
+from uw_sws.person import get_person_by_regid, SWSPersonGetter
 
 
 @fdao_pws_override
@@ -132,3 +132,32 @@ class PersonTest(TestCase):
                          "RESIDENT")
         self.assertEqual(data.json_data()['visa_type'],
                          "")
+
+    def test_run_tasks(self):
+        regid_set = {
+            "9136CCB8F66711D5BE060004AC494FFE",
+            "00000000000000000000000000000001",
+            "12345678901234567890123456789012",
+            "9136CCB8F66711D5BE060004AC494F31",
+        }
+        results = SWSPersonGetter(regid_set).run_tasks()
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results), len(regid_set))
+        for regid in list(regid_set):
+            self.assertIsNotNone(results[regid])
+            self.assertEqual(results[regid].uwregid, regid)
+
+        cworker = SWSPersonGetter(None)
+        results = cworker.run_tasks()
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results), 0)
+
+        cworker = SWSPersonGetter(
+            {
+                "0000000000000000000000000000000",
+                "00000000000000000000000000000002",
+            }
+        )
+        results = cworker.run_tasks()
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results), 0)

@@ -1058,6 +1058,9 @@ class Registration(models.Model):
     def __init__(self, *args, **kwargs):
         self.section = None  # either Section or SectionReference
         self.person = None
+        self.majors = []
+        self.class_code = None
+        self.class_level = None
         reg_json = kwargs.get("data")
         if reg_json is None:
             return super(Registration, self).__init__(*args, **kwargs)

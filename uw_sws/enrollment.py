@@ -7,10 +7,11 @@ Interfacing with the Student Web Service, Enrollment resource.
 import logging
 from urllib.parse import urlencode
 from restclients_core.exceptions import DataFailureException
-from uw_sws.models import StudentGrades, StudentCourseGrade, Enrollment
+from uw_sws.models import StudentGrades, StudentCourseGrade, Enrollment, Major
 from uw_sws import get_resource, UWPWS
 from uw_sws.section import get_section_by_url
 from uw_sws.term import Term, get_term_by_year_and_quarter
+from uw_sws.worker import Worker
 
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ def get_grades_by_regid_and_term(regid, term):
                                     term.year,
                                     term.quarter,
                                     regid)
+    logger.debug(f"Get grades {url}")
     return _json_to_grades(get_resource(url), regid, term)
 
 
@@ -66,6 +68,7 @@ def _enrollment_search(regid,
             changed_since_date is not None) else "",
     }
     url = "{}?{}".format(enrollment_search_url_prefix, urlencode(params))
+    logger.debug(f"Enrollment search {url}")
     return get_resource(url)
 
 
@@ -143,3 +146,44 @@ def get_enrollment_history_by_regid(regid,
         regid, verbose, transcriptable_course, changed_since_date)
     return _json_to_enrollment_list(
         results, include_unfinished_pce_course_reg)
+
+
+def get_majors_by_regid_and_term(regid, term):
+    """
+    A light weight function to get student term specific majors, class level
+    """
+    url = (
+        f"{enrollment_res_url_prefix}/{term.year},{term.quarter},{regid}.json"
+    )
+    logger.debug(f"Get majors {url}")
+    return _json_to_majors(get_resource(url))
+
+
+def _json_to_majors(data):
+    majors = []
+    major_items = data.get("Majors")
+    if major_items:
+        for item in major_items:
+            majors.append(Major(data=item))
+
+    return {
+        "class_code": data.get("ClassCode"),
+        "class_level": data.get("ClassLevel"),
+        "majors": majors,
+    }
+
+
+class StudentMajorGetter(Worker):
+    """
+    Get major and class level for each student in regid_set and the given term
+    """
+
+    def __init__(self, regid_set, term):
+        self.regid_list = list(regid_set or [])
+        self.term = term
+
+    def get_task_ids(self):
+        return self.regid_list
+
+    def task(self, tid):
+        return get_majors_by_regid_and_term(tid, self.term)

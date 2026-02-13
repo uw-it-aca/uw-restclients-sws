@@ -8,8 +8,14 @@ from uw_sws.models import Enrollment, Term, ENROLLMENT_SOURCE_PCE
 from uw_sws.term import (
     get_current_term, get_term_by_year_and_quarter, get_term_before)
 from uw_sws.enrollment import (
-    get_grades_by_regid_and_term, get_enrollment_by_regid_and_term,
-    enrollment_search_by_regid, get_enrollment_history_by_regid, _get_term)
+    get_grades_by_regid_and_term,
+    get_enrollment_by_regid_and_term,
+    enrollment_search_by_regid,
+    get_enrollment_history_by_regid,
+    get_majors_by_regid_and_term,
+    StudentMajorGetter,
+    _get_term
+)
 from restclients_core.exceptions import DataFailureException
 
 
@@ -298,3 +304,26 @@ class SWSTestEnrollments(TestCase):
             result_dict[t2].json_data()["pending_resident_code"], "0")
         self.assertIsNone(
             result_dict[t2].json_data()["pending_resident_desc"])
+
+    def test_get_majors_by_regid_and_term(self):
+        term = get_current_term()
+        result = get_majors_by_regid_and_term(
+            '9136CCB8F66711D5BE060004AC494FFE', term)
+        self.assertEqual(result["class_level"], "SENIOR")
+        self.assertEqual(result["class_code"], "4")
+        self.assertEqual(len(result["majors"]), 1)
+        self.assertEqual(
+            result["majors"][0].full_name,
+            "App & Comp Math Sci (Social & Behav Sci)"
+
+        )
+
+    def test_StudentMajorGetter(self):
+        term = get_term_by_year_and_quarter(2013, "spring")
+        regid_set = {
+            "9136CCB8F66711D5BE060004AC494FFE",
+            "FE36CCB8F66711D5BE060004AC494FCD"
+            }
+        results = StudentMajorGetter(regid_set, term).run_tasks()
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results), len(regid_set))
