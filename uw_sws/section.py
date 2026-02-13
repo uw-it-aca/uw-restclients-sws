@@ -11,13 +11,12 @@ from urllib.parse import urlencode
 from restclients_core.thread import generic_prefetch
 from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
 from restclients_core.exceptions import DataFailureException
-from uw_sws import get_resource, encode_section_label
+from uw_sws import get_resource, encode_section_label, UWPWS
 from uw_sws.util import str_to_date
 from uw_sws.term import get_term_by_year_and_quarter
 from uw_sws.models import (
     Section, SectionReference, FinalExam,
     SectionMeeting, GradeSubmissionDelegate, Person)
-from uw_sws.worker import PWSPerson
 
 
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
@@ -301,11 +300,9 @@ def get_prefetch_for_section_data(section_data):
         for instructor_data in meeting_data["Instructors"]:
             pdata = instructor_data["Person"]
             if "RegID" in pdata and pdata["RegID"] is not None:
-                prefetch.append(
-                    ["person-{}".format(pdata["RegID"]),
-                     generic_prefetch(
-                         PWSPerson.UWPWS.get_person_by_regid,
-                         [pdata["RegID"]])])
+                prefetch.append(["person-{}".format(pdata["RegID"]),
+                                 generic_prefetch(UWPWS.get_person_by_regid,
+                                                  [pdata["RegID"]])])
 
     return prefetch
 
@@ -398,10 +395,8 @@ def _json_to_section(section_data,
     for del_data in section_data["GradeSubmissionDelegates"]:
         try:
             delegate = GradeSubmissionDelegate(
-                person=PWSPerson.UWPWS.get_person_by_regid(
-                    del_data["Person"]["RegID"]),
-                delegate_level=del_data["DelegateLevel"],
-            )
+                person=UWPWS.get_person_by_regid(del_data["Person"]["RegID"]),
+                delegate_level=del_data["DelegateLevel"])
         except DataFailureException:
             delegate = GradeSubmissionDelegate(
                 person=Person(uwregid=del_data["Person"]["RegID"],
@@ -464,8 +459,7 @@ def _json_to_section(section_data,
 
                 if "RegID" in pdata and pdata["RegID"] is not None:
                     try:
-                        instructor = PWSPerson.UWPWS.get_person_by_regid(
-                            pdata["RegID"])
+                        instructor = UWPWS.get_person_by_regid(pdata["RegID"])
                     except Exception:
                         instructor = Person(uwregid=pdata["RegID"],
                                             display_name=pdata["Name"])
