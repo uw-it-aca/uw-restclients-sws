@@ -133,7 +133,7 @@ class PersonTest(TestCase):
         self.assertEqual(data.json_data()['visa_type'],
                          "")
 
-    def test_run_tasks(self):
+    def test_SWSPersonGetter(self):
         regid_set = {
             "9136CCB8F66711D5BE060004AC494FFE",
             "00000000000000000000000000000001",
