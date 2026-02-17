@@ -12,7 +12,8 @@ from uw_sws.util import str_to_date
 
 
 def date_to_dtime(adate):
-    return datetime.combine(adate, datetime.min.time(), tzinfo=timezone.utc)
+    return datetime.combine(
+        adate, datetime.min.time(), tzinfo=timezone.utc).isoformat()
 
 
 @fdao_pws_override
