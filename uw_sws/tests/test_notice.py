@@ -12,9 +12,7 @@ from uw_sws.util import str_to_date
 
 
 def date_to_dtime(adate):
-    return datetime.combine(
-        adate, datetime.min.time(), tzinfo=timezone.utc).isoformat()
-    ).astimezone(timezone.utc).isoformat()
+    return datetime.combine(adate, datetime.min.time(), tzinfo=timezone.utc)
 
 
 @fdao_pws_override
