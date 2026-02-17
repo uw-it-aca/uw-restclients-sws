@@ -7,14 +7,13 @@ from restclients_core.exceptions import DataFailureException
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.notice import get_notices_by_regid
-from uw_sws.dao import sws_now, SWS_TIMEZONE
+from uw_sws.dao import sws_now
 from uw_sws.util import str_to_date
 
 
 def date_to_dtime(adate):
-    return SWS_TIMEZONE.localize(
-        datetime(year=adate.year, month=adate.month, day=adate.day)
-    ).astimezone(timezone.utc).isoformat()
+    return datetime.combine(
+        adate, datetime.min.time(), tzinfo=timezone.utc).isoformat()
 
 
 @fdao_pws_override
