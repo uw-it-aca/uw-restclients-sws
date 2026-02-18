@@ -1,0 +1,46 @@
+{
+    "ClassCode": "4",
+    "ClassLevel": "SENIOR",
+    "FullName": "AVERAGE,JOHN JOSEPH",
+    "HonorsProgram": false,
+    "LeaveEndQuarter": 0,
+    "LeaveEndYear": 0,
+    "Majors": [{
+            "Abbreviation": "ACMS",
+            "Campus": "Seattle",
+            "DegreeLevel": 1,
+            "DegreeName": "BACHELOR OF SCIENCE (APPLIED & COMPUTATIONAL MATH SCIENCES)",
+            "DegreeType": 5,
+            "FullName": "App & Comp Math Sci (Social & Behav Sci)",
+            "MajorName": "ACMS (SOC & BEH SCI)",
+            "Pathway": 80,
+            "ShortName": "ACMS (SBS)"
+        }],
+    "Minors":[{"Abbreviation":"ASL",
+        "CampusName":"Seattle",
+        "FullName":"American Sign Language",
+        "Name":"AMERICAN SIGN LANGUAGE",
+        "Pathway":0,
+        "ShortName":"ASL"}],
+    "PendingClassChange": false,
+    "PendingHonorsChange": false,
+    "PendingMajorChange": false,
+    "PendingResidentChange": false,
+    "PendingSpecialProgramChange": false,
+    "Person": {
+        "Href": "/student/v5/person/9136CCB8F66711D5BE060004AC494FFE.json",
+        "Name": "AVERAGE,JAMES",
+        "RegID": "9136CCB8F66711D5BE060004AC494FFE"
+    },
+    "QtrGradePoints": 30,
+    "QtrGradedAttmp": 10,
+    "QtrNonGrdEarned": 2,
+    "RegID": "9136CCB8F66711D5BE060004AC494FFE",
+    "Registrations": [
+    ],
+    "Term": {
+        "Href": "/student/v5/term/2017,autumn.json",
+        "Quarter": "autumn",
+        "Year": "2017"
+    }
+}

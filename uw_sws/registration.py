@@ -26,18 +26,21 @@ reg_credits_url_prefix = "/student/v5/registration/"
 logger = logging.getLogger(__name__)
 
 
-def get_active_registrations_by_section(section, transcriptable_course=""):
+def get_active_registrations_by_section(section, transcriptable_course="",
+                                        include_major_class_info=False):
     """
     Returns a list of restclients.Registration objects, representing
     active registrations for the passed section. For independent study
     sections, section.independent_study_instructor_regid limits
     registrations to that instructor.
     """
-    return _registrations_for_section_with_active_flag(section, True,
-                                                       transcriptable_course)
+    return _registrations_for_section_with_active_flag(
+        section, True, include_major_class_info, transcriptable_course)
 
 
-def get_all_registrations_by_section(section, transcriptable_course=""):
+def get_all_registrations_by_section(section,
+                                     transcriptable_course="",
+                                     include_major_class_info=False):
     """
     Returns a list of uw_sws.models.Registration objects,
     representing all (active and inactive) registrations for the passed
@@ -45,12 +48,14 @@ def get_all_registrations_by_section(section, transcriptable_course=""):
     section.independent_study_instructor_regid limits registrations to
     that instructor.
     """
-    return _registrations_for_section_with_active_flag(section, False,
-                                                       transcriptable_course)
+    return _registrations_for_section_with_active_flag(
+        section, False, include_major_class_info, transcriptable_course)
 
 
-def _registrations_for_section_with_active_flag(section, is_active,
-                                                transcriptable_course=""):
+def _registrations_for_section_with_active_flag(section,
+                                                is_active,
+                                                include_major_class_info,
+                                                transcriptable_course):
     """
     Returns a list of all uw_sws.models.Registration objects
     for a section. There can be duplicates for a person.
@@ -78,10 +83,11 @@ def _registrations_for_section_with_active_flag(section, is_active,
 
     url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
     logger.debug(f"Get registration: {url}")
-    return _json_to_registrations(get_resource(url), section)
+    return _json_to_registrations(
+        get_resource(url), section, include_major_class_info)
 
 
-def _json_to_registrations(data, section):
+def _json_to_registrations(data, section, include_major_class_info):
     """
     Returns a list of all uw_sws.models.Registration objects
     """
@@ -100,16 +106,18 @@ def _json_to_registrations(data, section):
 
     if len(regid_set):
         regid_to_person = SWSPersonGetter(regid_set).run_tasks()
-        regid_to_majors = StudentMajorGetter(
-            regid_set, section.term).run_tasks()
+        if include_major_class_info:
+            regid_to_majors = StudentMajorGetter(
+                regid_set, section.term).run_tasks()
 
         for registration in registrations:
             registration.person = regid_to_person.get(registration.regid)
-            major_class = regid_to_majors.get(registration.regid)
-            if major_class:
-                registration.majors = major_class.get("majors")
-                registration.class_code = major_class.get("class_code")
-                registration.class_level = major_class.get("class_level")
+            if include_major_class_info:
+                major_class = regid_to_majors.get(registration.regid)
+                if major_class:
+                    registration.majors = major_class.get("majors")
+                    registration.class_code = major_class.get("class_code")
+                    registration.class_level = major_class.get("class_level")
 
     return registrations
 
