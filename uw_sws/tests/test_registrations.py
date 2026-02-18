@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from restclients_core.models import MockHTTP
 from restclients_core.exceptions import DataFailureException
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.models import Term
@@ -15,7 +14,6 @@ from uw_sws.registration import (
 from uw_sws.util import fdao_sws_override, date_to_str
 from uw_pws.util import fdao_pws_override
 from decimal import Decimal
-from datetime import datetime
 import mock
 
 
@@ -33,9 +31,26 @@ class SWSTestRegistrations(TestCase):
 
         section = get_section_by_label('2017,autumn,EDC&I,552/A')
         self.assertEqual(section.section_label(), '2017,autumn,EDC&I,552/A')
-        reg = get_active_registrations_by_section(section,
-                                                  transcriptable_course="all")
-        self.assertEqual(len(reg), 2)
+        registrations = get_active_registrations_by_section(
+            section, transcriptable_course="all"
+        )
+        self.assertEqual(len(registrations), 2)
+        javerage_reg = registrations[1]
+        self.assertEqual(javerage_reg.regid,
+                         '9136CCB8F66711D5BE060004AC494FFE')
+        self.assertEqual(javerage_reg.person.uwnetid, "javerage")
+        self.assertEqual(javerage_reg.person.last_name, "Average")
+        self.assertEqual(javerage_reg.is_active, True)
+        self.assertIsNone(javerage_reg.class_level)
+        self.assertEqual(len(javerage_reg.majors), 0)
+
+        registrations = get_active_registrations_by_section(
+            section, transcriptable_course="all",
+            include_major_class_info=True)
+        self.assertEqual(len(registrations), 2)
+        javerage_reg = registrations[0]
+        self.assertEqual(javerage_reg.class_level, "SENIOR")
+        self.assertEqual(len(javerage_reg.majors), 1)
 
     def test_all_registrations_by_section(self):
         # Valid section, missing file resources
@@ -59,6 +74,8 @@ class SWSTestRegistrations(TestCase):
         self.assertEqual(javerage_reg.is_credit, True)
         self.assertEqual(date_to_str(javerage_reg.request_date), '2015-11-18')
         self.assertEqual(javerage_reg.request_status, 'ADDED TO CLASS')
+        swsperson = javerage_reg.person
+        self.assertEqual(swsperson.last_name, 'Average')
 
     def test_active_registration_status_after_drop(self):
         section = get_section_by_label('2013,winter,DROP_T,100/A')
