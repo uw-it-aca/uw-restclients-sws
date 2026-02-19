@@ -8,7 +8,6 @@ from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.notice import get_notices_by_regid, _str_to_utc
 from uw_sws.dao import sws_now, SWS_TIMEZONE
-from uw_sws.util import str_to_date
 
 
 def date_to_dtime_str(adate):
