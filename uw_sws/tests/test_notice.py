@@ -7,13 +7,14 @@ from restclients_core.exceptions import DataFailureException
 from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
 from uw_sws.notice import get_notices_by_regid, _str_to_utc
-from uw_sws.dao import sws_now
+from uw_sws.dao import sws_now, SWS_TIMEZONE
 from uw_sws.util import str_to_date
 
 
 def date_to_dtime_str(adate):
     return datetime.combine(
-        adate, datetime.min.time(), tzinfo=timezone.utc).isoformat()
+            adate, datetime.min.time(), tzinfo=SWS_TIMEZONE
+        ).astimezone(timezone.utc).isoformat()
 
 
 @fdao_pws_override
@@ -22,9 +23,9 @@ class SWSNotice(TestCase):
 
     def test_str_to_utc(self):
         self.assertEqual(_str_to_utc("2013-01-01").isoformat(),
-                         "2013-01-01T00:00:00+00:00")
+                         "2013-01-01T08:00:00+00:00")
         self.assertEqual(_str_to_utc("2013-12-31").isoformat(),
-                         "2013-12-31T00:00:00+00:00")
+                         "2013-12-31T08:00:00+00:00")
 
     def test_notice_resource(self):
         self.assertRaises(
