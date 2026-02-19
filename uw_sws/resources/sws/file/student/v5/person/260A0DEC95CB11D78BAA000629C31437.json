@@ -4,7 +4,7 @@
      "EmployeeID":"123456789",
      "FirstName":"JAMES AVERAGE",
      "Gender":"M",
-     "LastEnrolled":{},
+     "LastEnrolled":null,
      "LastName":"TEACHER",
      "Pronouns": "he/him/his",
      "LocalAddress":{"City":"SEATTLE",
