@@ -17,7 +17,7 @@
   "Registrations" : [ { "CourseNumber" : "600",
         "CurriculumAbbreviation" : "PHIL",
         "DuplicateCode" : "",
-        "Href" : "\/student\/v4\/registration\/2013,spring,PHIL,495,A,BB000000000000000000000000009994,.json",
+        "Href" : "\/student\/v4\/registration\/2013,spring,PHIL,495,A,BB000000000000000000000000009994.json",
         "Instructor" : null,
         "Quarter" : "spring",
         "RegID" : "BB000000000000000000000000009994",

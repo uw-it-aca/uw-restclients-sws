@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from dateutil import parser
 import logging
 from uw_sws.models import Notice, NoticeAttribute
-from uw_sws import get_resource
+from uw_sws import get_resource, SWS_TIMEZONE
 
 notice_res_url_prefix = "/student/v5/notice/"
 logger = logging.getLogger(__name__)
@@ -27,7 +27,9 @@ def get_notices_by_regid(regid):
 
 def _str_to_utc(date_str):
     date = parser.parse(date_str)
-    return datetime.combine(date, datetime.min.time(), tzinfo=timezone.utc)
+    return datetime.combine(
+            date, datetime.min.time(), tzinfo=SWS_TIMEZONE
+        ).astimezone(timezone.utc)
 
 
 def _notices_from_json(notice_data):
