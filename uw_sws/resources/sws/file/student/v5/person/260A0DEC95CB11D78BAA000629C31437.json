@@ -4,7 +4,7 @@
      "EmployeeID":"123456789",
      "FirstName":"JAMES AVERAGE",
      "Gender":"M",
-     "LastEnrolled":{},
+     "LastEnrolled":null,
      "LastName":"TEACHER",
      "Pronouns": "he/him/his",
      "LocalAddress":{"City":"SEATTLE",
@@ -15,7 +15,8 @@
         "State":"WA",
         "Zip":"98105"},
      "LocalPhone":"2063333333",
-     "PermanentAddress":{"City":"Bellevue",
+     "PermanentAddress":{
+        "City":"Bellevue",
         "Country":"",
         "Line1":"1645 140th Ave NE",
         "Line2":"APT 980",
