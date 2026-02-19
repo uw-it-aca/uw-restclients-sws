@@ -139,6 +139,7 @@ class PersonTest(TestCase):
             "00000000000000000000000000000001",
             "12345678901234567890123456789012",
             "9136CCB8F66711D5BE060004AC494F31",
+            "260A0DEC95CB11D78BAA000629C31437",
         }
         results = SWSPersonGetter(regid_set).run_tasks()
         self.assertIsNotNone(results)
