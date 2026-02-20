@@ -27,7 +27,8 @@ reg_credits_url_prefix = "/student/v5/registration/"
 logger = logging.getLogger(__name__)
 
 
-def get_active_registrations_by_section(section, transcriptable_course="",
+def get_active_registrations_by_section(section,
+                                        transcriptable_course="",
                                         include_major_class_info=False,
                                         use_pws_person=False):
     """
@@ -57,8 +58,12 @@ def get_all_registrations_by_section(section,
     that instructor.
     """
     return _registrations_for_section_with_active_flag(
-        section, False, include_major_class_info,
-        transcriptable_course, use_pws_person)
+        section,
+        False,
+        include_major_class_info,
+        transcriptable_course,
+        use_pws_person
+    )
 
 
 def _registrations_for_section_with_active_flag(section,
@@ -97,7 +102,9 @@ def _registrations_for_section_with_active_flag(section,
         get_resource(url), section, include_major_class_info, use_pws_person)
 
 
-def _json_to_registrations(data, section, include_major_class_info,
+def _json_to_registrations(data,
+                           section,
+                           include_major_class_info,
                            use_pws_person):
     """
     Returns a list of all uw_sws.models.Registration objects
@@ -116,10 +123,11 @@ def _json_to_registrations(data, section, include_major_class_info,
         registrations.append(registration)
 
     if len(regid_set):
-        if use_pws_person:
-            regid_to_person = PWSPersonGetter(regid_set).run_tasks()
-        else:
-            regid_to_person = SWSPersonGetter(regid_set).run_tasks()
+
+        regid_to_person = (
+            PWSPersonGetter(regid_set).run_tasks() if use_pws_person
+            else SWSPersonGetter(regid_set).run_tasks()
+        )
         if include_major_class_info:
             regid_to_majors = StudentMajorGetter(
                 regid_set, section.term).run_tasks()
