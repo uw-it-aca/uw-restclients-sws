@@ -74,8 +74,8 @@ class SWSTestRegistrations(TestCase):
         self.assertEqual(javerage_reg.is_credit, True)
         self.assertEqual(date_to_str(javerage_reg.request_date), '2015-11-18')
         self.assertEqual(javerage_reg.request_status, 'ADDED TO CLASS')
-        swsperson = javerage_reg.person
-        self.assertEqual(swsperson.last_name, 'Average')
+        pwsperson = javerage_reg.person
+        self.assertEqual(pwsperson.surname, "STUDENT")
 
     def test_active_registration_status_after_drop(self):
         section = get_section_by_label('2013,winter,DROP_T,100/A')
