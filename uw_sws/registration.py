@@ -48,7 +48,7 @@ def get_active_registrations_by_section(section, transcriptable_course="",
 def get_all_registrations_by_section(section,
                                      transcriptable_course="",
                                      include_major_class_info=False,
-                                     use_pws_person=True):
+                                     use_pws_person=False):
     """
     Returns a list of uw_sws.models.Registration objects,
     representing all (active and inactive) registrations for the passed
