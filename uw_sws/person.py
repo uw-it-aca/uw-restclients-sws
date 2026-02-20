@@ -8,7 +8,7 @@ import logging
 from dateutil.parser import parse
 from uw_sws.models import SwsPerson, StudentAddress, LastEnrolled
 from uw_sws import get_resource
-from uw_sws.worker import Worker
+from uw_sws.worker import PersonGetter
 
 
 logger = logging.getLogger(__name__)
@@ -86,16 +86,10 @@ def _process_json_data(person_data):
     return person
 
 
-class SWSPersonGetter(Worker):
+class SWSPersonGetter(PersonGetter):
     """
     Get SwsPerson object for a list of regids
     """
-
-    def __init__(self, regid_set):
-        self.regid_list = list(regid_set or [])
-
-    def get_task_ids(self):
-        return self.regid_list
 
     def task(self, tid):
         return get_person_by_regid(tid)
