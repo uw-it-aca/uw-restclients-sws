@@ -17,6 +17,7 @@ from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
 from uw_sws.enrollment import StudentMajorGetter
 from uw_sws.person import SWSPersonGetter
+from uw_sws.pws_person import PWSPersonGetter
 from uw_sws.thread import SWSCourseThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
 
@@ -26,8 +27,10 @@ reg_credits_url_prefix = "/student/v5/registration/"
 logger = logging.getLogger(__name__)
 
 
-def get_active_registrations_by_section(section, transcriptable_course="",
-                                        include_major_class_info=False):
+def get_active_registrations_by_section(section,
+                                        transcriptable_course="",
+                                        include_major_class_info=False,
+                                        use_pws_person=False):
     """
     Returns a list of restclients.Registration objects, representing
     active registrations for the passed section. For independent study
@@ -35,12 +38,18 @@ def get_active_registrations_by_section(section, transcriptable_course="",
     registrations to that instructor.
     """
     return _registrations_for_section_with_active_flag(
-        section, True, include_major_class_info, transcriptable_course)
+        section,
+        True,
+        include_major_class_info,
+        transcriptable_course,
+        use_pws_person
+    )
 
 
 def get_all_registrations_by_section(section,
                                      transcriptable_course="",
-                                     include_major_class_info=False):
+                                     include_major_class_info=False,
+                                     use_pws_person=False):
     """
     Returns a list of uw_sws.models.Registration objects,
     representing all (active and inactive) registrations for the passed
@@ -49,13 +58,19 @@ def get_all_registrations_by_section(section,
     that instructor.
     """
     return _registrations_for_section_with_active_flag(
-        section, False, include_major_class_info, transcriptable_course)
+        section,
+        False,
+        include_major_class_info,
+        transcriptable_course,
+        use_pws_person
+    )
 
 
 def _registrations_for_section_with_active_flag(section,
                                                 is_active,
                                                 include_major_class_info,
-                                                transcriptable_course):
+                                                transcriptable_course,
+                                                use_pws_person):
     """
     Returns a list of all uw_sws.models.Registration objects
     for a section. There can be duplicates for a person.
@@ -84,10 +99,13 @@ def _registrations_for_section_with_active_flag(section,
     url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
     logger.debug(f"Get registration: {url}")
     return _json_to_registrations(
-        get_resource(url), section, include_major_class_info)
+        get_resource(url), section, include_major_class_info, use_pws_person)
 
 
-def _json_to_registrations(data, section, include_major_class_info):
+def _json_to_registrations(data,
+                           section,
+                           include_major_class_info,
+                           use_pws_person):
     """
     Returns a list of all uw_sws.models.Registration objects
     """
@@ -105,7 +123,11 @@ def _json_to_registrations(data, section, include_major_class_info):
         registrations.append(registration)
 
     if len(regid_set):
-        regid_to_person = SWSPersonGetter(regid_set).run_tasks()
+
+        regid_to_person = (
+            PWSPersonGetter(regid_set).run_tasks() if use_pws_person
+            else SWSPersonGetter(regid_set).run_tasks()
+        )
         if include_major_class_info:
             regid_to_majors = StudentMajorGetter(
                 regid_set, section.term).run_tasks()

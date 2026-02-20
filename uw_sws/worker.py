@@ -53,3 +53,19 @@ class Worker(ABC):
                         logger.error(f"Task failed for {tid}: {ex}")
         # Upon block exits, Python automatically shutdown the executor
         return results
+
+
+class PersonGetter(Worker):
+    """
+    The base-class for PWS or SWS Person object getters for a list of regids
+    """
+
+    def __init__(self, regid_set):
+        self.regid_list = list(regid_set or [])
+
+    def get_task_ids(self):
+        return self.regid_list
+
+    @abstractmethod
+    def task(self, tid):
+        raise NotImplementedError("Subclasses must implement task")

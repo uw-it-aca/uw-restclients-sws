@@ -46,7 +46,8 @@ class SWSTestRegistrations(TestCase):
 
         registrations = get_active_registrations_by_section(
             section, transcriptable_course="all",
-            include_major_class_info=True)
+            include_major_class_info=True
+        )
         self.assertEqual(len(registrations), 2)
         javerage_reg = registrations[0]
         self.assertEqual(javerage_reg.class_level, "SENIOR")
@@ -63,7 +64,8 @@ class SWSTestRegistrations(TestCase):
         # Valid section
         section = get_section_by_label('2013,winter,DROP_T,100/B')
 
-        registrations = get_all_registrations_by_section(section)
+        registrations = get_all_registrations_by_section(
+            section, use_pws_person=True)
 
         self.assertEqual(len(registrations), 3)
 
@@ -74,8 +76,8 @@ class SWSTestRegistrations(TestCase):
         self.assertEqual(javerage_reg.is_credit, True)
         self.assertEqual(date_to_str(javerage_reg.request_date), '2015-11-18')
         self.assertEqual(javerage_reg.request_status, 'ADDED TO CLASS')
-        swsperson = javerage_reg.person
-        self.assertEqual(swsperson.last_name, 'Average')
+        pwsperson = javerage_reg.person
+        self.assertEqual(pwsperson.surname, "STUDENT")
 
     def test_active_registration_status_after_drop(self):
         section = get_section_by_label('2013,winter,DROP_T,100/A')
