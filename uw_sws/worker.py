@@ -4,9 +4,9 @@
 from abc import ABC, abstractmethod
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from uw_sws import DAO
 
 logger = logging.getLogger(__name__)
-MAX_POOL_SIZE = 30
 
 
 class Worker(ABC):
@@ -22,7 +22,11 @@ class Worker(ABC):
     def task(self, tid):
         raise NotImplementedError("Subclasses must implement task")
 
-    def run_tasks(self, concurrency=MAX_POOL_SIZE):
+    @property
+    def concurrency(self):
+        return DAO.get_service_setting("THREAD_POOL_SIZE", 30)
+
+    def run_tasks(self):
         """
         Return a dictionary of task-ids to results
         """
@@ -32,7 +36,7 @@ class Worker(ABC):
         if total_tasks == 0:
             return results
 
-        max_workers = min(concurrency, total_tasks)
+        max_workers = min(self.concurrency, total_tasks)
         batch_size = min(max_workers * 4, total_tasks)
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:

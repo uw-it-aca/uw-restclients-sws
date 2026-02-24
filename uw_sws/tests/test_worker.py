@@ -3,6 +3,8 @@
 
 from unittest import TestCase
 from uw_sws.worker import Worker
+from uw_sws.util import fdao_sws_override
+from commonconf import override_settings
 
 
 class TestWorker(Worker):
@@ -38,3 +40,13 @@ class WorkerTest(TestCase):
         results = TestWorker(task_ids=[]).run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), 0)
+
+    @fdao_sws_override
+    def test_thread_pool_size_settings(self):
+        self.assertEqual(TestWorker().concurrency, 30)  # Missing setting
+
+        with override_settings(RESTCLIENTS_SWS_THREAD_POOL_SIZE=30):
+            self.assertEqual(TestWorker().concurrency, 30)
+
+        with override_settings(RESTCLIENTS_SWS_THREAD_POOL_SIZE=100):
+            self.assertEqual(TestWorker().concurrency, 100)
