@@ -24,7 +24,7 @@ class Worker(ABC):
 
     @property
     def concurrency(self):
-        return DAO.get_service_setting("THREAD_POOL_SIZE", 30)
+        return DAO.get_service_setting("THREAD_POOL_SIZE", 10)
 
     def run_tasks(self):
         """

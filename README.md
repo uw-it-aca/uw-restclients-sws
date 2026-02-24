@@ -29,6 +29,6 @@ Optional settings:
     RESTCLIENTS_SWS_POOL_SIZE=10
 
     # Threaded worker settings
-    RESTCLIENTS_SWS_THREAD_POOL_SIZE=30
+    RESTCLIENTS_SWS_THREAD_POOL_SIZE=10
 
 See examples for usage.  Pull requests welcome.
