@@ -45,8 +45,8 @@ class WorkerTest(TestCase):
     def test_thread_pool_size_settings(self):
         self.assertEqual(TestWorker().concurrency, 10)  # Missing setting
 
-        with override_settings(RESTCLIENTS_SWS_THREAD_POOL_SIZE=30):
+        with override_settings(RESTCLIENTS_SWS_THREAD_POOL_SIZE="30"):
             self.assertEqual(TestWorker().concurrency, 30)
 
-        with override_settings(RESTCLIENTS_SWS_THREAD_POOL_SIZE=100):
+        with override_settings(RESTCLIENTS_SWS_THREAD_POOL_SIZE="100"):
             self.assertEqual(TestWorker().concurrency, 100)
