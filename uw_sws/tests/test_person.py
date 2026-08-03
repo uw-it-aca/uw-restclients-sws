@@ -1,11 +1,12 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override
+
 from uw_pws.util import fdao_pws_override
-from uw_sws.person import get_person_by_regid, SWSPersonGetter
+
+from uw_sws.person import SWSPersonGetter, get_person_by_regid
+from uw_sws.util import fdao_sws_override
 
 
 @fdao_pws_override
@@ -144,7 +145,7 @@ class PersonTest(TestCase):
         results = SWSPersonGetter(regid_set).run_tasks()
         self.assertIsNotNone(results)
         self.assertEqual(len(results), len(regid_set))
-        for regid in list(regid_set):
+        for regid in regid_set:
             self.assertIsNotNone(results[regid])
             self.assertEqual(results[regid].uwregid, regid)
 

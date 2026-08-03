@@ -5,9 +5,9 @@
 Interfacing with the Student Web Service, Campus Search.
 """
 import logging
+
 from uw_sws import get_resource
 from uw_sws.models import Campus
-
 
 logger = logging.getLogger(__name__)
 campus_search_url = "/student/v5/campus.json"

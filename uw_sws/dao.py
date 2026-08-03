@@ -7,9 +7,10 @@ Contains SWS DAO implementations.
 import json
 import os
 import re
-from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta, timezone
 from os.path import abspath, dirname
+from zoneinfo import ZoneInfo
+
 from restclients_core.dao import DAO, MockDAO
 
 SWS_TIMEZONE = ZoneInfo('America/Los_Angeles')
@@ -19,7 +20,7 @@ def sws_now():
     """
     Return a naive datetime corresponding to the natural SWS timezone.
     """
-    return datetime.fromtimestamp(
+    return datetime.fromtimestamp(  # noqa: DTZ006
         int(datetime.now(timezone.utc).strftime('%s')) +
         int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
@@ -36,7 +37,7 @@ class SWS_DAO(DAO):
 
         bearer_key = self.get_service_setting('OAUTH_BEARER')
         if bearer_key is not None:
-            custom_headers["Authorization"] = "Bearer {}".format(bearer_key)
+            custom_headers["Authorization"] = f"Bearer {bearer_key}"
 
         return custom_headers
 
@@ -120,5 +121,5 @@ class SWS_DAO(DAO):
 class TestBadResponse(MockDAO):
     def load(self, method, url, headers, body):
         if url == "/student/v5/course/2012,summer,PHYS,121/AQ.json":
-            raise Exception("Uh oh!")
-        return super(TestBadResponse, self).load(method, url, headers, body)
+            raise Exception("Uh oh!")  # noqa: TRY002
+        return super().load(method, url, headers, body)

@@ -3,9 +3,8 @@
 
 # Interfacing with the search for a student's academic advisers
 
-from restclients_core.exceptions import DataFailureException
-from uw_sws.models import StudentAdviser
 from uw_sws import get_resource
+from uw_sws.models import StudentAdviser
 
 advisers_url = "/student/v5/person/{}/advisers.json"
 

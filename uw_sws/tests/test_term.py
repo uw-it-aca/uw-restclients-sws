@@ -1,20 +1,32 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-import json
+# ruff: noqa: DTZ001,DTZ007
+
+from datetime import date, datetime, timedelta
 from unittest import TestCase
-from uw_sws.dao import sws_now
-from uw_sws.util import fdao_sws_override
-from uw_pws.util import fdao_pws_override
-from datetime import datetime, timedelta, date
+from unittest.mock import patch
+
 from restclients_core.exceptions import DataFailureException
+from uw_pws.util import fdao_pws_override
+
+from uw_sws.dao import sws_now
 from uw_sws.models import Term
 from uw_sws.term import (
-    get_term_by_year_and_quarter, get_term_before, get_term_after,
-    get_current_term, get_next_term_sws, get_previous_term_sws, get_next_term,
-    get_previous_term, get_term_by_date,
-    get_specific_term, get_next_autumn_term, get_next_non_summer_term)
-from mock import patch
+    get_current_term,
+    get_next_autumn_term,
+    get_next_non_summer_term,
+    get_next_term,
+    get_next_term_sws,
+    get_previous_term,
+    get_previous_term_sws,
+    get_specific_term,
+    get_term_after,
+    get_term_before,
+    get_term_by_date,
+    get_term_by_year_and_quarter,
+)
+from uw_sws.util import fdao_sws_override
 
 
 def mock_is_grading_period_past(self):
@@ -128,12 +140,10 @@ class SWSTestTerm(TestCase):
         expected_year = 2013
 
         self.assertEqual(term.year, expected_year,
-                         "Return {} for the current year".format(
-                             expected_year))
+                         f"Return {expected_year} for the current year")
 
         self.assertEqual(term.quarter, expected_quarter,
-                         "Return {} for the current quarter".format(
-                             expected_quarter))
+                         f"Return {expected_quarter} for the current quarter")
 
         self.assertEqual(term.first_day_quarter.year, 2013)
         self.assertEqual(term.first_day_quarter.month, 4)
@@ -165,9 +175,9 @@ class SWSTestTerm(TestCase):
         self.assertEqual(term.get_eod_last_instruction(),
                          datetime(2013, 6, 8, 0, 0, 0))
 
-        self.assertTrue(term.time_schedule_published.get(u'seattle'))
-        self.assertTrue(term.time_schedule_published.get(u'bothell'))
-        self.assertTrue(term.time_schedule_published.get(u'tacoma'))
+        self.assertTrue(term.time_schedule_published.get('seattle'))
+        self.assertTrue(term.time_schedule_published.get('bothell'))
+        self.assertTrue(term.time_schedule_published.get('tacoma'))
 
         next_autumn_term = get_next_autumn_term(term)
         self.assertEqual(next_autumn_term.year, 2013)
@@ -198,12 +208,10 @@ class SWSTestTerm(TestCase):
         self.assertTrue(term.is_past(comparison_datetime))
 
         self.assertEqual(term.year, expected_year,
-                         "Return {} for the previous year".format(
-                             expected_year))
+                         f"Return {expected_year} for the previous year")
 
         self.assertEqual(term.quarter, expected_quarter,
-                         "Return {} for the previous quarter".format(
-                             expected_quarter))
+                         f"Return {expected_quarter} for the previous quarter")
 
         self.assertEqual(term.get_bod_first_day(),
                          datetime(2013, 1, 7, 0, 0, 0))
@@ -279,12 +287,10 @@ class SWSTestTerm(TestCase):
         self.assertTrue(term.is_future(comparison_datetime))
 
         self.assertEqual(term.year, expected_year,
-                         "Return {} for the next year".format(
-                             expected_year))
+                         f"Return {expected_year} for the next year")
 
         self.assertEqual(term.quarter, expected_quarter,
-                         "Return {} for the next quarter".format(
-                             expected_quarter))
+                         f"Return {expected_quarter} for the next quarter")
 
         self.assertEqual(term.census_day.year, 2013)
         self.assertEqual(term.census_day.month, 7)
@@ -661,9 +667,9 @@ class SWSTestTerm(TestCase):
         self.assertIsNone(term.registration_period1_start)
         self.assertIsNone(term.registration_period2_start)
         self.assertIsNone(term.registration_period3_start)
-        self.assertFalse(term.time_schedule_published.get(u'seattle'))
-        self.assertFalse(term.time_schedule_published.get(u'bothell'))
-        self.assertFalse(term.time_schedule_published.get(u'tacoma'))
+        self.assertFalse(term.time_schedule_published.get('seattle'))
+        self.assertFalse(term.time_schedule_published.get('bothell'))
+        self.assertFalse(term.time_schedule_published.get('tacoma'))
 
     def test_json_data(self):
         term = get_term_by_year_and_quarter(2014, 'winter')

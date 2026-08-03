@@ -6,13 +6,14 @@ Interfacing with the Student Web Service, Enrollment resource.
 """
 import logging
 from urllib.parse import urlencode
+
 from restclients_core.exceptions import DataFailureException
-from uw_sws.models import StudentGrades, StudentCourseGrade, Enrollment, Major
-from uw_sws import get_resource, UWPWS
+
+from uw_sws import UWPWS, get_resource
+from uw_sws.models import Enrollment, Major, StudentCourseGrade, StudentGrades
 from uw_sws.section import get_section_by_url
 from uw_sws.term import Term, get_term_by_year_and_quarter
 from uw_sws.worker import Worker
-
 
 logger = logging.getLogger(__name__)
 enrollment_res_url_prefix = "/student/v5/enrollment"
@@ -23,10 +24,7 @@ def get_grades_by_regid_and_term(regid, term):
     """
     Returns a StudentGrades model for the regid and term.
     """
-    url = "{}/{},{},{}.json".format(enrollment_res_url_prefix,
-                                    term.year,
-                                    term.quarter,
-                                    regid)
+    url = f"{enrollment_res_url_prefix}/{term.year},{term.quarter},{regid}.json"
     logger.debug(f"Get grades {url}")
     return _json_to_grades(get_resource(url), regid, term)
 
@@ -67,7 +65,7 @@ def _enrollment_search(regid,
         "changed_since_date": changed_since_date if (
             changed_since_date is not None) else "",
     }
-    url = "{}?{}".format(enrollment_search_url_prefix, urlencode(params))
+    url = f"{enrollment_search_url_prefix}?{urlencode(params)}"
     logger.debug(f"Enrollment search {url}")
     return get_resource(url)
 
@@ -95,11 +93,9 @@ def _get_term(term_enro_json_data):
         try:
             return get_term_by_year_and_quarter(term_year, term_quarter)
         except DataFailureException as ex:
-            logger.error("Invalid Term in Enrollment payload: {}".format(ex))
+            logger.error(f"Invalid Term in Enrollment payload: {ex}")
             return Term(term_year, term_quarter)
-    logger.error(
-        "Invalid Term in Enrollment payload: {}".format(
-            term_enro_json_data))
+    logger.error(f"Invalid Term in Enrollment payload: {term_enro_json_data}")
     return None
 
 

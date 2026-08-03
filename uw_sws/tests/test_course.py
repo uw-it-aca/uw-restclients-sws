@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override
+
 from uw_pws.util import fdao_pws_override
-from uw_sws.course import validate_course_label, get_course_by_label
+
+from uw_sws.course import get_course_by_label, validate_course_label
 from uw_sws.exceptions import InvalidCourseID
+from uw_sws.util import fdao_sws_override
 
 
 @fdao_pws_override

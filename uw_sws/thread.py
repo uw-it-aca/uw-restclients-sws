@@ -1,8 +1,9 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from uw_sws.dao import SWS_DAO
 from restclients_core.thread import Thread
+
+from uw_sws.dao import SWS_DAO
 
 
 class SWSCourseThread(Thread):
@@ -14,7 +15,7 @@ class SWSCourseThread(Thread):
 
     def run(self):
         if self.url is None:
-            raise Exception("SWSCourseThread must have a url")
+            raise Exception("SWSCourseThread must have a url")  # noqa: TRY002
 
         args = self.headers or {}
 

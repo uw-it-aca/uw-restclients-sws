@@ -1,13 +1,15 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from unittest import TestCase
 from datetime import datetime, timedelta, timezone
+from unittest import TestCase
+
 from restclients_core.exceptions import DataFailureException
-from uw_sws.util import fdao_sws_override
 from uw_pws.util import fdao_pws_override
-from uw_sws.notice import get_notices_by_regid, _str_to_utc
-from uw_sws.dao import sws_now, SWS_TIMEZONE
+
+from uw_sws.dao import SWS_TIMEZONE, sws_now
+from uw_sws.notice import _str_to_utc, get_notices_by_regid
+from uw_sws.util import fdao_sws_override
 
 
 def date_to_dtime_str(adate):
@@ -36,10 +38,10 @@ class SWSNotice(TestCase):
 
         today = sws_now().date()
         yesterday = date_to_dtime_str(today - timedelta(days=1))
-        tomorrow = date_to_dtime_str(today + timedelta(days=1))
+        _tomorrow = date_to_dtime_str(today + timedelta(days=1))
         week = date_to_dtime_str(today + timedelta(days=2))
         next_week = date_to_dtime_str(today + timedelta(weeks=1))
-        future = date_to_dtime_str(today + timedelta(weeks=3))
+        _future = date_to_dtime_str(today + timedelta(weeks=3))
         future_end = date_to_dtime_str(today + timedelta(weeks=5))
 
         notice = notices[0]
