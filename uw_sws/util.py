@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from datetime import datetime, timedelta
+
 from dateutil.parser import parse
 from restclients_core.util.decorators import use_mock
+
 from uw_sws.dao import SWS_DAO
 
 fdao_sws_override = use_mock(SWS_DAO())
@@ -40,7 +42,7 @@ def convert_to_begin_of_day(a_date):
     """
     if a_date is None:
         return None
-    return datetime(a_date.year, a_date.month, a_date.day, 0, 0, 0)
+    return datetime(a_date.year, a_date.month, a_date.day, 0, 0, 0)  # noqa: DTZ001
 
 
 def convert_to_end_of_day(a_date):

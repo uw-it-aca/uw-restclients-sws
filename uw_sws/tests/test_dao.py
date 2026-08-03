@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from uw_sws.dao import SWS_DAO
+
 from commonconf import override_settings
+
+from uw_sws.dao import SWS_DAO
 
 
 class SWSTestDao(TestCase):

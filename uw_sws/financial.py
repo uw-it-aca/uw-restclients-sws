@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from uw_sws.models import Finance
-from uw_sws import get_resource
 
+from uw_sws import get_resource
+from uw_sws.models import Finance
 
 logger = logging.getLogger(__name__)
 sws_url_prefix = "/student/v5/person/"

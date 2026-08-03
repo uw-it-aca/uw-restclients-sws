@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override
+
 from uw_pws.util import fdao_pws_override
+
 from uw_sws.college import get_all_colleges
-from restclients_core.exceptions import DataFailureException
+from uw_sws.util import fdao_sws_override
 
 
 @fdao_pws_override

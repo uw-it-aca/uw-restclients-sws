@@ -1,20 +1,24 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from unittest import TestCase
+from decimal import Decimal
+from unittest import TestCase, mock
+
 from restclients_core.exceptions import DataFailureException
+from uw_pws.util import fdao_pws_override
+
 from uw_sws.exceptions import ThreadedDataError
 from uw_sws.models import Term
+from uw_sws.registration import (
+    get_active_registrations_by_section,
+    get_all_registrations_by_section,
+    get_registration_block_by_regid,
+    get_schedule_by_regid_and_term,
+    update_registration_block,
+)
 from uw_sws.section import get_section_by_label
 from uw_sws.term import get_term_by_year_and_quarter
-from uw_sws.registration import (
-    get_active_registrations_by_section, get_all_registrations_by_section,
-    get_schedule_by_regid_and_term, get_registration_block_by_regid,
-    update_registration_block)
-from uw_sws.util import fdao_sws_override, date_to_str
-from uw_pws.util import fdao_pws_override
-from decimal import Decimal
-import mock
+from uw_sws.util import date_to_str, fdao_sws_override
 
 
 @fdao_pws_override
@@ -155,14 +159,14 @@ class SWSTestRegistrations(TestCase):
         section = get_section_by_label('2013,winter,DROP_T,100/B')
 
         # Test for default resource, i.e. transcriptable_course=yes
-        registrations = get_all_registrations_by_section(section)
+        _registrations = get_all_registrations_by_section(section)
         mock_get_resource.assert_called_with(
             '/student/v5/registration.json?curriculum_abbreviation=DROP_T&'
             'instructor_reg_id=&course_number=100&verbose=true&year=2013&'
             'quarter=winter&is_active=&section_id=B')
 
         # Test for transcriptable_course=yes explicitly
-        registrations = get_all_registrations_by_section(
+        _registrations = get_all_registrations_by_section(
             section, transcriptable_course='yes')
         mock_get_resource.assert_called_with(
             '/student/v5/registration.json?curriculum_abbreviation=DROP_T&'
@@ -170,7 +174,7 @@ class SWSTestRegistrations(TestCase):
             'quarter=winter&is_active=&section_id=B&transcriptable_course=yes')
 
         # Test for transcriptable_course=all resource
-        registrations = get_all_registrations_by_section(
+        _registrations = get_all_registrations_by_section(
             section, transcriptable_course='all')
         mock_get_resource.assert_called_with(
             '/student/v5/registration.json?curriculum_abbreviation=DROP_T&'
@@ -178,7 +182,7 @@ class SWSTestRegistrations(TestCase):
             'quarter=winter&is_active=&section_id=B&transcriptable_course=all')
 
         # Test for transcriptable_course=no
-        registrations = get_all_registrations_by_section(
+        _registrations = get_all_registrations_by_section(
             section, transcriptable_course='no')
         mock_get_resource.assert_called_with(
             '/student/v5/registration.json?curriculum_abbreviation=DROP_T&'
@@ -199,7 +203,7 @@ class SWSTestRegistrations(TestCase):
             class_schedule, '2013,spring,TRAIN,100/A')
         self.assertEqual(len(section.get_instructors()), 1)
         self.assertEqual(section.student_credits,
-                         Decimal("{:f}".format(1.0)))
+                         Decimal(f"{1.0:f}"))
         self.assertEqual(section.student_grade, "X")
         self.assertIsNone(section.grade_date)
         self.assertTrue(section.is_primary_section)
@@ -208,7 +212,7 @@ class SWSTestRegistrations(TestCase):
         section = self._get_section_from_schedule(
             class_schedule, '2013,spring,PHYS,121/AC')
         self.assertEqual(section.student_credits,
-                         Decimal("{:f}".format(3.0)))
+                         Decimal(f"{3.0:f}"))
         self.assertEqual(section.student_grade, "4.0")
         self.assertEqual(date_to_str(section.grade_date), "2013-06-11")
         self.assertFalse(section.is_primary_section)
@@ -250,7 +254,7 @@ class SWSTestRegistrations(TestCase):
         section = self._get_section_from_schedule(
             class_schedule, '2013,spring,MATH,125/G')
         self.assertEqual(section.student_credits,
-                         Decimal("{:f}".format(5.0)))
+                         Decimal(f"{5.0:f}"))
         self.assertEqual(section.student_grade, "3.5")
         self.assertEqual(section.is_auditor, True)
         self.assertTrue(section.is_primary_section)
@@ -349,7 +353,7 @@ class SWSTestRegistrationBlock(TestCase):
             '9136CCB8F66711D5BE060004AC494FFE')
         block.covid19_status_code = 4
 
-        new_block = update_registration_block(block, actas_netid='bill')
+        update_registration_block(block, actas_netid='bill')
         self.assertEqual(block.uwregid, '9136CCB8F66711D5BE060004AC494FFE')
         self.assertEqual(block.student_name, 'James Average')
         self.assertEqual(block.covid19_status_code, 4)
@@ -366,7 +370,7 @@ class SWSTestRegistrationBlock(TestCase):
             '9136CCB8F66711D5BE060004AC494FFE')
         block.covid19_status_code = 3
 
-        r = update_registration_block(block, actas_netid='bill')
+        update_registration_block(block, actas_netid='bill')
         mock_put.assert_called_with((
             '/student/v5/person/9136CCB8F66711D5BE060004AC494FFE/'
             'registrationblock.json'),

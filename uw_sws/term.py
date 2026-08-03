@@ -5,10 +5,9 @@
 This class interfaces with the Student Web Service, Term resource.
 """
 import logging
-from uw_sws import get_resource, QUARTER_SEQ
-from uw_sws.models import Term
-from restclients_core.exceptions import DataFailureException
 
+from uw_sws import QUARTER_SEQ, get_resource
+from uw_sws.models import Term
 
 term_res_url_prefix = "/student/v5/term"
 logger = logging.getLogger(__name__)
@@ -19,8 +18,7 @@ def get_term_by_year_and_quarter(year, quarter):
     Returns a uw_sws.models.Term object,
     for the passed year and quarter.
     """
-    url = "{}/{},{}.json".format(
-        term_res_url_prefix, year, quarter.lower())
+    url = f"{term_res_url_prefix}/{year},{quarter.lower()}.json"
     return Term(data=get_resource(url))
 
 
@@ -29,8 +27,7 @@ def get_current_term():
     Returns a uw_sws.models.Term object,
     for the current term.
     """
-    url = "{}/current.json".format(term_res_url_prefix)
-    term = Term(data=get_resource(url))
+    term = Term(data=get_resource(f"{term_res_url_prefix}/current.json"))
 
     # A term doesn't become "current" until 2 days before the start of
     # classes.  That's too late to be useful, so if we're after the last
@@ -61,8 +58,7 @@ def get_next_term_sws():
     Returns a uw_sws.models.Term object,
     for the term in next.json.
     """
-    url = "{}/next.json".format(term_res_url_prefix)
-    return Term(data=get_resource(url))
+    return Term(data=get_resource(f"{term_res_url_prefix}/next.json"))
 
 
 def get_previous_term_sws():
@@ -70,8 +66,7 @@ def get_previous_term_sws():
     Returns a uw_sws.models.Term object,
     for the term in previous.json.
     """
-    url = "{}/previous.json".format(term_res_url_prefix)
-    return Term(data=get_resource(url))
+    return Term(data=get_resource(f"{term_res_url_prefix}/previous.json"))
 
 
 def get_term_before(aterm):
@@ -131,8 +126,6 @@ def get_term_by_date(date):
         return term
     else:
         return term_after
-
-    pass
 
 
 def get_specific_term(year, quarter):

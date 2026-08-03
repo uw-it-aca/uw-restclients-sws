@@ -6,10 +6,10 @@ Interfacing with the Student Web Service, Department Search.
 """
 import logging
 from urllib.parse import urlencode
+
+from uw_sws import get_resource
 from uw_sws.models import Department
 from uw_sws.term import get_current_term
-from uw_sws import get_resource
-
 
 logger = logging.getLogger(__name__)
 dept_search_url_prefix = "/student/v5/department.json"

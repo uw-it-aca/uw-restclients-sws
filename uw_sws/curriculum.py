@@ -6,10 +6,10 @@ Interfacing with the Student Web Service, Curriculum Search Resource.
 """
 import logging
 from urllib.parse import urlencode
+
+from uw_sws import get_resource
 from uw_sws.models import Curriculum
 from uw_sws.term import get_current_term
-from uw_sws import get_resource
-
 
 logger = logging.getLogger(__name__)
 curriculum_search_url_prefix = "/student/v5/curriculum.json"
@@ -25,7 +25,7 @@ def get_curricula_by_department(
         term = get_current_term()
 
     if not isinstance(future_terms, int):
-        raise ValueError(future_terms)
+        raise ValueError(future_terms)  # noqa: TRY004
 
     if future_terms < 0 or future_terms > 2:
         raise ValueError(future_terms)

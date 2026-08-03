@@ -3,8 +3,8 @@
 
 # Interfacing with the search for a student's degree status
 
-from uw_sws.models import DegreeStatus
 from uw_sws import get_resource
+from uw_sws.models import DegreeStatus
 
 degree_url = "/student/v5/person/{}/degree.json?deg_status=all"
 

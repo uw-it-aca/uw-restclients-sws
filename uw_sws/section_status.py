@@ -1,10 +1,10 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+from uw_sws import encode_section_label, get_resource
 from uw_sws.exceptions import InvalidSectionID
-from uw_sws.section import section_label_pattern
-from uw_sws import get_resource, encode_section_label
 from uw_sws.models import SectionStatus
+from uw_sws.section import section_label_pattern
 
 course_res_url_prefix = "/student/v5/course"
 
@@ -13,12 +13,8 @@ def get_section_status_by_label(label):
     if not section_label_pattern.match(label):
         raise InvalidSectionID(label)
 
-    url = "{}/{}/status.json".format(course_res_url_prefix,
-                                     encode_section_label(label))
-
+    url = f"{course_res_url_prefix}/{encode_section_label(label)}/status.json"
     return _json_to_sectionstatus(get_resource(url))
-
-    pass
 
 
 def _json_to_sectionstatus(section_data):

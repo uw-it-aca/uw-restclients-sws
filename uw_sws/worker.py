@@ -1,9 +1,10 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from uw_sws import DAO
 
 logger = logging.getLogger(__name__)

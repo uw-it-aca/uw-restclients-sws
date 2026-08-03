@@ -4,22 +4,24 @@
 """
 Interfacing with the Student Web Service, Registration_Search query.
 """
-import logging
 import json
+import logging
 import re
-from urllib.parse import urlencode
 from decimal import Decimal, InvalidOperation
-from uw_sws.models import Registration, RegistrationBlock, ClassSchedule
+from urllib.parse import urlencode
+
 from restclients_core.exceptions import DataFailureException
 from restclients_core.thread import GenericPrefetchThread, generic_prefetch
+
 from uw_sws import get_resource, put_resource
-from uw_sws.exceptions import ThreadedDataError
 from uw_sws.compat import deprecation
 from uw_sws.enrollment import StudentMajorGetter
+from uw_sws.exceptions import ThreadedDataError
+from uw_sws.models import ClassSchedule, Registration, RegistrationBlock
 from uw_sws.person import SWSPersonGetter
 from uw_sws.pws_person import PWSPersonGetter
-from uw_sws.thread import SWSCourseThread
 from uw_sws.section import _json_to_section, get_prefetch_for_section_data
+from uw_sws.thread import SWSCourseThread
 
 registration_res_url_prefix = "/student/v5/registration.json"
 registration_block_url = "/student/v5/person/{}/registrationblock.json"
@@ -96,7 +98,7 @@ def _registrations_for_section_with_active_flag(section,
     if transcriptable_course != "":
         params.append(("transcriptable_course", transcriptable_course,))
 
-    url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
+    url = f"{registration_res_url_prefix}?{urlencode(params)}"
     logger.debug(f"Get registration: {url}")
     return _json_to_registrations(
         get_resource(url), section, include_major_class_info, use_pws_person)
@@ -236,8 +238,9 @@ def get_schedule_by_regid_and_term(regid, term,
         ('verbose', "on")
     ])
 
-    url = "{}?{}".format(registration_res_url_prefix, urlencode(params))
-
+    url = f"{registration_res_url_prefix}?{urlencode(params)}"
+    print(params)
+    print(url)
     return _json_to_stud_reg_schedule(get_resource(url), term, regid,
                                       non_time_schedule_instructors,
                                       per_section_prefetch_callback)
@@ -256,94 +259,91 @@ def _json_to_stud_reg_schedule(json_data, term, regid,
         schedule.term = term
         return schedule
 
+    for registration in json_data["Registrations"]:
+        thread = SWSCourseThread()
+        thread.reg_json = registration
+        thread.url = registration["Section"]["Href"]
+        thread.headers = {"Accept": "application/json"}
+        thread.start()
+        sws_threads.append(thread)
+
+    # Get the course section resource
+    for thread in sws_threads:
+        thread.join()
+
     try:
-        for registration in json_data["Registrations"]:
-            thread = SWSCourseThread()
-            thread.reg_json = registration
-            thread.url = registration["Section"]["Href"]
-            thread.headers = {"Accept": "application/json"}
-            thread.start()
-            sws_threads.append(thread)
-
-        # Get the course section resource
-        for thread in sws_threads:
-            thread.join()
-
-        try:
-            section_prefetch = []
-            seen_keys = {}
-            for thread in sws_threads:
-                response = thread.response
-                if response and response.status == 200:
-                    data = json.loads(response.data)
-                    sd_prefetch = get_prefetch_for_section_data(data)
-                    section_prefetch.extend(sd_prefetch)
-                    if per_section_prefetch_callback:
-                        client_callbacks = per_section_prefetch_callback(data)
-                        section_prefetch.extend(client_callbacks)
-
-                if thread.reg_url is not None:
-                    url = thread.reg_url
-                    section_prefetch.append([url,
-                                             generic_prefetch(get_resource,
-                                                              [url])])
-
-            prefetch_threads = []
-            for entry in section_prefetch:
-                key = entry[0]
-                if key not in seen_keys:
-                    seen_keys[key] = True
-                    thread = GenericPrefetchThread()
-                    prefetch_method = entry[1]
-                    thread.method = prefetch_method
-                    prefetch_threads.append(thread)
-                    thread.start()
-
-            for thread in prefetch_threads:
-                thread.join()
-
-        except Exception as ex:
-            # If there's a real problem, it'll come up in the data fetching
-            # step - no need to raise an exception here
-            pass
-
+        section_prefetch = []
+        seen_keys = {}
         for thread in sws_threads:
             response = thread.response
-            if not response:
-                raise DataFailureException(thread.url,
-                                           500,
-                                           thread.exception)
-            if response.status != 200:
-                raise ThreadedDataError(thread.url,
-                                        response.status,
-                                        response.data)
+            if response and response.status == 200:
+                data = json.loads(response.data)
+                sd_prefetch = get_prefetch_for_section_data(data)
+                section_prefetch.extend(sd_prefetch)
+                if per_section_prefetch_callback:
+                    client_callbacks = per_section_prefetch_callback(data)
+                    section_prefetch.extend(client_callbacks)
 
-            section = _json_to_section(json.loads(response.data), term,
-                                       include_instructor_not_on_time_schedule)
+            if thread.reg_url is not None:
+                url = thread.reg_url
+                section_prefetch.append([url,
+                                         generic_prefetch(get_resource,
+                                                          [url])])
 
-            if len(section.summer_term):
-                registered_summer_terms[section.summer_term.lower()] = True
+        prefetch_threads = []
+        for entry in section_prefetch:
+            key = entry[0]
+            if key not in seen_keys:
+                seen_keys[key] = True
+                thread = GenericPrefetchThread()
+                prefetch_method = entry[1]
+                thread.method = prefetch_method
+                prefetch_threads.append(thread)
+                thread.start()
 
-            _add_registration_to_section(thread.reg_json, section)
+        for thread in prefetch_threads:
+            thread.join()
 
-            if section.student_credits is not None:
-                term_credit_hours += section.student_credits
+    except Exception:
+        # If there's a real problem, it'll come up in the data fetching
+        # step - no need to raise an exception here
+        pass
 
-            # For independent study courses, only include the one relevant
-            # instructor
-            if thread.reg_json.get("Instructor") is not None:
-                _set_actual_instructor(thread.reg_json["Instructor"], section)
+    for thread in sws_threads:
+        response = thread.response
+        if not response:
+            raise DataFailureException(thread.url,
+                                       500,
+                                       thread.exception)
+        if response.status != 200:
+            raise ThreadedDataError(thread.url,
+                                    response.status,
+                                    response.data)
 
-            sections.append(section)
+        section = _json_to_section(json.loads(response.data), term,
+                                   include_instructor_not_on_time_schedule)
 
-        term.credits = term_credit_hours
-        term.section_count = len(sections)
-        schedule = ClassSchedule()
-        schedule.sections = sections
-        schedule.term = term
-        schedule.registered_summer_terms = registered_summer_terms
-    except Exception as ex:
-        raise ex
+        if len(section.summer_term):
+            registered_summer_terms[section.summer_term.lower()] = True
+
+        _add_registration_to_section(thread.reg_json, section)
+
+        if section.student_credits is not None:
+            term_credit_hours += section.student_credits
+
+        # For independent study courses, only include the one relevant
+        # instructor
+        if thread.reg_json.get("Instructor") is not None:
+            _set_actual_instructor(thread.reg_json["Instructor"], section)
+
+        sections.append(section)
+
+    term.credits = term_credit_hours
+    term.section_count = len(sections)
+    schedule = ClassSchedule()
+    schedule.sections = sections
+    schedule.term = term
+    schedule.registered_summer_terms = registered_summer_terms
     return schedule
 
 

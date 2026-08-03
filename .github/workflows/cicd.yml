@@ -66,6 +66,7 @@ jobs:
         uses: uw-it-aca/actions/python-linters@main
         with:
           app_name: ${APP_NAME}
+          ignore: 'BLE001,S110'
 
       - name: Run Tests
         run: |

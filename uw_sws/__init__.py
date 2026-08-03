@@ -3,9 +3,13 @@
 
 import json
 from urllib.parse import quote
+
 from restclients_core.exceptions import DataFailureException
 from uw_pws import PWS
-from uw_sws.dao import SWS_DAO, SWS_TIMEZONE, sws_now
+
+from uw_sws.dao import SWS_DAO
+from uw_sws.dao import SWS_TIMEZONE as SWS_TIMEZONE
+from uw_sws.dao import sws_now as sws_now
 
 QUARTER_SEQ = ["winter", "spring", "summer", "autumn"]
 DAO = SWS_DAO()
@@ -33,13 +37,19 @@ def get_resource(url):
     return json.loads(response.data)
 
 
-def put_resource(url, headers={}, body={}):
+def put_resource(url, headers=None, body=None):
     """
     Issue a GET request to SWS with the given url in order to obtain
     an ETag header, followed by a PUT request to the same url. Returns
     a response in json format.
     :returns: http response with content in json
     """
+    if headers is None:
+        headers = {}
+
+    if body is None:
+        body = {}
+
     response = DAO.getURL(url, {'Accept': 'application/json'})
 
     if response.status != 200:

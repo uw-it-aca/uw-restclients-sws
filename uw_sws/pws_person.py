@@ -5,9 +5,9 @@
 Interfacing with the PWS, Person resource
 """
 import logging
+
 from uw_sws import UWPWS
 from uw_sws.worker import PersonGetter
-
 
 logger = logging.getLogger(__name__)
 
