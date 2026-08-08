@@ -136,6 +136,10 @@ def get_sections_by_building_and_term(building, term):
 
 
 def get_changed_sections_by_term(changed_since_date, term, **kwargs):
+    """
+    Returns a list of uw_sws.models.SectionReference objects
+    for the passed changed_since_date.
+    """
     params = []
     for key in sorted(kwargs):
         params.append((key, kwargs[key]))
@@ -149,11 +153,13 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     return _get_sections_by_search(params)
 
 
-def _json_to_sectionref(data):
+def _get_sections_by_search(query_params):
     """
-    Returns a list of SectionReference object created from
-    the passed json data.
+    Returns a list of SectionReference objects for a search request containing the
+    passed query params.
     """
+    data = get_resource(f"{section_res_url_prefix}?{urlencode(query_params)}")
+
     sections = []
     section_term = None
     for section_data in data.get("Sections", []):
@@ -169,33 +175,6 @@ def _json_to_sectionref(data):
             section_id=section_data["SectionID"],
             url=section_data["Href"])
         )
-    return sections
-
-
-def _get_sections_by_search(query_params):
-    """
-    Returns the response data for a search request containing the
-    passed query params.
-    """
-    page_start = 1
-    page_size = 500
-
-    query_params.extend([
-        ("page_size", page_size),
-        ("page_start", page_start),
-    ])
-
-    data = get_resource(f"{section_res_url_prefix}?{urlencode(query_params)}")
-    sections = _json_to_sectionref(data)
-
-    total_count = data.get("TotalCount", 0)
-
-    while len(sections) and len(sections) < total_count:
-        page_start = page_start + len(sections)
-        query_params[-1] = ("page_start", page_start)
-
-        data = get_resource(f"{section_res_url_prefix}?{urlencode(query_params)}")
-        sections.extend(_json_to_sectionref(data))
 
     return sections
 
@@ -224,16 +203,14 @@ def get_last_section_by_instructor_and_terms(person,
         pass
 
     except DataFailureException as ex:
-        if ex.status == 404:
-            return None
-        raise
+        if ex.status != 404:
+            raise
 
 
 def get_section_by_url(url,
                        include_instructor_not_on_time_schedule=True):
     """
-    Returns a uw_sws.models.Section object
-    for the passed section url.
+    Returns a uw_sws.models.Section object for the passed section url.
     """
     if not course_url_pattern.match(url):
         raise InvalidSectionURL(url)
@@ -246,8 +223,7 @@ def get_section_by_url(url,
 
 def get_section_by_label(label, include_instructor_not_on_time_schedule=True):
     """
-    Returns a uw_sws.models.Section object for
-    the passed section label.
+    Returns a uw_sws.models.Section object for the passed section label.
     """
     validate_section_label(label)
 

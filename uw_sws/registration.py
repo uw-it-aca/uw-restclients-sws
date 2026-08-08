@@ -1,4 +1,5 @@
 # Copyright 2026 UW-IT, University of Washington
+
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -239,8 +240,6 @@ def get_schedule_by_regid_and_term(regid, term,
     ])
 
     url = f"{registration_res_url_prefix}?{urlencode(params)}"
-    print(params)
-    print(url)
     return _json_to_stud_reg_schedule(get_resource(url), term, regid,
                                       non_time_schedule_instructors,
                                       per_section_prefetch_callback)
