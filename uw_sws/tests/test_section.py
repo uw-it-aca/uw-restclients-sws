@@ -435,7 +435,7 @@ class SWSTestSectionData(TestCase):
         self.assertEqual(len(sections), 2)
 
         # incorrect delete_flag
-        self.assertRaises(ValueError, get_sections_by_delegate_and_term,
+        self.assertRaises(TypeError, get_sections_by_delegate_and_term,
                           delegate, term, delete_flag='active')
 
     def test_sections_by_curriculum_and_term(self):
