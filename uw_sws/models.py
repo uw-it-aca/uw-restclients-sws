@@ -1012,9 +1012,18 @@ class SectionStatus(models.Model):
     limit_estimated_enrollment = models.IntegerField()
     limit_estimate_enrollment_indicator = models.CharField(max_length=8)
     room_capacity = models.IntegerField()
-    sln = models.PositiveIntegerField()
+    sln = models.CharField(max_length=10)
     space_available = models.IntegerField()
     is_open = models.CharField(max_length=6)
+    joint_current_enrollment = models.IntegerField()
+    joint_limit_estimate_enrollment = models.IntegerField()
+    joint_space_available = models.IntegerField()
+    responsible_course_number = models.CharField(max_length=5)
+    responsible_curriculum_abbreviation = models.CharField(max_length=8)
+    responsible_section_id = models.CharField(max_length=5)
+    responsible_section_joint_current_enrollment = models.IntegerField()
+    responsible_section_joint_limit_estimate_enrollment = models.IntegerField()
+    responsible_section_joint_space_available = models.IntegerField()
 
     def json_data(self):
         data = {
@@ -1028,7 +1037,20 @@ class SectionStatus(models.Model):
             'room_capacity': self.room_capacity,
             'sln': self.sln,
             'space_available': self.space_available,
-            'is_open': self.status,
+            'is_open': self.is_open,
+            'joint_current_enrollment': self.joint_current_enrollment,
+            'joint_limit_estimate_enrollment': self.joint_limit_estimate_enrollment,
+            'joint_space_available': self.joint_space_available,
+            'responsible_course_number': self.responsible_course_number,
+            'responsible_curriculum_abbreviation':
+                self.responsible_curriculum_abbreviation,
+            'responsible_section_id': self.responsible_section_id,
+            'responsible_section_joint_current_enrollment':
+                self.responsible_section_joint_current_enrollment,
+            'responsible_section_joint_limit_estimate_enrollment':
+                self.responsible_section_joint_limit_estimate_enrollment,
+            'responsible_section_joint_space_available':
+                self.responsible_section_joint_space_available,
         }
         return data
 
