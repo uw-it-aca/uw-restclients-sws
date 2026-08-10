@@ -31,10 +31,10 @@ section_res_url_prefix = "/student/v5/section.json"
 sln_pattern = re.compile(r'^[1-9]\d{4}$')
 section_label_pattern = re.compile(
     r'^[1-9]\d{3},'                      # year
-    '(?:winter|spring|summer|autumn),'  # quarter
+    '(?:winter|spring|summer|autumn),'   # quarter
     r'[\w& ]+,'                          # curriculum
     r'\d{3}\/'                           # course number
-    '[A-Z][A-Z0-9]?$',                  # section id
+    '[A-Z][A-Z0-9]?$',                   # section id
     re.VERBOSE
 )
 logger = logging.getLogger(__name__)
@@ -59,6 +59,7 @@ def get_sections_by_instructor_and_term(person,
     Returns a list of uw_sws.models.SectionReference objects
     for the passed instructor and term.
     @param: future_terms: 0..2
+    @param: include_secondaries: 'on' or None
     @param: transcriptable_course: 'yes', 'no', 'all'
     @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
@@ -90,6 +91,7 @@ def get_sections_by_delegate_and_term(person,
     Returns a list of uw_sws.models.SectionReference objects
     for the passed grade submission delegate and term.
     @param: future_terms: 0..2
+    @param: include_secondaries: 'on' or None
     @param: transcriptable_course: 'yes', 'no', 'all'
     @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
@@ -130,7 +132,7 @@ def get_sections_by_building_and_term(building, term):
     """
     return _get_sections_by_search([
         ("quarter", term.quarter.lower()),
-        ("facility_code", building,),
+        ("facility_code", building),
         ("year", term.year),
     ])
 
@@ -182,10 +184,11 @@ def _get_sections_by_search(query_params):
 def get_last_section_by_instructor_and_terms(person,
                                              term,
                                              future_terms,
-                                             transcriptable_course='all',
+                                             include_secondaries=False,
+                                             transcriptable_course="all",
                                              delete_flag=None):
     if delete_flag is None:
-        delete_flag = ['active']
+        delete_flag = ["active"]
 
     try:
         return _get_sections_by_search([
@@ -193,7 +196,7 @@ def get_last_section_by_instructor_and_terms(person,
             ("search_by", "Instructor"),
             ("quarter", term.quarter.lower()),
             ("year", term.year),
-            ("include_secondaries", ""),
+            ("include_secondaries", "on" if include_secondaries else ""),
             ("future_terms", future_terms),
             ("transcriptable_course", transcriptable_course),
             ("delete_flag", ",".join(sorted(delete_flag))),
