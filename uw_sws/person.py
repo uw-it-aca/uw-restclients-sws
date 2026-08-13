@@ -5,11 +5,12 @@
 Interfacing with the Student Web Service, Person resource
 """
 import logging
-from dateutil.parser import parse
-from uw_sws.models import SwsPerson, StudentAddress, LastEnrolled
-from uw_sws import get_resource
-from uw_sws.worker import PersonGetter
 
+from dateutil.parser import parse
+
+from uw_sws import get_resource
+from uw_sws.models import LastEnrolled, StudentAddress, SwsPerson
+from uw_sws.worker import PersonGetter
 
 logger = logging.getLogger(__name__)
 person_url = "/student/v5/person/{}.json"

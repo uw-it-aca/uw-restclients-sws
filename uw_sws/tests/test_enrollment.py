@@ -2,21 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override
+
 from uw_pws.util import fdao_pws_override
-from uw_sws.models import Enrollment, Term, ENROLLMENT_SOURCE_PCE
-from uw_sws.term import (
-    get_current_term, get_term_by_year_and_quarter, get_term_before)
+
 from uw_sws.enrollment import (
-    get_grades_by_regid_and_term,
-    get_enrollment_by_regid_and_term,
-    enrollment_search_by_regid,
-    get_enrollment_history_by_regid,
-    get_majors_by_regid_and_term,
     StudentMajorGetter,
-    _get_term
+    _get_term,
+    enrollment_search_by_regid,
+    get_enrollment_by_regid_and_term,
+    get_enrollment_history_by_regid,
+    get_grades_by_regid_and_term,
+    get_majors_by_regid_and_term,
 )
-from restclients_core.exceptions import DataFailureException
+from uw_sws.models import ENROLLMENT_SOURCE_PCE, Enrollment, Term
+from uw_sws.term import get_current_term, get_term_before, get_term_by_year_and_quarter
+from uw_sws.util import fdao_sws_override
 
 
 @fdao_pws_override
@@ -72,7 +72,7 @@ class SWSTestEnrollments(TestCase):
         term = get_term_by_year_and_quarter(2013, 'winter')
         enrollment = get_enrollment_by_regid_and_term(
             'AABBCCDDEEFFAABBCCDDEEFFAABBCCDC', term)
-        self.assertEqual(enrollment.class_level, u'NON_MATRIC')
+        self.assertEqual(enrollment.class_level, 'NON_MATRIC')
         self.assertTrue(enrollment.is_enroll_src_pce)
         self.assertTrue(enrollment.is_non_matric())
         self.assertTrue(enrollment.is_registered)
@@ -102,12 +102,12 @@ class SWSTestEnrollments(TestCase):
         self.assertTrue(len(reg1.json_data()) > 0)
         self.assertEqual(
             reg1.section_ref.json_data(),
-            {'course_number': u'201',
-             'curriculum_abbr': u'COM',
-             'quarter': u'winter',
-             'section_id': u'A',
-             'section_label': u'2013,winter,COM,201/A',
-             'url': u'/student/v5/course/2013,winter,COM,201/A.json',
+            {'course_number': '201',
+             'curriculum_abbr': 'COM',
+             'quarter': 'winter',
+             'section_id': 'A',
+             'section_label': '2013,winter,COM,201/A',
+             'url': '/student/v5/course/2013,winter,COM,201/A.json',
              'year': 2013})
 
         self.assertTrue(
@@ -120,12 +120,12 @@ class SWSTestEnrollments(TestCase):
                          "RegistrationSourceLocation=SDB_EOS;")
         self.assertEqual(
             reg2.section_ref.json_data(),
-            {'course_number': u'203',
-             'curriculum_abbr': u'PSYCH',
-             'quarter': u'winter',
-             'section_id': u'A',
-             'section_label': u'2013,winter,PSYCH,203/A',
-             'url': u'/student/v5/course/2013,winter,PSYCH,203/A.json',
+            {'course_number': '203',
+             'curriculum_abbr': 'PSYCH',
+             'quarter': 'winter',
+             'section_id': 'A',
+             'section_label': '2013,winter,PSYCH,203/A',
+             'url': '/student/v5/course/2013,winter,PSYCH,203/A.json',
              'year': 2013})
 
         self.assertFalse(

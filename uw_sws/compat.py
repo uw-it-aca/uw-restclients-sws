@@ -21,7 +21,7 @@ def deprecation(message):
     warnings.warn(message, DeprecationWarning, stacklevel=2)
 
 
-class SWS(object):
+class SWS:
     """
     The SWS object has methods for getting information
     about courses, and everything related.

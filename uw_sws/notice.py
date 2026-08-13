@@ -6,11 +6,13 @@ Interfaceing with the Student Web Service,
  for notice resource
 """
 
-from datetime import datetime, timezone
-from dateutil import parser
 import logging
+from datetime import datetime, timezone
+
+from dateutil import parser
+
+from uw_sws import SWS_TIMEZONE, get_resource
 from uw_sws.models import Notice, NoticeAttribute
-from uw_sws import get_resource, SWS_TIMEZONE
 
 notice_res_url_prefix = "/student/v5/notice/"
 logger = logging.getLogger(__name__)
@@ -61,10 +63,10 @@ def _notices_from_json(notice_data):
                 elif attribute.data_type == "string":
                     attribute._string_value = notice_attrib.get("Value")
                 else:
-                    logger.warn(
+                    logger.warning(
                         "Unknown attribute type '{}', with value '{}'".format(
-                            attribute.data_type,
-                            notice_attrib.get("Value")))
+                            attribute.data_type, notice_attrib.get("Value"))
+                    )
                     continue
                 notice_attribs.append(attribute)
         except TypeError:

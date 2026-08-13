@@ -6,10 +6,10 @@ Interfacing with the Student Web Service, College Search..
 """
 import logging
 from urllib.parse import urlencode
+
+from uw_sws import get_resource
 from uw_sws.models import College
 from uw_sws.term import get_current_term
-from uw_sws import get_resource
-
 
 logger = logging.getLogger(__name__)
 college_search_url = "/student/v5/college.json"

@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override
+
 from restclients_core.exceptions import DataFailureException
+
 from uw_sws.adviser import get_advisers_by_regid
+from uw_sws.util import fdao_sws_override
 
 
 @fdao_sws_override

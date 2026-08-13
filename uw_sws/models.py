@@ -1,18 +1,24 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import json
 import re
 from warnings import warn
-import datetime
-from uw_pws.models import Person
-from uw_sws.exceptions import (
-    InvalidCanvasIndependentStudyCourse, InvalidCanvasSection)
-from uw_sws.util import (
-    abbr_week_month_day_str, convert_to_begin_of_day, convert_to_end_of_day,
-    str_to_datetime, str_to_date, date_to_str)
-from uw_sws.dao import sws_now
+
 from restclients_core import models
+from uw_pws.models import Person
+
+from uw_sws.dao import sws_now
+from uw_sws.exceptions import InvalidCanvasIndependentStudyCourse, InvalidCanvasSection
+from uw_sws.util import (
+    abbr_week_month_day_str,
+    convert_to_begin_of_day,
+    convert_to_end_of_day,
+    date_to_str,
+    str_to_date,
+    str_to_datetime,
+)
 
 SWS_TERM_LABEL = "{year},{quarter}"
 SWS_SECTION_LABEL = "{year},{quarter},{curr_abbr},{course_num}/{section_id}"
@@ -22,8 +28,8 @@ CANVAS_COURSE_ID = "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}"
 CANVAS_IND_STUDY_COURSE_ID = (
     "{year}-{quarter}-{curr_abbr}-{course_num}-{section_id}-{inst_regid}")
 
-ENROLLMENT_SOURCE_PCE = re.compile('^EnrollmentSourceLocation=', re.I)
-REGISTRATION_SOURCE_PCE = re.compile('^RegistrationSourceLocation=', re.I)
+ENROLLMENT_SOURCE_PCE = re.compile('^EnrollmentSourceLocation=', re.IGNORECASE)
+REGISTRATION_SOURCE_PCE = re.compile('^RegistrationSourceLocation=', re.IGNORECASE)
 
 
 class LastEnrolled(models.Model):
@@ -166,7 +172,9 @@ class StudentAdviser(models.Model):
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
         if data is None:
-            return super(StudentAdviser, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            return
+
         self.full_name = data.get("AdvisingFullName")
         self.email_address = data.get("AdvisingEmailAddress")
         self.phone_number = data.get("AdvisingPhoneNumber")
@@ -231,7 +239,8 @@ class DegreeStatus(models.Model):
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
         if data is None:
-            return super(DegreeStatus, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            return
 
         self.campus = data.get("Campus")
         self.diploma_mail = data.get("DiplomaMail")
@@ -309,7 +318,8 @@ class Term(models.Model):
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
         if data is None:
-            return super(Term, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            return
 
         self.year = data["Year"]
         self.quarter = data["Quarter"]
@@ -346,13 +356,13 @@ class Term(models.Model):
 
         self.time_schedule_construction = {}
         for campus in data["TimeScheduleConstruction"]:
-            self.time_schedule_construction[campus.lower()] = True if (
-                data["TimeScheduleConstruction"][campus]) else False
+            self.time_schedule_construction[campus.lower()] = bool(
+                data["TimeScheduleConstruction"][campus])
 
         self.time_schedule_published = {}
         for campus in data["TimeSchedulePublished"]:
-            self.time_schedule_published[campus.lower()] = True if (
-                data["TimeSchedulePublished"][campus]) else False
+            self.time_schedule_published[campus.lower()] = bool(
+                data["TimeSchedulePublished"][campus])
 
     @staticmethod
     def _quarter_to_int(quarter):
@@ -499,8 +509,7 @@ class Term(models.Model):
 
     def is_current(self, cmp_dt):
         return (self.get_end_of_the_term() is not None and
-                self.get_bod_first_day() < cmp_dt and
-                cmp_dt < self.get_end_of_the_term())
+                self.get_bod_first_day() < cmp_dt < self.get_end_of_the_term())
 
     def is_past(self, cmp_dt):
         return (self.get_end_of_the_term() is None and
@@ -804,9 +813,9 @@ class Section(models.Model):
         if self.is_primary_section:
             if self.is_ind_study():
                 if self.independent_study_instructor_regid is None:
-                    raise InvalidCanvasIndependentStudyCourse((
-                        "Undefined instructor for independent study "
-                        "section: {}").format(self.section_label()))
+                    raise InvalidCanvasIndependentStudyCourse(
+                        f"Undefined instructor for independent study "
+                        f"section: {self.section_label()}")
                 sis_id = CANVAS_IND_STUDY_COURSE_ID.format(
                     year=self.term.year, quarter=self.term.quarter,
                     curr_abbr=self.curriculum_abbr.upper(),
@@ -1003,9 +1012,18 @@ class SectionStatus(models.Model):
     limit_estimated_enrollment = models.IntegerField()
     limit_estimate_enrollment_indicator = models.CharField(max_length=8)
     room_capacity = models.IntegerField()
-    sln = models.PositiveIntegerField()
+    sln = models.CharField(max_length=10)
     space_available = models.IntegerField()
     is_open = models.CharField(max_length=6)
+    joint_current_enrollment = models.IntegerField()
+    joint_limit_estimate_enrollment = models.IntegerField()
+    joint_space_available = models.IntegerField()
+    responsible_course_number = models.CharField(max_length=5)
+    responsible_curriculum_abbreviation = models.CharField(max_length=8)
+    responsible_section_id = models.CharField(max_length=5)
+    responsible_section_joint_current_enrollment = models.IntegerField()
+    responsible_section_joint_limit_estimate_enrollment = models.IntegerField()
+    responsible_section_joint_space_available = models.IntegerField()
 
     def json_data(self):
         data = {
@@ -1019,7 +1037,20 @@ class SectionStatus(models.Model):
             'room_capacity': self.room_capacity,
             'sln': self.sln,
             'space_available': self.space_available,
-            'is_open': self.status,
+            'is_open': self.is_open,
+            'joint_current_enrollment': self.joint_current_enrollment,
+            'joint_limit_estimate_enrollment': self.joint_limit_estimate_enrollment,
+            'joint_space_available': self.joint_space_available,
+            'responsible_course_number': self.responsible_course_number,
+            'responsible_curriculum_abbreviation':
+                self.responsible_curriculum_abbreviation,
+            'responsible_section_id': self.responsible_section_id,
+            'responsible_section_joint_current_enrollment':
+                self.responsible_section_joint_current_enrollment,
+            'responsible_section_joint_limit_estimate_enrollment':
+                self.responsible_section_joint_limit_estimate_enrollment,
+            'responsible_section_joint_space_available':
+                self.responsible_section_joint_space_available,
         }
         return data
 
@@ -1063,7 +1094,8 @@ class Registration(models.Model):
         self.class_level = None
         reg_json = kwargs.get("data")
         if reg_json is None:
-            return super(Registration, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            return
 
         self.credits = reg_json["Credits"].strip()
         self.duplicate_code = reg_json.get("DuplicateCode")
@@ -1152,7 +1184,9 @@ class RegistrationBlock(models.Model):
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
         if data is None:
-            return super(RegistrationBlock, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            return
+
         self.student_name = data.get("StudentName")
         self.uwregid = data.get("RegID")
         self.student_system_key = data.get("StudentSystemKey")
@@ -1265,7 +1299,7 @@ class ClassSchedule(models.Model):
     user = models.ForeignKey(Person)
     term = models.ForeignKey(Term,
                              on_delete=models.PROTECT)
-    registered_summer_terms = {}
+    registered_summer_terms = {}  # noqa: RUF012
 
     def json_data(self):
         data = {
@@ -1417,7 +1451,8 @@ class Enrollment(models.Model):
 
         json_data = kwargs.get("data")
         if json_data is None:
-            return super(Enrollment, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            return
 
         self.regid = json_data.get('RegID')
         self.class_level = json_data.get('ClassLevel')
@@ -1518,7 +1553,8 @@ class Major(models.Model):
     def __init__(self, *args, **kwargs):
         json_data = kwargs.get('data')
         if json_data is None:
-            return super(Major, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            return
 
         self.degree_abbr = json_data.get('Abbreviation')
         self.college_abbr = json_data.get('CollegeAbbreviation')
@@ -1567,7 +1603,8 @@ class Minor(models.Model):
     def __init__(self, *args, **kwargs):
         json_data = kwargs.get('data')
         if json_data is None:
-            return super(Minor, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            return
 
         self.abbr = json_data.get('Abbreviation')
         self.campus = json_data.get('CampusName')

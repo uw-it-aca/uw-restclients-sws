@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override
-from uw_pws.util import fdao_pws_override
-from datetime import datetime, timedelta
-from uw_sws import SWS, encode_section_label, get_resource
-from uw_sws.models import Term, Curriculum, Person, College, Department
-from restclients_core.exceptions import DataFailureException
+
 from restclients_core.exceptions import InvalidSectionURL
+from uw_pws.util import fdao_pws_override
+
+from uw_sws import SWS, encode_section_label, get_resource
+from uw_sws.models import College, Curriculum, Department, Person, Term
+from uw_sws.util import fdao_sws_override
 
 
 @fdao_sws_override

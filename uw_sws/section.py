@@ -8,16 +8,22 @@ import logging
 import re
 from datetime import datetime
 from urllib.parse import urlencode
-from restclients_core.thread import generic_prefetch
-from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
-from restclients_core.exceptions import DataFailureException
-from uw_sws import get_resource, encode_section_label, UWPWS
-from uw_sws.util import str_to_date
-from uw_sws.term import get_term_by_year_and_quarter
-from uw_sws.models import (
-    Section, SectionReference, FinalExam,
-    SectionMeeting, GradeSubmissionDelegate, Person)
 
+from restclients_core.exceptions import DataFailureException
+from restclients_core.thread import generic_prefetch
+
+from uw_sws import UWPWS, encode_section_label, get_resource
+from uw_sws.exceptions import InvalidSectionID, InvalidSectionURL
+from uw_sws.models import (
+    FinalExam,
+    GradeSubmissionDelegate,
+    Person,
+    Section,
+    SectionMeeting,
+    SectionReference,
+)
+from uw_sws.term import get_term_by_year_and_quarter
+from uw_sws.util import str_to_date
 
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
 course_res_url_prefix = "/student/v5/course"
@@ -25,10 +31,10 @@ section_res_url_prefix = "/student/v5/section.json"
 sln_pattern = re.compile(r'^[1-9]\d{4}$')
 section_label_pattern = re.compile(
     r'^[1-9]\d{3},'                      # year
-    '(?:winter|spring|summer|autumn),'  # quarter
+    '(?:winter|spring|summer|autumn),'   # quarter
     r'[\w& ]+,'                          # curriculum
     r'\d{3}\/'                           # course number
-    '[A-Z][A-Z0-9]?$',                  # section id
+    '[A-Z][A-Z0-9]?$',                   # section id
     re.VERBOSE
 )
 logger = logging.getLogger(__name__)
@@ -36,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 def validate_section_label(label):
     if label is None or section_label_pattern.match(label) is None:
-        raise InvalidSectionID("Invalid section label: {}".format(label))
+        raise InvalidSectionID(f"Invalid section label: {label}")
 
 
 def is_valid_sln(sln_str):
@@ -47,46 +53,64 @@ def get_sections_by_instructor_and_term(person,
                                         term,
                                         future_terms=0,
                                         include_secondaries=True,
-                                        transcriptable_course='yes',
-                                        delete_flag=['active']):
+                                        transcriptable_course="yes",
+                                        delete_flag=None):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed instructor and term.
-    @param: future_terms: 0..400
+    @param: future_terms: 0..2
+    @param: include_secondaries: 'on' or None
     @param: transcriptable_course: 'yes', 'no', 'all'
     @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
-    data = _get_sections_by_person_and_term(person,
-                                            term,
-                                            "Instructor",
-                                            include_secondaries,
-                                            future_terms,
-                                            transcriptable_course,
-                                            delete_flag)
-    return _json_to_sectionref(data)
+    if delete_flag is None:
+        delete_flag = ["active"]
+
+    if not isinstance(delete_flag, list):
+        raise TypeError("delete_flag must be a list")
+
+    return _get_sections_by_search([
+        ("reg_id", person.uwregid),
+        ("search_by", "Instructor"),
+        ("quarter", term.quarter.lower()),
+        ("year", term.year),
+        ("include_secondaries", "on" if include_secondaries else ""),
+        ("future_terms", future_terms),
+        ("transcriptable_course", transcriptable_course),
+        ("delete_flag", ",".join(sorted(delete_flag))),
+    ])
 
 
 def get_sections_by_delegate_and_term(person,
                                       term,
                                       future_terms=0,
                                       include_secondaries=True,
-                                      transcriptable_course='yes',
-                                      delete_flag=['active']):
+                                      transcriptable_course="yes",
+                                      delete_flag=None):
     """
     Returns a list of uw_sws.models.SectionReference objects
     for the passed grade submission delegate and term.
-    @param: future_terms: 0..400
+    @param: future_terms: 0..2
+    @param: include_secondaries: 'on' or None
     @param: transcriptable_course: 'yes', 'no', 'all'
     @param: delete_flag: ['active', 'suspended', 'withdrawn']
     """
-    data = _get_sections_by_person_and_term(person,
-                                            term,
-                                            "GradeSubmissionDelegate",
-                                            include_secondaries,
-                                            future_terms,
-                                            transcriptable_course,
-                                            delete_flag)
-    return _json_to_sectionref(data)
+    if delete_flag is None:
+        delete_flag = ["active"]
+
+    if not isinstance(delete_flag, list):
+        raise TypeError("delete_flag must be a list")
+
+    return _get_sections_by_search([
+        ("reg_id", person.uwregid),
+        ("search_by", "GradeSubmissionDelegate"),
+        ("quarter", term.quarter.lower()),
+        ("year", term.year),
+        ("include_secondaries", "on" if include_secondaries else ""),
+        ("future_terms", future_terms),
+        ("transcriptable_course", transcriptable_course),
+        ("delete_flag", ",".join(sorted(delete_flag))),
+    ])
 
 
 def get_sections_by_curriculum_and_term(curriculum, term):
@@ -94,12 +118,11 @@ def get_sections_by_curriculum_and_term(curriculum, term):
     Returns a list of uw_sws.models.SectionReference objects
     for the passed curriculum and term.
     """
-    url = "{}?{}".format(
-        section_res_url_prefix,
-        urlencode([("curriculum_abbreviation", curriculum.label,),
-                   ("quarter", term.quarter.lower(),),
-                   ("year", term.year,), ]))
-    return _json_to_sectionref(get_resource(url))
+    return _get_sections_by_search([
+        ("curriculum_abbreviation", curriculum.label),
+        ("quarter", term.quarter.lower()),
+        ("year", term.year),
+    ])
 
 
 def get_sections_by_building_and_term(building, term):
@@ -107,126 +130,90 @@ def get_sections_by_building_and_term(building, term):
     Returns a list of uw_sws.models.SectionReference objects
     for the passed building and term.
     """
-    url = "{}?{}".format(
-        section_res_url_prefix,
-        urlencode([("quarter", term.quarter.lower(),),
-                   ("facility_code", building,),
-                   ("year", term.year,), ]))
-    return _json_to_sectionref(get_resource(url))
+    return _get_sections_by_search([
+        ("quarter", term.quarter.lower()),
+        ("facility_code", building),
+        ("year", term.year),
+    ])
 
 
 def get_changed_sections_by_term(changed_since_date, term, **kwargs):
+    """
+    Returns a list of uw_sws.models.SectionReference objects
+    for the passed changed_since_date.
+    """
     params = []
     for key in sorted(kwargs):
-        params.append((key, kwargs[key],))
+        params.append((key, kwargs[key]))
+
     params.extend([
-                   ("changed_since_date", changed_since_date,),
-                   ("quarter", term.quarter.lower(),),
-                   ("page_size", 1000,),
-                   ("year", term.year,),
-                   ])
-    url = "{}?{}".format(section_res_url_prefix, urlencode(params))
+        ("changed_since_date", changed_since_date),
+        ("quarter", term.quarter.lower()),
+        ("year", term.year),
+    ])
+
+    return _get_sections_by_search(params)
+
+
+def _get_sections_by_search(query_params):
+    """
+    Returns a list of SectionReference objects for a search request containing the
+    passed query params.
+    """
+    data = get_resource(f"{section_res_url_prefix}?{urlencode(query_params)}")
 
     sections = []
-    while url is not None:
-        data = get_resource(url)
-        sections.extend(_json_to_sectionref(data))
-
-        url = None
-        if data.get("Next") is not None:
-            url = data.get("Next").get("Href", None)
-
-    return sections
-
-
-def _json_to_sectionref(data):
-    """
-    Returns a list of SectionReference object created from
-    the passed json data.
-    """
     section_term = None
-    sections = []
     for section_data in data.get("Sections", []):
-        if (section_term is None or
-                section_data["Year"] != section_term.year or
+        if (section_term is None or section_data["Year"] != section_term.year or
                 section_data["Quarter"] != section_term.quarter):
             section_term = get_term_by_year_and_quarter(
                 section_data["Year"], section_data["Quarter"])
-        section = SectionReference(
+
+        sections.append(SectionReference(
             term=section_term,
             curriculum_abbr=section_data["CurriculumAbbreviation"],
             course_number=section_data["CourseNumber"],
             section_id=section_data["SectionID"],
             url=section_data["Href"])
-        sections.append(section)
+        )
+
     return sections
-
-
-def _get_sections_by_person_and_term(person,
-                                     term,
-                                     course_role,
-                                     include_secondaries,
-                                     future_terms,
-                                     transcriptable_course,
-                                     delete_flag):
-    """
-    Returns the response data for a search request containing the
-    passed course_role and term (including secondaries).
-    @param: future_terms: 0..400
-    @param: transcriptable_course: 'yes', 'no', 'all'
-    @param: delete_flag: ['active', 'suspended', 'withdrawn']
-    """
-    params = [
-        ("reg_id", person.uwregid,),
-        ("search_by", course_role,),
-        ("quarter", term.quarter.lower(),),
-        ("include_secondaries", 'on' if include_secondaries else ''),
-        ("year", term.year,),
-        ("future_terms", future_terms,),
-        ("transcriptable_course", transcriptable_course,),
-    ]
-
-    if delete_flag is not None:
-        if not isinstance(delete_flag, list):
-            raise ValueError("delete_flag must be a list")
-        params.append(("delete_flag", ','.join(sorted(delete_flag)),))
-
-    url = "{}?{}".format(section_res_url_prefix, urlencode(params))
-    return get_resource(url)
 
 
 def get_last_section_by_instructor_and_terms(person,
                                              term,
                                              future_terms,
-                                             transcriptable_course='all',
-                                             delete_flag=['active']):
+                                             include_secondaries=False,
+                                             transcriptable_course="all",
+                                             delete_flag=None):
+    if delete_flag is None:
+        delete_flag = ["active"]
+
     try:
-        raw_resp = _get_sections_by_person_and_term(person,
-                                                    term,
-                                                    "Instructor",
-                                                    False,
-                                                    future_terms,
-                                                    transcriptable_course,
-                                                    delete_flag)
+        return _get_sections_by_search([
+            ("reg_id", person.uwregid),
+            ("search_by", "Instructor"),
+            ("quarter", term.quarter.lower()),
+            ("year", term.year),
+            ("include_secondaries", "on" if include_secondaries else ""),
+            ("future_terms", future_terms),
+            ("transcriptable_course", transcriptable_course),
+            ("delete_flag", ",".join(sorted(delete_flag))),
+        ])[-1]
+
+    except IndexError:
+        pass
+
     except DataFailureException as ex:
-        if ex.status == 404:
-            return None
-        raise
-
-    data_sections = raw_resp.get("Sections", [])
-
-    if len(data_sections):
-        raw_resp["Sections"] = data_sections[-1:]  # Keep the last section
-        return _json_to_sectionref(raw_resp)[0]
-
-    return None
+        if ex.status != 404:
+            raise
 
 
 def get_section_by_url(url,
                        include_instructor_not_on_time_schedule=True):
     """
-    Returns a uw_sws.models.Section object
-    for the passed section url.
+    Returns a uw_sws.models.Section object for the passed section url.
     """
     if not course_url_pattern.match(url):
         raise InvalidSectionURL(url)
@@ -237,23 +224,17 @@ def get_section_by_url(url,
             include_instructor_not_on_time_schedule))
 
 
-def get_section_by_label(label,
-                         include_instructor_not_on_time_schedule=True):
+def get_section_by_label(label, include_instructor_not_on_time_schedule=True):
     """
-    Returns a uw_sws.models.Section object for
-    the passed section label.
+    Returns a uw_sws.models.Section object for the passed section label.
     """
     validate_section_label(label)
 
-    url = "{}/{}.json".format(course_res_url_prefix,
-                              encode_section_label(label))
-
-    return get_section_by_url(url,
-                              include_instructor_not_on_time_schedule)
+    url = f"{course_res_url_prefix}/{encode_section_label(label)}.json"
+    return get_section_by_url(url, include_instructor_not_on_time_schedule)
 
 
-def get_linked_sections(section,
-                        include_instructor_not_on_time_schedule=True):
+def get_linked_sections(section, include_instructor_not_on_time_schedule=True):
     """
     Returns a list of uw_sws.models.Section objects,
     representing linked sections for the passed section.
@@ -261,15 +242,13 @@ def get_linked_sections(section,
     linked_sections = []
 
     for url in section.linked_section_urls:
-        section = get_section_by_url(url,
-                                     include_instructor_not_on_time_schedule)
+        section = get_section_by_url(url, include_instructor_not_on_time_schedule)
         linked_sections.append(section)
 
     return linked_sections
 
 
-def get_joint_sections(section,
-                       include_instructor_not_on_time_schedule=True):
+def get_joint_sections(section, include_instructor_not_on_time_schedule=True):
     """
     Returns a list of uw_sws.models.Section objects,
     representing joint sections for the passed section.
@@ -277,8 +256,7 @@ def get_joint_sections(section,
     joint_sections = []
 
     for url in section.joint_section_urls:
-        section = get_section_by_url(url,
-                                     include_instructor_not_on_time_schedule)
+        section = get_section_by_url(url, include_instructor_not_on_time_schedule)
         joint_sections.append(section)
 
     return joint_sections
@@ -469,50 +447,48 @@ def _json_to_section(section_data,
         section.meetings.append(meeting)
 
     section.final_exam = None
-    if "FinalExam" in section_data and section_data["FinalExam"] is not None:
-        if "MeetingStatus" in section_data["FinalExam"]:
-            final_exam = FinalExam()
-            final_data = section_data["FinalExam"]
-            status = final_data["MeetingStatus"]
-            # MeetingStatus values:
-            # 0 - default final exam meeting date/time has not been confirmed
-            # 1 - no final exam or no traditional final exam
-            # 2 - confirmed, at the default final exam date/time/location
-            # 3 - confirmed, but at a different date/time/location
+    if ("FinalExam" in section_data and section_data["FinalExam"] is not None and
+            "MeetingStatus" in section_data["FinalExam"]):
+        final_exam = FinalExam()
+        final_data = section_data["FinalExam"]
+        status = final_data["MeetingStatus"]
+        # MeetingStatus values:
+        # 0 - default final exam meeting date/time has not been confirmed
+        # 1 - no final exam or no traditional final exam
+        # 2 - confirmed, at the default final exam date/time/location
+        # 3 - confirmed, but at a different date/time/location
 
-            final_exam.no_exam_or_nontraditional = False
-            final_exam.is_confirmed = False
+        final_exam.no_exam_or_nontraditional = False
+        final_exam.is_confirmed = False
 
-            if (status == "2") or (status == "3"):
-                final_exam.is_confirmed = True
-            elif status == "1":
-                final_exam.no_exam_or_nontraditional = True
+        if (status == "2") or (status == "3"):
+            final_exam.is_confirmed = True
+        elif status == "1":
+            final_exam.no_exam_or_nontraditional = True
 
-            final_exam.building = final_data["Building"]
-            final_exam.room_number = final_data["RoomNumber"]
+        final_exam.building = final_data["Building"]
+        final_exam.room_number = final_data["RoomNumber"]
 
-            final_format = "%Y-%m-%d : %H:%M"
+        final_format = "%Y-%m-%d : %H:%M"
 
-            strptime = datetime.strptime
-            if final_data["Date"] and final_data["Date"] != "0000-00-00":
-                if final_data["StartTime"]:
-                    start_string = "{} : {}".format(final_data["Date"],
-                                                    final_data["StartTime"])
-                    final_exam.start_date = strptime(start_string,
-                                                     final_format)
+        strptime = datetime.strptime
+        if final_data["Date"] and final_data["Date"] != "0000-00-00":
+            if final_data["StartTime"]:
+                start_string = "{} : {}".format(final_data["Date"],
+                                                final_data["StartTime"])
+                final_exam.start_date = strptime(start_string, final_format)
 
-                if final_data["EndTime"]:
-                    end_string = "{} : {}".format(final_data["Date"],
-                                                  final_data["EndTime"])
-                    try:
-                        final_exam.end_date = strptime(
-                            end_string, final_format)
-                    except ValueError:
-                        logger.info('bad final EndTime: {}'.format(end_string))
-                        final_exam.end_date = None
+            if final_data["EndTime"]:
+                end_string = "{} : {}".format(final_data["Date"],
+                                              final_data["EndTime"])
+                try:
+                    final_exam.end_date = strptime(end_string, final_format)
+                except ValueError:
+                    logger.info(f'Bad final EndTime: {end_string}')
+                    final_exam.end_date = None
 
-            final_exam.clean_fields()
-            section.final_exam = final_exam
+        final_exam.clean_fields()
+        section.final_exam = final_exam
 
     # MUWM-5099
     dlct = section_data.get("DistanceLearningCalendarType")

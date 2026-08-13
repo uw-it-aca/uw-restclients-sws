@@ -1,24 +1,42 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta
+# ruff: noqa: DTZ001
+
+from datetime import datetime
 from unittest import TestCase
-from uw_sws.util import fdao_sws_override
-from uw_pws.util import fdao_pws_override
-from uw_sws.models import Term, Curriculum, Person
+
 from restclients_core.exceptions import DataFailureException
-from uw_sws.exceptions import (InvalidSectionID, InvalidSectionURL,
-                               InvalidCanvasIndependentStudyCourse,
-                               InvalidCanvasSection)
+from uw_pws.util import fdao_pws_override
+
 from uw_sws import use_v5_resources
+from uw_sws.exceptions import (
+    InvalidCanvasIndependentStudyCourse,
+    InvalidCanvasSection,
+    InvalidSectionID,
+    InvalidSectionURL,
+)
+from uw_sws.models import Curriculum, Person, Term
 from uw_sws.section import (
-    get_section_by_label, get_joint_sections, get_linked_sections,
-    get_sections_by_instructor_and_term, get_sections_by_curriculum_and_term,
-    get_sections_by_building_and_term, get_changed_sections_by_term,
-    get_last_section_by_instructor_and_terms, validate_section_label,
-    get_sections_by_delegate_and_term, is_a_term, is_b_term,
-    is_full_summer_term, is_valid_sln, is_asynchronous, is_synchronous,
-    is_hybrid)
+    get_changed_sections_by_term,
+    get_joint_sections,
+    get_last_section_by_instructor_and_terms,
+    get_linked_sections,
+    get_section_by_label,
+    get_sections_by_building_and_term,
+    get_sections_by_curriculum_and_term,
+    get_sections_by_delegate_and_term,
+    get_sections_by_instructor_and_term,
+    is_a_term,
+    is_asynchronous,
+    is_b_term,
+    is_full_summer_term,
+    is_hybrid,
+    is_synchronous,
+    is_valid_sln,
+    validate_section_label,
+)
+from uw_sws.util import fdao_sws_override
 
 
 @fdao_pws_override
@@ -417,7 +435,7 @@ class SWSTestSectionData(TestCase):
         self.assertEqual(len(sections), 2)
 
         # incorrect delete_flag
-        self.assertRaises(ValueError, get_sections_by_delegate_and_term,
+        self.assertRaises(TypeError, get_sections_by_delegate_and_term,
                           delegate, term, delete_flag='active')
 
     def test_sections_by_curriculum_and_term(self):
@@ -632,7 +650,6 @@ class SWSTestSectionData(TestCase):
 
     def test_meetings(self):
         section = get_section_by_label('2013,autumn,MATH,120/ZZ')
-        meeting = section.meetings[0]
         jd = section.meetings[0].json_data()
         self.assertFalse(jd['no_meeting'])
         self.assertEqual(jd['start_time'], '11:30')
