@@ -124,6 +124,7 @@ class SWSTestSectionData(TestCase):
         self.assertEqual(
             final_exam.json_data(),
             {'building': 'KNE',
+             'building_map_url': 'https://map.uw.edu/?id=0000#!m/999999?share',
              'end_date': '2013-06-02T16:20:00',
              'is_confirmed': True,
              'no_exam_or_nontraditional': False,

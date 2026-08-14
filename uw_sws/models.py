@@ -564,24 +564,20 @@ class FinalExam(models.Model):
     start_date = models.DateTimeField(null=True, default=None)  # StartTime
     end_date = models.DateTimeField(null=True, default=None)  # EndTime
     building = models.CharField(max_length=20, null=True, blank=True)
+    building_map_url = models.CharField(max_length=96, null=True, blank=True)
     room_number = models.CharField(max_length=10, null=True, blank=True)
 
     def json_data(self):
-        data = {
+        return {
             "is_confirmed": self.is_confirmed,
             "no_exam_or_nontraditional": self.no_exam_or_nontraditional,
+            "start_date": date_to_str(self.start_date) if self.start_date else None,
+            "end_date": date_to_str(self.end_date) if self.end_date else None,
+            "building": self.building,
+            "building_map_url": self.building_map_url,
+            "room_number": self.room_number,
+            "room": self.room_number,
         }
-
-        if self.start_date:
-            data["start_date"] = date_to_str(self.start_date)
-        if self.end_date:
-            data["end_date"] = date_to_str(self.end_date)
-        if self.building:
-            data["building"] = self.building
-        if self.room_number:
-            data["room_number"] = self.room_number
-            data["room"] = self.room_number
-        return data
 
     def __str__(self):
         return json.dumps(self.json_data())
@@ -1170,6 +1166,7 @@ class SectionMeeting(models.Model):
     meeting_type = models.CharField(max_length=20)
     building_to_be_arranged = models.NullBooleanField()
     building = models.CharField(max_length=5)
+    building_map_url = models.CharField(max_length=96, null=True, default=None)
     room_to_be_arranged = models.NullBooleanField()
     room_number = models.CharField(max_length=5)
     days_to_be_arranged = models.NullBooleanField()
@@ -1220,6 +1217,7 @@ class SectionMeeting(models.Model):
             'end_time': self.end_time,
             'building_tbd': self.building_to_be_arranged,
             'building': self.building,
+            'building_map_url': self.building_map_url,
             'room_tbd': self.room_to_be_arranged,
             'room': self.room_number,
             'room_number': self.room_number,
