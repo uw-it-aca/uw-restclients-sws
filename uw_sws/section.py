@@ -396,7 +396,7 @@ def _json_to_section(section_data,
         else:
             meeting.building_to_be_arranged = False
 
-        if "BuildingMapLink" in meeting_data and meeting_data["BuildingMapLink"]:
+        if meeting_data.get("BuildingMapLink"):
             meeting.building_map_url = meeting_data.get("BuildingMapLink").get("Href")
 
         meeting.room_number = meeting_data["RoomNumber"]
@@ -471,7 +471,7 @@ def _json_to_section(section_data,
 
         final_exam.building = final_data["Building"]
 
-        if "BuildingMapLink" in final_data and final_data["BuildingMapLink"]:
+        if final_data.get("BuildingMapLink"):
             final_exam.building_map_url = final_data.get("BuildingMapLink").get("Href")
 
         final_exam.room_number = final_data["RoomNumber"]
