@@ -979,9 +979,12 @@ class SectionStatus(models.Model):
     responsible_course_number = models.CharField(max_length=5)
     responsible_curriculum_abbreviation = models.CharField(max_length=8)
     responsible_section_id = models.CharField(max_length=5)
-    responsible_section_joint_current_enrollment = models.IntegerField()
-    responsible_section_joint_limit_estimate_enrollment = models.IntegerField()
-    responsible_section_joint_space_available = models.IntegerField()
+    responsible_section_joint_current_enrollment = models.IntegerField(
+        null=True, default=None)
+    responsible_section_joint_limit_estimate_enrollment = models.IntegerField(
+        null=True, default=None)
+    responsible_section_joint_space_available = models.IntegerField(
+        null=True, default=None)
 
     def json_data(self):
         data = {
