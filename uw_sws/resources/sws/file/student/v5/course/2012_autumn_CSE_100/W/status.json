@@ -16,5 +16,14 @@
         "Year": "2013"
     },
     "SpaceAvailable": "40",
-    "Status": "open"
+    "Status": "open",
+    "JointCurrentEnrollment": 0,
+    "JointLimitEstimateEnrollment": 0,
+    "JointSpaceAvailable": 0,
+    "ResponsibleCourseNumber": "",
+    "ResponsibleCurriculumAbbreviation": "",
+    "ResponsibleSectionID": "",
+    "ResponsibleSectionJointCurrentEnrollment": null,
+    "ResponsibleSectionJointLimitEstimateEnrollment": null,
+    "ResponsibleSectionJointSpaceAvailable": null
 }
