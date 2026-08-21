@@ -45,16 +45,21 @@ def _json_to_sectionstatus(section_data):
         section_data.get("JointLimitEstimateEnrollment", 0))
     section_status.joint_space_available = int(
         section_data.get("JointSpaceAvailable", 0))
+
     section_status.responsible_course_number = section_data.get(
         "ResponsibleCourseNumber")
     section_status.responsible_curriculum_abbreviation = section_data.get(
         "ResponsibleCurriculumAbbreviation")
     section_status.responsible_section_id = section_data.get("ResponsibleSectionID")
-    section_status.responsible_section_joint_current_enrollment = int(
-        section_data.get("ResponsibleSectionJointCurrentEnrollment", 0))
-    section_status.responsible_section_joint_limit_estimate_enrollment = int(
-        section_data.get("ResponsibleSectionJointLimitEstimateEnrollment", 0))
-    section_status.responsible_section_joint_space_available = int(
-        section_data.get("ResponsibleSectionJointSpaceAvailable", 0))
+
+    if section_data.get("ResponsibleSectionJointCurrentEnrollment") is not None:
+        section_status.responsible_section_joint_current_enrollment = int(
+            section_data.get("ResponsibleSectionJointCurrentEnrollment"))
+    if section_data.get("ResponsibleSectionJointLimitEstimateEnrollment") is not None:
+        section_status.responsible_section_joint_limit_estimate_enrollment = int(
+            section_data.get("ResponsibleSectionJointLimitEstimateEnrollment"))
+    if section_data.get("ResponsibleSectionJointSpaceAvailable") is not None:
+        section_status.responsible_section_joint_space_available = int(
+            section_data.get("ResponsibleSectionJointSpaceAvailable"))
 
     return section_status
