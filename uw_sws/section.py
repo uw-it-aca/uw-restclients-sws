@@ -139,31 +139,54 @@ def get_sections_by_building_and_term(building, term):
 
 def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     """
-    Returns a list of uw_sws.models.SectionReference objects
-    for the passed changed_since_date.
+    Returns a list of uw_sws.models.SectionReference objects for the passed
+    changed_since_date.  Requires a paginated response.
     """
+    page_start = 1
+    page_size = 500
+
     params = []
-    for key in sorted(kwargs):
-        params.append((key, kwargs[key]))
+    for key, value in sorted(kwargs.items()):
+        params.append((key, value))
 
     params.extend([
         ("changed_since_date", changed_since_date),
         ("quarter", term.quarter.lower()),
         ("year", term.year),
+        ("page_size", page_size),
+        ("page_start", page_start),
     ])
 
-    return _get_sections_by_search(params)
+    data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
+
+    try:
+        total_count = int(data.get("TotalCount", 0))
+    except (TypeError, ValueError):
+        total_count = 0
+
+    sections = _json_to_sectionref(data, section_term=term)
+    while len(sections) and len(sections) < total_count:
+        params[-1] = ("page_start", page_start + len(sections))
+        data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
+        sections.extend(_json_to_sectionref(data, section_term=term))
+
+    return sections
 
 
-def _get_sections_by_search(query_params):
+def _get_sections_by_search(params):
     """
     Returns a list of SectionReference objects for a search request containing the
     passed query params.
     """
-    data = get_resource(f"{section_res_url_prefix}?{urlencode(query_params)}")
+    data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
+    return _json_to_sectionref(data)
 
+
+def _json_to_sectionref(data, section_term=None):
+    """
+    Returns a list of SectionReference object created from the passed json data.
+    """
     sections = []
-    section_term = None
     for section_data in data.get("Sections", []):
         if (section_term is None or section_data["Year"] != section_term.year or
                 section_data["Quarter"] != section_term.quarter):
@@ -177,7 +200,6 @@ def _get_sections_by_search(query_params):
             section_id=section_data["SectionID"],
             url=section_data["Href"])
         )
-
     return sections
 
 
