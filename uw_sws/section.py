@@ -131,8 +131,8 @@ def get_sections_by_building_and_term(building, term):
     for the passed building and term.
     """
     return _get_sections_by_search([
-        ("quarter", term.quarter.lower()),
         ("facility_code", building),
+        ("quarter", term.quarter.lower()),
         ("year", term.year),
     ])
 
@@ -145,10 +145,7 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     page_start = 1
     page_size = 500
 
-    params = []
-    for key, value in sorted(kwargs.items()):
-        params.append((key, value))
-
+    params = sorted(kwargs.items())
     params.extend([
         ("changed_since_date", changed_since_date),
         ("quarter", term.quarter.lower()),
