@@ -164,7 +164,7 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
 
     sections = _json_to_sectionref(data, section_term=term)
     while len(sections) and len(sections) < total_count:
-        params[-1] = ("page_start", DEFAULT_PAGE_SIZE + len(sections))
+        params[-1] = ("page_start", DEFAULT_PAGE_START + len(sections))
         data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
         sections.extend(_json_to_sectionref(data, section_term=term))
 
