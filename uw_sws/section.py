@@ -25,6 +25,9 @@ from uw_sws.models import (
 from uw_sws.term import get_term_by_year_and_quarter
 from uw_sws.util import str_to_date
 
+DEFAULT_PAGE_START = 1
+DEFAULT_PAGE_SIZE = 500
+
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
 course_res_url_prefix = "/student/v5/course"
 section_res_url_prefix = "/student/v5/section.json"
@@ -142,28 +145,26 @@ def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     Returns a list of uw_sws.models.SectionReference objects for the passed
     changed_since_date.  Requires a paginated response.
     """
-    page_start = 1
-    page_size = 500
-
     params = sorted(kwargs.items())
     params.extend([
         ("changed_since_date", changed_since_date),
         ("quarter", term.quarter.lower()),
         ("year", term.year),
-        ("page_size", page_size),
-        ("page_start", page_start),
+        ("page_size", DEFAULT_PAGE_SIZE),
+        ("page_start", DEFAULT_PAGE_START),
     ])
 
     data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
 
     try:
         total_count = int(data.get("TotalCount", 0))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError) as err:
+        logger.error(f"Secton search TotalCount error: {err}")
         total_count = 0
 
     sections = _json_to_sectionref(data, section_term=term)
     while len(sections) and len(sections) < total_count:
-        params[-1] = ("page_start", page_start + len(sections))
+        params[-1] = ("page_start", DEFAULT_PAGE_SIZE + len(sections))
         data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
         sections.extend(_json_to_sectionref(data, section_term=term))
 
