@@ -25,6 +25,9 @@ from uw_sws.models import (
 from uw_sws.term import get_term_by_year_and_quarter
 from uw_sws.util import str_to_date
 
+DEFAULT_PAGE_START = 1
+DEFAULT_PAGE_SIZE = 500
+
 course_url_pattern = re.compile(r'^\/student\/v5\/course\/')
 course_res_url_prefix = "/student/v5/course"
 section_res_url_prefix = "/student/v5/section.json"
@@ -131,39 +134,57 @@ def get_sections_by_building_and_term(building, term):
     for the passed building and term.
     """
     return _get_sections_by_search([
-        ("quarter", term.quarter.lower()),
         ("facility_code", building),
+        ("quarter", term.quarter.lower()),
         ("year", term.year),
     ])
 
 
 def get_changed_sections_by_term(changed_since_date, term, **kwargs):
     """
-    Returns a list of uw_sws.models.SectionReference objects
-    for the passed changed_since_date.
+    Returns a list of uw_sws.models.SectionReference objects for the passed
+    changed_since_date.  Requires a paginated response.
     """
-    params = []
-    for key in sorted(kwargs):
-        params.append((key, kwargs[key]))
-
+    params = sorted(kwargs.items())
     params.extend([
         ("changed_since_date", changed_since_date),
         ("quarter", term.quarter.lower()),
         ("year", term.year),
+        ("page_size", DEFAULT_PAGE_SIZE),
+        ("page_start", DEFAULT_PAGE_START),
     ])
 
-    return _get_sections_by_search(params)
+    data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
+
+    try:
+        total_count = int(data.get("TotalCount", 0))
+    except (TypeError, ValueError) as err:
+        logger.error(f"Secton search TotalCount error: {err}")
+        total_count = 0
+
+    sections = _json_to_sectionref(data, section_term=term)
+    while len(sections) and len(sections) < total_count:
+        params[-1] = ("page_start", DEFAULT_PAGE_SIZE + len(sections))
+        data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
+        sections.extend(_json_to_sectionref(data, section_term=term))
+
+    return sections
 
 
-def _get_sections_by_search(query_params):
+def _get_sections_by_search(params):
     """
     Returns a list of SectionReference objects for a search request containing the
     passed query params.
     """
-    data = get_resource(f"{section_res_url_prefix}?{urlencode(query_params)}")
+    data = get_resource(f"{section_res_url_prefix}?{urlencode(params)}")
+    return _json_to_sectionref(data)
 
+
+def _json_to_sectionref(data, section_term=None):
+    """
+    Returns a list of SectionReference object created from the passed json data.
+    """
     sections = []
-    section_term = None
     for section_data in data.get("Sections", []):
         if (section_term is None or section_data["Year"] != section_term.year or
                 section_data["Quarter"] != section_term.quarter):
@@ -177,7 +198,6 @@ def _get_sections_by_search(query_params):
             section_id=section_data["SectionID"],
             url=section_data["Href"])
         )
-
     return sections
 
 
