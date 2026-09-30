@@ -88,7 +88,10 @@ def get_assignments_by_adviser_regid(regid):
         params[-1] = ("page_start", DEFAULT_PAGE_START + len(assignments))
         url = adviser_assignments_url.format(regid) + '?' + urlencode(params)
         data = get_resource(url)
-        assignments.extend(json_to_assignments(data))
+        page_assignments = json_to_assignments(data)
+        if not page_assignments:
+            break
+        assignments.extend(page_assignments)
 
     return assignments
 
