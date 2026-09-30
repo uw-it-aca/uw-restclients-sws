@@ -53,10 +53,16 @@ class AdviserSearchTest(TestCase):
         self.assertEqual(adviser.uwregid, "9136CCB8F66711D5BE060004AC494FFE")
         self.assertEqual(adviser.full_name, "J Average")
 
+        adviser = get_adviser_by_regid("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        self.assertIsNone(adviser)
+
     def test_get_adviser_by_netid(self):
         adviser = get_adviser_by_netid("javerage")
         self.assertEqual(adviser.uwregid, "9136CCB8F66711D5BE060004AC494FFE")
         self.assertEqual(adviser.full_name, "J Average")
+
+        adviser = get_adviser_by_netid("xxxxxxx")
+        self.assertIsNone(adviser)
 
     def test_get_all_advisers(self):
         advisors = get_all_advisers()

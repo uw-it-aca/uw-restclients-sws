@@ -20,25 +20,34 @@ logger = logging.getLogger(__name__)
 
 def get_adviser_by_regid(regid, verbose=False):
     """
-    Returns a uw_sws.models.AdviserReference object for the passed uwregid.
+    Returns a uw_sws.models.AdviserReference object for the passed uwregid, or None.
     """
     params = [
         ("adviser_reg_id", regid),
         ("verbose", "1" if verbose else "0")
     ]
-    return _get_advisers_by_search(params)
+    data = get_resource(f"{adviser_search_url}?{urlencode(params)}")
+    try:
+        advisor_data = data.get("Advisers")[0]
+        return AdviserReference(data=advisor_data)
+    except IndexError:
+        return
 
 
 def get_adviser_by_netid(netid, verbose=False):
     """
-    Returns a uw_sws.models.AdviserReference object for the passed uwnetid.
+    Returns a uw_sws.models.AdviserReference object for the passed uwnetid, or None.
     """
     params = [
         ("adviser_net_id", netid),
         ("verbose", "1" if verbose else "0")
     ]
-    return _get_advisers_by_search(params)
-
+    data = get_resource(f"{adviser_search_url}?{urlencode(params)}")
+    try:
+        advisor_data = data.get("Advisers")[0]
+        return AdviserReference(data=advisor_data)
+    except IndexError:
+        return
 
 def get_all_advisers(verbose=False):
     """
@@ -47,15 +56,11 @@ def get_all_advisers(verbose=False):
     params = [
         ("verbose", "1" if verbose else "0")
     ]
-    return _get_advisers_by_search(params)
-
-
-def _get_advisers_by_search(params):
     data = get_resource(f"{adviser_search_url}?{urlencode(params)}")
     ret_list = []
-    for adviser_data in data.get("Advisers", []):
+    for adviser_data in data.get("Advisers"):
         ret_list.append(AdviserReference(data=adviser_data))
-    return ret_list[0] if len(ret_list) == 1 else ret_list
+    return ret_list
 
 
 def get_assignments_by_adviser_regid(regid):
