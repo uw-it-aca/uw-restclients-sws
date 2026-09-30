@@ -80,7 +80,7 @@ def get_assignments_by_adviser_regid(regid):
     try:
         total_count = int(data.get("TotalCount", 0))
     except (TypeError, ValueError) as err:
-        logger.error(f"AdvisorAssignments TotalCount error: {err}")
+        logger.error(f"AdviserAssignments TotalCount error: {err}")
         total_count = 0
 
     assignments = json_to_assignments(data)
