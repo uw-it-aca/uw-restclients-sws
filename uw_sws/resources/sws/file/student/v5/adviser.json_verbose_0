@@ -1,0 +1,24 @@
+{
+    "Advisers": [
+        {
+            "AdvisingFullName": "J Average",
+            "AdvisingRegID": "9136CCB8F66711D5BE060004AC494FFE",
+            "AssignmentsHref": "/student/v5/adviser/9136CCB8F66711D5BE060004AC494FFE/assignments.json",
+            "Href": "/student/v5/adviser/9136CCB8F66711D5BE060004AC494FFE.json"
+        },{
+            "AdvisingFullName": "J Bothell",
+            "AdvisingRegID": "705C657CAE3411D689DA0004AC494FFE",
+            "AssignmentsHref": "/student/v5/adviser/705C657CAE3411D689DA0004AC494FFE/assignments.json",
+            "Href": "/student/v5/adviser/705C657CAE3411D689DA0004AC494FFE.json"
+        },{
+            "AdvisingFullName": "J Tacoma",
+            "AdvisingRegID": "705C67D4AE3411D689DA0004AC494FFE",
+            "AssignmentsHref": "/student/v5/adviser/705C67D4AE3411D689DA0004AC494FFE/assignments.json",
+            "Href": "/student/v5/adviser/705C67D4AE3411D689DA0004AC494FFE.json"
+        }
+    ],
+    "Current": {
+        "Verbose": false
+    },
+    "TotalCount": 3
+}

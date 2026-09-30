@@ -1,0 +1,18 @@
+{
+    "Advisers": [
+        {
+            "AdvisingFullName": "J Average",
+            "AdvisingRegID": "9136CCB8F66711D5BE060004AC494FFE",
+            "AssignmentsHref": "/student/v5/adviser/9136CCB8F66711D5BE060004AC494FFE/assignments.json",
+            "Href": "/student/v5/adviser/9136CCB8F66711D5BE060004AC494FFE.json"
+        }
+    ],
+    "Current": {
+        "AdviserNetID": "javerage",
+        "AdviserRegID": "9136CCB8F66711D5BE060004AC494FFE",
+        "EmployeeID": null,
+        "Href": "/student/v5/adviser.json?adviser_reg_id=&adviser_net_id=jono2&employee_id=&verbose=",
+        "Verbose": false
+    },
+    "TotalCount": 1
+}
