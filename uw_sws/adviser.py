@@ -74,13 +74,12 @@ def get_assignments_by_adviser_regid(regid):
             assignments.append(AdviserAssignment(data=assignment_data))
         return assignments
 
+    url = adviser_assignments_url.format(regid)
     params = [
         ("page_size", DEFAULT_PAGE_SIZE),
         ("page_start", DEFAULT_PAGE_START)
     ]
-
-    url = adviser_assignments_url.format(regid) + '?' + urlencode(params)
-    data = get_resource(url)
+    data = get_resource(f"{url}?{urlencode(params)}")
 
     try:
         total_count = int(data.get("TotalCount", 0))
@@ -91,8 +90,7 @@ def get_assignments_by_adviser_regid(regid):
     assignments = json_to_assignments(data)
     while len(assignments) and len(assignments) < total_count:
         params[-1] = ("page_start", DEFAULT_PAGE_START + len(assignments))
-        url = adviser_assignments_url.format(regid) + '?' + urlencode(params)
-        data = get_resource(url)
+        data = get_resource(f"{url}?{urlencode(params)}")
         page_assignments = json_to_assignments(data)
         if not page_assignments:
             break

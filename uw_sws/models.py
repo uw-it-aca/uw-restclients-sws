@@ -225,7 +225,7 @@ class AdviserAssignment(models.Model):
     uwregid = models.CharField(max_length=32)
     student_number = models.CharField(max_length=7)
     student_system_key = models.CharField(max_length=9)
-    pronouns = models.CharField(max_length=20, null=True)
+    pronouns = models.CharField(max_length=140, null=True)
 
     def __init__(self, *args, **kwargs):
         data = kwargs.get("data")
