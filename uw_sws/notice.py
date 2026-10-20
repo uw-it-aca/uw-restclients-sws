@@ -7,7 +7,7 @@ Interfaceing with the Student Web Service,
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from dateutil import parser
 
@@ -31,7 +31,7 @@ def _str_to_utc(date_str):
     date = parser.parse(date_str)
     return datetime.combine(
             date, datetime.min.time(), tzinfo=SWS_TIMEZONE
-        ).astimezone(timezone.utc)
+        ).astimezone(UTC)
 
 
 def _notices_from_json(notice_data):

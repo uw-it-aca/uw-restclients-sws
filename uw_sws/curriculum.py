@@ -25,7 +25,7 @@ def get_curricula_by_department(
         term = get_current_term()
 
     if not isinstance(future_terms, int):
-        raise ValueError(future_terms)  # noqa: TRY004
+        raise ValueError(future_terms)
 
     if future_terms < 0 or future_terms > 2:
         raise ValueError(future_terms)
