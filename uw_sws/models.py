@@ -1304,7 +1304,7 @@ class StudentCourseGrade(models.Model):
 class ClassSchedule(models.Model):
     user = models.ForeignKey(Person)
     term = models.ForeignKey(Term)
-    registered_summer_terms = {}  # noqa: RUF012
+    registered_summer_terms = {}
 
     def json_data(self):
         data = {

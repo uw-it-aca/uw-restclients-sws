@@ -7,7 +7,7 @@ Contains SWS DAO implementations.
 import json
 import os
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from os.path import abspath, dirname
 from zoneinfo import ZoneInfo
 
@@ -20,8 +20,8 @@ def sws_now():
     """
     Return a naive datetime corresponding to the natural SWS timezone.
     """
-    return datetime.fromtimestamp(  # noqa: DTZ006
-        int(datetime.now(timezone.utc).strftime('%s')) +
+    return datetime.fromtimestamp(
+        int(datetime.now(UTC).strftime('%s')) +
         int(datetime.now(SWS_TIMEZONE).utcoffset().total_seconds()))
 
 
@@ -121,5 +121,5 @@ class SWS_DAO(DAO):
 class TestBadResponse(MockDAO):
     def load(self, method, url, headers, body):
         if url == "/student/v5/course/2012,summer,PHYS,121/AQ.json":
-            raise Exception("Uh oh!")  # noqa: TRY002
+            raise Exception("Uh oh!")
         return super().load(method, url, headers, body)
