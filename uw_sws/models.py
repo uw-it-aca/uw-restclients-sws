@@ -196,6 +196,56 @@ class StudentAdviser(models.Model):
         return json.dumps(self.json_data())
 
 
+class AdviserReference(models.Model):
+    full_name = models.CharField(max_length=128)
+    uwregid = models.CharField(max_length=32)
+    adviser_href = models.CharField(max_length=128)
+    assignments_href = models.CharField(max_length=128)
+
+    def __init__(self, *args, **kwargs):
+        data = kwargs.get("data")
+        if data is None:
+            super().__init__(*args, **kwargs)
+            return
+
+        self.full_name = data.get("AdvisingFullName")
+        self.uwregid = data.get("AdvisingRegID")
+        self.adviser_href = data.get("Href")
+        self.assignments_href = data.get("AssignmentsHref")
+
+
+class AdviserAssignment(models.Model):
+    booking_url = models.CharField(max_length=128, null=True)
+    student_href = models.CharField(max_length=128)
+    metadata = models.CharField(max_length=128)
+    repository_timestamp = models.DateTimeField()
+    is_active = models.BooleanField(default=False)
+    full_name = models.CharField(max_length=128)
+    uwnetid = models.CharField(max_length=32)
+    uwregid = models.CharField(max_length=32)
+    student_number = models.CharField(max_length=7)
+    student_system_key = models.CharField(max_length=9)
+    pronouns = models.CharField(max_length=140, null=True)
+
+    def __init__(self, *args, **kwargs):
+        data = kwargs.get("data")
+        if data is None:
+            super().__init__(*args, **kwargs)
+            return
+
+        self.booking_url = data.get("BookingUrl")
+        self.student_href = data.get("Href")
+        self.metadata = data.get("Metadata")
+        self.repository_timestamp = str_to_datetime(data.get("RepositoryTimeStamp"))
+        self.is_active = data.get("StudentAdvisingIsActive", False)
+        self.full_name = data.get("StudentFullName")
+        self.uwnetid = data.get("StudentNetID")
+        self.uwregid = data.get("StudentRegID")
+        self.student_number = data.get("StudentNumber")
+        self.student_system_key = data.get("StudentSystemKey")
+        self.pronouns = data.get("StudentPronouns")
+
+
 class DegreeStatus(models.Model):
     campus = models.CharField(max_length=32)
     diploma_mail = models.PositiveSmallIntegerField()

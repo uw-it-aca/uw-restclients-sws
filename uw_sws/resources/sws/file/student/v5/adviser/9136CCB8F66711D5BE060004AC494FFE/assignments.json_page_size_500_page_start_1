@@ -1,0 +1,44 @@
+{
+    "AdviserAssignments": [
+        {
+            "BookingUrl": null,
+            "Href": "/student/v5/person/00000000000000000000000000000001.json",
+            "Metadata": "AcademicAdviserSourceKey=UAA;",
+            "RepositoryTimeStamp": "8/11/2022 9:45:16 AM",
+            "StudentAdvisingIsActive": true,
+            "StudentFullName": "JJJ",
+            "StudentNetID": "jjjjjjj",
+            "StudentNumber": "0000001",
+            "StudentPronouns": null,
+            "StudentRegID": "00000000000000000000000000000001",
+            "StudentSystemKey": "000000001"
+        },
+        {
+            "BookingUrl": null,
+            "Href": "/student/v5/person/00000000000000000000000000000002.json",
+            "Metadata": "AcademicAdviserSourceKey=UAA;",
+            "RepositoryTimeStamp": "8/11/2022 9:45:16 AM",
+            "StudentAdvisingIsActive": true,
+            "StudentFullName": "AAAA",
+            "StudentNetID": "aaaaaa",
+            "StudentNumber": "000002",
+            "StudentPronouns": null,
+            "StudentRegID": "00000000000000000000000000000002",
+            "StudentSystemKey": "000000002"
+        },
+        {
+            "BookingUrl": null,
+            "Href": "/student/v5/person/00000000000000000000000000000003.json",
+            "Metadata": "AcademicAdviserSourceKey=UAA;",
+            "RepositoryTimeStamp": "7/22/2024 8:10:46 AM",
+            "StudentAdvisingIsActive": true,
+            "StudentFullName": "ZZZZ",
+            "StudentNetID": "zzzzz",
+            "StudentNumber": "0000003",
+            "StudentPronouns": "He/him/his",
+            "StudentRegID": "00000000000000000000000000000003",
+            "StudentSystemKey": "000000003"
+        }
+    ],
+    "TotalCount": 3
+}

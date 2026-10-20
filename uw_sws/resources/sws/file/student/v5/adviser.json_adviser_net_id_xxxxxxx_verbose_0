@@ -1,0 +1,11 @@
+{
+    "Advisers": [],
+    "Current": {
+        "AdviserNetID": "xxxxxxx",
+        "AdviserRegID": null,
+        "EmployeeID": null,
+        "Href": "/student/v5/adviser.json?adviser_reg_id=&adviser_net_id=xxxxxxx&employee_id=&verbose=1",
+        "Verbose": false
+    },
+    "TotalCount": 0
+}
