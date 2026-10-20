@@ -15,7 +15,7 @@ class SWSCourseThread(Thread):
 
     def run(self):
         if self.url is None:
-            raise Exception("SWSCourseThread must have a url")  # noqa: TRY002
+            raise Exception("SWSCourseThread must have a url")
 
         args = self.headers or {}
 

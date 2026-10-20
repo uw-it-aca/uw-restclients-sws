@@ -1,7 +1,7 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest import TestCase
 
 from restclients_core.exceptions import DataFailureException
@@ -15,7 +15,7 @@ from uw_sws.util import fdao_sws_override
 def date_to_dtime_str(adate):
     return datetime.combine(
             adate, datetime.min.time(), tzinfo=SWS_TIMEZONE
-        ).astimezone(timezone.utc).isoformat()
+        ).astimezone(UTC).isoformat()
 
 
 @fdao_pws_override
