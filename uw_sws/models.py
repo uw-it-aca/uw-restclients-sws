@@ -167,7 +167,6 @@ class StudentAdviser(models.Model):
         self.phone_number = data.get("AdvisingPhoneNumber")
         self.employee_id = data.get("AdvisingEmployeeID")
         self.full_name = data.get("AdvisingFullName")
-        self.phone_number = data.get("AdvisingPhoneNumber")
         self.program = data.get("AdvisingProgram")
         self.pronouns = data.get("AdvisingPronoun", data.get("AdvisingPronouns"))
         self.uwregid = data.get("AdvisingRegID")
@@ -190,7 +189,6 @@ class StudentAdviser(models.Model):
             "phone_number": self.phone_number,
             "employee_id": self.employee_id,
             "full_name": self.full_name,
-            "phone_number": self.phone_number,
             "program": self.program,
             "pronouns": self.pronouns,
             "uwregid": self.uwregid,
