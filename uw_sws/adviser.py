@@ -11,9 +11,10 @@ from uw_sws.models import AdviserAssignment, AdviserReference, StudentAdviser
 DEFAULT_PAGE_START = 1
 DEFAULT_PAGE_SIZE = 500
 
+adviser_url = "/student/v5/adviser/{}.json"
 adviser_search_url = "/student/v5/adviser.json"
 adviser_assignments_url = "/student/v5/adviser/{}/assignments.json"
-advisers_url = "/student/v5/person/{}/advisers.json"
+student_advisers_url = "/student/v5/person/{}/advisers.json"
 
 logger = logging.getLogger(__name__)
 
@@ -22,16 +23,8 @@ def get_adviser_by_regid(regid, verbose=False):
     """
     Returns a uw_sws.models.AdviserReference object for the passed uwregid, or None.
     """
-    params = [
-        ("adviser_reg_id", regid),
-        ("verbose", "1" if verbose else "0")
-    ]
-    data = get_resource(f"{adviser_search_url}?{urlencode(params)}")
-    try:
-        advisor_data = data.get("Advisers")[0]
-        return AdviserReference(data=advisor_data)
-    except IndexError:
-        return
+    adviser_data = get_resource(adviser_url.format(regid))
+    return StudentAdviser(data=adviser_data)
 
 
 def get_adviser_by_netid(netid, verbose=False):
@@ -44,8 +37,8 @@ def get_adviser_by_netid(netid, verbose=False):
     ]
     data = get_resource(f"{adviser_search_url}?{urlencode(params)}")
     try:
-        advisor_data = data.get("Advisers")[0]
-        return AdviserReference(data=advisor_data)
+        adviser_data = data.get("Advisers")[0]
+        return AdviserReference(data=adviser_data)
     except IndexError:
         return
 
@@ -104,7 +97,7 @@ def get_advisers_by_student_regid(regid):
     Returns a list of uw_sws.models.StudentAdviser objects for the passed
     student uwregid.
     """
-    data = get_resource(advisers_url.format(regid))
+    data = get_resource(student_advisers_url.format(regid))
     ret_list = []
     for adviser_data in data.get("AcademicAdvisers", []):
         ret_list.append(StudentAdviser(data=adviser_data))
