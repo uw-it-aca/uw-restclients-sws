@@ -1,0 +1,18 @@
+{
+    "AdvisingDisplayName": "Jay Advisor",
+    "AdvisingEmailAddress": "jadvisor@uw.edu",
+    "AdvisingEmployeeID": "0000000000",
+    "AdvisingFullName": "Jay Advisor",
+    "AdvisingPhoneNumber": null,
+    "AdvisingProgram": "OMAD Advising",
+    "AdvisingPronoun": "He/Him",
+    "AdvisingRegID": "9136CCB8F66711D5BE060004AC494FFE",
+    "AdvisingUWNetID": "jadvisor",
+    "AssignmentsHref": "/student/v5/adviser/9136CCB8F66711D5BE060004AC494FFE.json",
+    "BookingUrl": null,
+    "Href": "/student/v5/adviser/9136CCB8F66711D5BE060004AC494FFE.json",
+    "IsDepartmentAdviser": false,
+    "Metadata": "AdviserSourceKey=UAA;",
+    "RepositoryTimeStamp": "10/20/2013 10:15:27 AM",
+    "StudentAdvisingIsActive": true
+}
