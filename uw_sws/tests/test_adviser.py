@@ -17,44 +17,65 @@ from uw_sws.util import fdao_sws_override
 
 @fdao_sws_override
 class AdviserTest(TestCase):
+    maxDiff = None
     def test_get_advisers_by_student(self):
         advisers = get_advisers_by_student_regid(
             "9136CCB8F66711D5BE060004AC494FFE")
         self.assertEqual(len(advisers), 1)
         self.assertEqual(advisers[0].uwnetid, "uwhonors")
-        self.assertTrue(advisers[0].is_honors_program())
         self.assertEqual(
             advisers[0].json_data(),
-            {'booking_url': 'https://honors.uw.edu/advising/',
-             'email_address': 'uwhonors@uw.edu',
-             'full_name': 'UNIVERSITY HONORS PROGRAM',
-             'metadata': "AcademicAdviserSourceKey=UAA;",
-             'pronouns': "he/him/his",
-             'is_active': True,
-             'is_dept_adviser': False,
-             'phone_number': '+1 206 543-7444',
-             'program': 'UW Honors',
-             'is_honors_program': True,
-             'regid': '24A20F50AE3511D68CBC0004AC494FFE',
-             'uwnetid': 'uwhonors',
-             'timestamp': '2020-03-24T13:07:14'})
-        self.assertIsNotNone(str(advisers))
+            {"booking_url": "https://honors.uw.edu/advising/",
+             "assignments_url": None,
+             "email_address": "uwhonors@uw.edu",
+             "employee_id": None,
+             "display_name": None,
+             "full_name": "UNIVERSITY HONORS PROGRAM",
+             "metadata": "AcademicAdviserSourceKey=UAA;",
+             "pronouns": "he/him/his",
+             "is_active": True,
+             "is_dept_adviser": False,
+             "phone_number": "+1 206 000-0000",
+             "program": "UW Honors",
+             "is_honors_program": True,
+             "uwregid": "24A20F50AE3511D68CBC0004AC494FFE",
+             "uwnetid": "uwhonors",
+             "timestamp": "2020-03-24T13:07:14"})
 
     def test_invalid_student_regid(self):
-        self.assertRaises(
-            DataFailureException, get_advisers_by_student_regid,
-            "00000000000000000000000000000001")
+        self.assertRaises(DataFailureException,
+                          get_advisers_by_student_regid,
+                          "00000000000000000000000000000001")
 
 
 @fdao_sws_override
 class AdviserSearchTest(TestCase):
+    maxDiff = None
     def test_get_adviser_by_regid(self):
         adviser = get_adviser_by_regid("9136CCB8F66711D5BE060004AC494FFE")
-        self.assertEqual(adviser.uwregid, "9136CCB8F66711D5BE060004AC494FFE")
-        self.assertEqual(adviser.full_name, "J Average")
+        self.assertEqual(adviser.json_data(), {
+            "booking_url": None,
+            "assignments_url": "/student/v5/adviser/9136CCB8F66711D5BE060004AC494FFE.json",
+            "email_address": "jadvisor@uw.edu",
+            "employee_id": "0000000000",
+            "display_name": "Jay Advisor",
+            "full_name": "Jay Advisor",
+            "metadata": "AdviserSourceKey=UAA;",
+            "pronouns": "He/Him",
+            "is_active": True,
+            "is_dept_adviser": False,
+            "phone_number": None,
+            "program": "OMAD Advising",
+            "is_honors_program": False,
+            "uwregid": "9136CCB8F66711D5BE060004AC494FFE",
+            "uwnetid": "jadvisor",
+            "timestamp": "2013-10-20T10:15:27",
+        })
 
-        adviser = get_adviser_by_regid("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-        self.assertIsNone(adviser)
+    def test_invalid_adviser_regid(self):
+        self.assertRaises(DataFailureException,
+                          get_adviser_by_regid,
+                          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
     def test_get_adviser_by_netid(self):
         adviser = get_adviser_by_netid("javerage")
@@ -76,9 +97,9 @@ class AdviserSearchTest(TestCase):
 class AdviserAssignmentTest(TestCase):
     def test_get_assignments_by_adviser_regid(self):
         assignments = get_assignments_by_adviser_regid(
-            '9136CCB8F66711D5BE060004AC494FFE')
+            "9136CCB8F66711D5BE060004AC494FFE")
         self.assertEqual(len(assignments), 3)
 
         assignments = get_assignments_by_adviser_regid(
-            '705C67D4AE3411D689DA0004AC494FFE')
+            "705C67D4AE3411D689DA0004AC494FFE")
         self.assertEqual(len(assignments), 0)

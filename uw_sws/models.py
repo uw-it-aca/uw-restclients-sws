@@ -140,17 +140,20 @@ class SwsPerson(models.Model):
 
 
 class StudentAdviser(models.Model):
-    is_active = models.BooleanField()
-    is_dept_adviser = models.BooleanField()
-    full_name = models.CharField(max_length=128)
-    pronouns = models.CharField(max_length=140, null=True, blank=True)
+    display_name = models.CharField(max_length=128)
     email_address = models.CharField(max_length=128)
-    phone_number = models.CharField(max_length=32, null=True, blank=True, default=None)
+    employee_id = models.CharField(max_length=32)
+    full_name = models.CharField(max_length=128)
+    phone_number = models.CharField(max_length=32, null=True, default=None)
+    program = models.CharField(max_length=128, null=True, default=None)
+    pronouns = models.CharField(max_length=140, null=True)
+    uwregid = models.CharField(max_length=32)
     uwnetid = models.CharField(max_length=32)
-    regid = models.CharField(max_length=32)
-    program = models.CharField(max_length=128, null=True, blank=True, default=None)
-    booking_url = models.CharField(max_length=128, null=True, blank=True, default=None)
-    metadata = models.CharField(max_length=128, null=True, blank=True)
+    assignments_url = models.CharField(max_length=128, null=True, default=None)
+    booking_url = models.CharField(max_length=128, null=True, default=None)
+    is_dept_adviser = models.BooleanField()
+    is_active = models.BooleanField()
+    metadata = models.CharField(max_length=128)
     timestamp = models.DateField(null=True)
 
     def __init__(self, *args, **kwargs):
@@ -159,38 +162,45 @@ class StudentAdviser(models.Model):
             super().__init__(*args, **kwargs)
             return
 
-        self.full_name = data.get("AdvisingFullName")
+        self.display_name = data.get("AdvisingDisplayName")
         self.email_address = data.get("AdvisingEmailAddress")
         self.phone_number = data.get("AdvisingPhoneNumber")
-        self.uwnetid = data.get("AdvisingUWNetID")
-        self.regid = data.get("AdvisingRegID")
+        self.employee_id = data.get("AdvisingEmployeeID")
+        self.full_name = data.get("AdvisingFullName")
         self.program = data.get("AdvisingProgram")
+        self.pronouns = data.get("AdvisingPronoun", data.get("AdvisingPronouns"))
+        self.uwregid = data.get("AdvisingRegID")
+        self.uwnetid = data.get("AdvisingUWNetID")
+        self.assignments_url = data.get("AssignmentsHref")
         self.booking_url = data.get("BookingUrl")
-        self.is_active = data.get("StudentAdvisingIsActive", False)
-        self.is_dept_adviser = data.get("IsDepartmentAdviser", False)
+        self.is_dept_adviser = data.get("IsDepartmentAdviser")
+        self.is_active = data.get("StudentAdvisingIsActive")
         self.metadata = data.get("Metadata")
-        self.pronouns = data.get("AdvisingPronouns")
         self.timestamp = str_to_datetime(data.get("RepositoryTimeStamp"))
 
+    @property
     def is_honors_program(self):
         return self.program == "UW Honors"
 
     def json_data(self):
         return {
-            'email_address': self.email_address,
-            'full_name': self.full_name,
-            'pronouns': self.pronouns,
-            'phone_number': self.phone_number,
-            'program': self.program,
-            'uwnetid': self.uwnetid,
-            'regid': self.regid,
-            'booking_url': self.booking_url,
-            'is_active': self.is_active,
-            'is_dept_adviser': self.is_dept_adviser,
-            'is_honors_program': self.is_honors_program(),
-            'metadata': self.metadata,
-            'timestamp': date_to_str(self.timestamp)
-            }
+            "display_name": self.display_name,
+            "email_address": self.email_address,
+            "phone_number": self.phone_number,
+            "employee_id": self.employee_id,
+            "full_name": self.full_name,
+            "program": self.program,
+            "pronouns": self.pronouns,
+            "uwregid": self.uwregid,
+            "uwnetid": self.uwnetid,
+            "assignments_url": self.assignments_url,
+            "booking_url": self.booking_url,
+            "is_honors_program": self.is_honors_program,
+            "is_dept_adviser": self.is_dept_adviser,
+            "is_active": self.is_active,
+            "metadata": self.metadata,
+            "timestamp": date_to_str(self.timestamp),
+        }
 
     def __str__(self):
         return json.dumps(self.json_data())
